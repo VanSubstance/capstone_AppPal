@@ -58,4 +58,8 @@ sysinfo.txt
 # Crashlytics generated file
 crashlytics-build.properties
 
+# Virtual environment
 /pythonVenv
+
+# Basic model files
+/model
