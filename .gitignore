@@ -60,6 +60,7 @@ crashlytics-build.properties
 
 # Virtual environment
 /pythonVenv
+/__pycache__
 
 # Basic model files
 /model
