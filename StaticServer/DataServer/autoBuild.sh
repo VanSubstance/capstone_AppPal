@@ -1,10 +1,10 @@
 #!/bin/bash
 
 #svn 업데이트
-svn update
+#svn update
 
 #메이븐 빌드
-mvn clean package -Dmaven.test.skip=true
+#mvn clean package -Dmaven.test.skip=true
 
 #톰캣 정지
 systemctl stop tomcat
