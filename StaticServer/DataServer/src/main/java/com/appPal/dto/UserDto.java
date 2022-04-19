@@ -6,7 +6,7 @@ public class UserDto {
 	private String regDate;
 	private String lastLoginDate;
 	private String email;
-	private String status; // 01: Α€»σ; 95: °­Επ; 99: Ε»Επ
+	private String status; // 01: normal; 95: suspended; 99: banned
 
 	public String getMemberkey() {
 		return memberkey;
