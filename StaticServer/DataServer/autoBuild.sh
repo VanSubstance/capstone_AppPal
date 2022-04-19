@@ -13,7 +13,7 @@ systemctl stop tomcat
 rm -rf /home/tomcat/webapps/ROOT
 
 #빌드된 폴더 톰캣의 webapps 경로에 ROOT이름으로 폴더 생성
-mv /target/my-1.0.0-BUILD-SNAPSHOT /home/tomcat/webapps/ROOT
+mv target/spring-1.0.0-BUILD-SNAPSHOT /home/tomcat/webapps/ROOT
 
 #톰캣 재시작
 systemctl start tomcat
