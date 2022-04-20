@@ -288,3 +288,6 @@ crashlytics-build.properties
 
 *.vsconfig
 .vscode/
+
+# Tomcat Server
+StaticServer/Servers/*
