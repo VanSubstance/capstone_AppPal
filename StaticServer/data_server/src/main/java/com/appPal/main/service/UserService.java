@@ -17,8 +17,19 @@ public class UserService {
 	private UserMapper mapper;
 	
 	public List<UserDto> selectUserList(UserSearchDto search) {
-		// TODO Auto-generated method stub
 		return mapper.selectUserList(search);
 	}
+	
+	public void insertUser(UserDto user) {
+		mapper.insertUser(user);
+	}
 
+	public void refreshUser(UserDto user) {
+		mapper.refreshUser(user);
+	};
+	
+	public List<String> selectMemberKey(UserDto user) {
+		return mapper.selectMemberKey(user);
+	};
+	
 }

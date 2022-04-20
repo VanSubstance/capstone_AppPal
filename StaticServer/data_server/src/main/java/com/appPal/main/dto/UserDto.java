@@ -1,19 +1,19 @@
 package com.appPal.main.dto;
 
 public class UserDto {
-	private String memberkey;
+	private String memberKey;
 	private String password;
 	private String regDate;
 	private String lastLoginDate;
 	private String email;
 	private String status; // 01: normal; 95: suspended; 99: banned
 
-	public String getMemberkey() {
-		return memberkey;
+	public String getMemberKey() {
+		return memberKey;
 	}
 
-	public void setMemberkey(String memberkey) {
-		this.memberkey = memberkey;
+	public void setMemberKey(String memberKey) {
+		this.memberKey = memberKey;
 	}
 
 	public String getPassword() {

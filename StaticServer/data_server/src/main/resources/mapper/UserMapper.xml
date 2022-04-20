@@ -3,7 +3,8 @@
 <mapper namespace="com.appPal.main.mapper.UserMapper">
 	<select id="selectUserList" parameterType="UserSearchDto" resultType="UserDto">
 		select 
-			*
+			ut.email
+			, ut.password
 		from
 			user_tb ut
 		where
@@ -20,4 +21,37 @@
 			</when>
 		</choose>
 	</select>
+	
+	<insert id="insertUser" parameterType="UserDto">
+		insert into user_tb (
+			member_key
+			, email
+			, password
+		) 
+		values (
+			#{user.memberKey}
+			, #{user.email}
+			, #{user.password}
+		)
+	</insert>
+	
+	<select id="selectMemberKey" parameterType="UserDto" resultType="String">
+		select
+			ut.member_key
+		from
+			user_tb ut
+		where
+			status = '01'
+			and email = #{user.email}
+			and password = #{user.password}
+	</select>
+	
+	<update id="refreshUser" parameterType="UserDto">
+		update
+			user_tb
+		set
+			last_login_date = current_timestamp()
+		where
+			member_key = #{user.memberKey}
+	</update>
 </mapper>

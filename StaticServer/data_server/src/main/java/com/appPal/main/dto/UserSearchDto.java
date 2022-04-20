@@ -3,6 +3,14 @@ package com.appPal.main.dto;
 public class UserSearchDto {
 	private String email;
 	private String orderBy;// 'regDate' | 'lastLoginDate'
+	
+	public UserSearchDto() {
+		
+	}
+	public UserSearchDto(String email) {
+		this.email = email;
+	}
+	
 	public String getEmail() {
 		return email;
 	}
