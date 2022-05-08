@@ -291,3 +291,7 @@ crashlytics-build.properties
 
 # Tomcat Server
 StaticServer/Servers/*
+
+# React native build files
+/Front/android
+/Front/ios

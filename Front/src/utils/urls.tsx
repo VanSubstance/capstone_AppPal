@@ -1,0 +1,1 @@
+export const apiUrl = `http://apppalstaticserver-env.eba-rixzt96v.us-east-2.elasticbeanstalk.com/`;
