@@ -3,6 +3,8 @@ import * as React from "react";
 import {memo} from "react";
 import {View, Text, Button} from "react-native";
 import {Color} from "../../public/Colors";
+import {sendToast} from "../../utils/common";
+import {useCommon} from "../../utils/hooks/useCommon";
 import {OnBoardingStackParamList} from "./common";
 
 type LoginScreenParams = NativeStackScreenProps<
@@ -10,10 +12,8 @@ type LoginScreenParams = NativeStackScreenProps<
   "Login"
 >;
 
-export const LoginScreen = memo(({navigation, route}: LoginScreenParams) => {
-  const {loginParam, param2} = route.params;
-  console.log("로그인??", loginParam);
-  console.log(param2);
+export const LoginScreen = memo(({navigation}: LoginScreenParams) => {
+  const {loginTrial, checkLoginState, changeNavigation} = useCommon();
 
   return (
     <View style={{flex: 1, alignItems: "center", justifyContent: "center"}}>
@@ -25,12 +25,24 @@ export const LoginScreen = memo(({navigation, route}: LoginScreenParams) => {
       >
         Login Screen
       </Text>
-      <Text>전달 파라미터:: {loginParam}</Text>
-      <Text>불린 파라미터:: {param2}</Text>
       <Button
-        title={"홈 페이지로"}
+        title={"로그인"}
         onPress={() => {
-          navigation.navigate("Home");
+          if (checkLoginState()) {
+            sendToast(`이미 로그인이 되어있는데요?`);
+          } else {
+            loginTrial(`멤버키-입니다`);
+          }
+        }}
+      />
+      <Button
+        title={"메인 페이지로 이동"}
+        onPress={() => {
+          if (checkLoginState()) {
+            changeNavigation("MainService");
+          } else {
+            sendToast(`로그인이 안되어있는데요?`);
+          }
         }}
       />
       <Button

@@ -6,23 +6,39 @@
  * @flow strict-local
  */
 
-import React from 'react';
+import React, { memo } from "react";
+import {Provider as StoreProvider, useSelector} from "react-redux";
 
-import {SafeAreaView, useColorScheme} from 'react-native';
+import {SafeAreaView, useColorScheme} from "react-native";
 
-import {Color} from './src/public/Colors';
-import {OnBoardingNavigation} from './src/screen/OnBoarding/index';
+import {Color} from "./src/public/Colors";
+import {OnBoardingNavigation} from "./src/screen/OnBoarding/index";
+import {store} from "./src/core";
+import {MainServiceNavigation} from "./src/screen/MainService";
+
+import {RootState} from "./src/core";
 
 const App = () => {
-  const isDarkMode = useColorScheme() === 'dark';
+  const isDarkMode = useColorScheme() === "dark";
 
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Color.black : Color.white,
   };
 
   return (
-    <OnBoardingNavigation />
+    <StoreProvider store={store}>
+      <NavigationControllContent />
+    </StoreProvider>
   );
 };
+
+const NavigationControllContent = memo(() => {
+  const {currentNavGroup} = useSelector(({global}: RootState) => global);
+  return currentNavGroup === "OnBoarding" ? (
+    <OnBoardingNavigation />
+  ) : currentNavGroup === "MainService" ? (
+    <MainServiceNavigation />
+  ) : null;
+});
 
 export default App;

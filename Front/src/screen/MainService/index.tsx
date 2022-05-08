@@ -2,22 +2,22 @@ import {NavigationContainer} from '@react-navigation/native';
 import React from 'react';
 import {memo} from 'react';
 import {OnBoardingStack} from './common';
-import {HomeScreen} from './Home';
-import { LoginScreen } from './Login';
+import { MainScreen } from './Main';
+import { ProfileScreen } from './Profile';
 
-export const OnBoardingNavigation = memo(() => {
+export const MainServiceNavigation = memo(() => {
   return (
     <NavigationContainer>
       <OnBoardingStack.Navigator
-        initialRouteName="Home"
+        initialRouteName="Main"
         screenOptions={{headerShown: false}}>
         <OnBoardingStack.Screen
-          name="Home"
-          component={HomeScreen}
+          name="Main"
+          component={MainScreen}
         />
         <OnBoardingStack.Screen
-          name="Login"
-          component={LoginScreen}
+          name="Profile"
+          component={ProfileScreen}
         />
       </OnBoardingStack.Navigator>
     </NavigationContainer>

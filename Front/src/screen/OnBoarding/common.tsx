@@ -2,7 +2,7 @@ import {createStackNavigator} from "@react-navigation/stack";
 
 export type OnBoardingStackParamList = {
   Home: undefined;
-  Login: {loginParam: string; param2: boolean};
+  Login: undefined;
 };
 
 export const OnBoardingStack = createStackNavigator<OnBoardingStackParamList>();
