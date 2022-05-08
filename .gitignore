@@ -293,5 +293,5 @@ crashlytics-build.properties
 StaticServer/Servers/*
 
 # React native build files
-/Front/android
-/Front/ios
+# /Front/android
+# /Front/ios
