@@ -5,11 +5,14 @@ import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.os.Bundle;
 import android.provider.MediaStore;
+
 import androidx.appcompat.app.AppCompatActivity;
+
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
+
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.exifinterface.media.ExifInterface;
@@ -23,10 +26,14 @@ import com.google.mediapipe.solutions.hands.HandLandmark;
 import com.google.mediapipe.solutions.hands.Hands;
 import com.google.mediapipe.solutions.hands.HandsOptions;
 import com.google.mediapipe.solutions.hands.HandsResult;
+
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.concurrent.ExecutionException;
 
-/** Main activity of MediaPipe Hands app. */
+/**
+ * Main activity of MediaPipe Hands app.
+ */
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
 
@@ -38,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
         UNKNOWN,
         CAMERA,
     }
+
     private InputSource inputSource = InputSource.UNKNOWN;
 
     // Live camera demo UI and camera components.
@@ -50,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         setupLiveDemoUiComponents();
+        setupBasicButtons();
     }
 
     @Override
@@ -75,7 +84,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    /** Sets up the UI components for the live demo with camera input. */
+    /**
+     * Sets up the UI components for the live demo with camera input.
+     */
     private void setupLiveDemoUiComponents() {
         Button startCameraButton = findViewById(R.id.button_start_camera);
         startCameraButton.setOnClickListener(
@@ -88,7 +99,9 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
-    /** Sets up core workflow for streaming mode. */
+    /**
+     * Sets up core workflow for streaming mode.
+     */
     private void setupStreamingModePipeline(InputSource inputSource) {
         this.inputSource = inputSource;
         // Initializes a new MediaPipe Hands solution instance in the streaming mode.
@@ -190,5 +203,21 @@ public class MainActivity extends AppCompatActivity {
                                 + " approximate geometric center): x=%f m, y=%f m, z=%f m",
                         wristWorldLandmark.getX(), wristWorldLandmark.getY(), wristWorldLandmark.getZ()));
     }
+
+    private void setupBasicButtons() {
+        Button startCameraButton = findViewById(R.id.button_connection);
+        startCameraButton.setOnClickListener(
+            v -> {
+                GestureDecisionTask g = new GestureDecisionTask();
+                try {
+                    String res = g.execute("test").get();
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            });
+    }
+
 }
 
