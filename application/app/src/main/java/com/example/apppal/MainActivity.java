@@ -1,6 +1,7 @@
 package com.example.apppal;
 
 import android.graphics.Bitmap;
+import android.media.MediaMetadataRetriever;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -20,6 +21,11 @@ import com.google.mediapipe.solutions.hands.Hands;
 import com.google.mediapipe.solutions.hands.HandsOptions;
 import com.google.mediapipe.solutions.hands.HandsResult;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.Timer;
+import java.util.TimerTask;
+
 /**
  * Main activity of MediaPipe Hands app.
  */
@@ -27,6 +33,8 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
 
     private Hands hands;
+    private Bitmap gestureData;
+    private static int count = 0;
     // Run the pipeline and the model inference on GPU or CPU.
     private static final boolean RUN_ON_GPU = true;
 
@@ -94,6 +102,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private void setupStreamingModePipeline(InputSource inputSource) {
         this.inputSource = inputSource;
+        GestureRecognitionSocket grs = new GestureRecognitionSocket();
         // Initializes a new MediaPipe Hands solution instance in the streaming mode.
         hands =
                 new Hands(
@@ -121,12 +130,19 @@ public class MainActivity extends AppCompatActivity {
                     logWristLandmark(handsResult, /*showPixelValues=*/ false);
                     glSurfaceView.setRenderData(handsResult);
                     glSurfaceView.requestRender();
-
-                    Bitmap bitmap = handsResult.inputBitmap();
+                    if (count < 30){
+                        count +=1;
+                    } else {
+                        gestureData = handsResult.inputBitmap();
+                        grs.sendToServer(gestureData);
+                        count = 0;
+                        Log.e(TAG, String.valueOf(count));
+                    }
                 });
 
         // The runnable to start camera after the gl surface view is attached.
         // For video input source, videoInput.start() will be called when the video uri is available.
+
         if (inputSource == InputSource.CAMERA) {
             glSurfaceView.post(this::startCamera);
         }
@@ -204,7 +220,7 @@ public class MainActivity extends AppCompatActivity {
             v -> {
                 new Thread () {
                     public void run() {
-                        gestureSocket.sendHelloToServer();
+                        gestureSocket.sendToServer(gestureData);
                     }
                 }.start();
             });
