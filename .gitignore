@@ -294,3 +294,6 @@ StaticServer/Servers/*
 
 example/*
 trainingSet/*
+.idea/*
+application/.idea/gradle.xml
+application/.idea/misc.xml
