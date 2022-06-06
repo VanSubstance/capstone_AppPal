@@ -5,8 +5,9 @@ import numpy as np
 from tensorflow.keras.models import load_model
 
 # Load model
-model = load_model('models/model2_1.0.h5')
-labels = ["pen", "two finger", "mask"]
+model = load_model('models/model.h5')
+actions = ['pen', 'mask', 'hold']
+seq_length = 3
 
 # MediaPipe hands model
 mp_hands = mp.solutions.hands
