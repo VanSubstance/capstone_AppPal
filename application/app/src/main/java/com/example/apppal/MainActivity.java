@@ -1,10 +1,7 @@
 package com.example.apppal;
 
-import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Matrix;
 import android.os.Bundle;
-import android.provider.MediaStore;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -13,23 +10,15 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.exifinterface.media.ExifInterface;
 // ContentResolver dependency
 import com.google.mediapipe.formats.proto.LandmarkProto.Landmark;
 import com.google.mediapipe.formats.proto.LandmarkProto.NormalizedLandmark;
 import com.google.mediapipe.solutioncore.CameraInput;
 import com.google.mediapipe.solutioncore.SolutionGlSurfaceView;
-import com.google.mediapipe.solutioncore.VideoInput;
 import com.google.mediapipe.solutions.hands.HandLandmark;
 import com.google.mediapipe.solutions.hands.Hands;
 import com.google.mediapipe.solutions.hands.HandsOptions;
 import com.google.mediapipe.solutions.hands.HandsResult;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.concurrent.ExecutionException;
 
 /**
  * Main activity of MediaPipe Hands app.
@@ -52,13 +41,14 @@ public class MainActivity extends AppCompatActivity {
     private CameraInput cameraInput;
 
     private SolutionGlSurfaceView<HandsResult> glSurfaceView;
+    private GestureRecognitionSocket gestureSocket;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         setupLiveDemoUiComponents();
-        setupBasicButtons();
+        initializeConnection();
     }
 
     @Override
@@ -131,6 +121,8 @@ public class MainActivity extends AppCompatActivity {
                     logWristLandmark(handsResult, /*showPixelValues=*/ false);
                     glSurfaceView.setRenderData(handsResult);
                     glSurfaceView.requestRender();
+
+                    Bitmap bitmap = handsResult.inputBitmap();
                 });
 
         // The runnable to start camera after the gl surface view is attached.
@@ -204,18 +196,17 @@ public class MainActivity extends AppCompatActivity {
                         wristWorldLandmark.getX(), wristWorldLandmark.getY(), wristWorldLandmark.getZ()));
     }
 
-    private void setupBasicButtons() {
+    private void initializeConnection() {
+        gestureSocket = new GestureRecognitionSocket();
+        gestureSocket.start();
         Button startCameraButton = findViewById(R.id.button_connection);
         startCameraButton.setOnClickListener(
             v -> {
-                GestureDecisionTask g = new GestureDecisionTask();
-                try {
-                    String res = g.execute("test").get();
-                } catch (ExecutionException e) {
-                    e.printStackTrace();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+                new Thread () {
+                    public void run() {
+                        gestureSocket.sendHelloToServer();
+                    }
+                }.start();
             });
     }
 
