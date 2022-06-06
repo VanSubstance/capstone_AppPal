@@ -291,3 +291,6 @@ crashlytics-build.properties
 
 # Tomcat Server
 StaticServer/Servers/*
+
+example/*
+trainingSet/*
