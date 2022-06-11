@@ -5,12 +5,14 @@ import android.util.Log;
 import static com.example.apppal.Storage.GlobalState.is;
 import static com.example.apppal.Storage.GlobalState.os;
 import com.example.apppal.VO.CoordinateInfo;
+import com.example.apppal.VO.SocketFunctionType;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.nio.charset.Charset;
+import java.util.HashMap;
 
 public class GestureRecognitionSocket extends Thread {
     private static Socket socket;
@@ -23,7 +25,9 @@ public class GestureRecognitionSocket extends Thread {
             socket = new Socket(Utils.PYTHON_SERVER_URL, Utils.GESTURE_SOCKET_PORT);
 
             os = new ObjectOutputStream(socket.getOutputStream());
-            os.writeObject("Hello!");
+            HashMap<SocketFunctionType, Object> req = new HashMap<>();
+            req.put(SocketFunctionType.STRING, "Hello!");
+            os.writeObject(req);
             os.flush();
             Log.d("ClientStream", "Sent to server.");
 
@@ -39,11 +43,13 @@ public class GestureRecognitionSocket extends Thread {
 
 
     public void sendCoordinateServer(float x, float y, float z, float visibility) throws IOException {
-        CoordinateInfo send = new CoordinateInfo(x,y,z,visibility);
-        String msg = "X : " + x + "Y : " + y + "Z : " + z + "VISIBILITY : " + visibility;
-        Log.i("check",Charset.defaultCharset().toString());
-        Log.i("SOCKET", msg);
-        os.writeObject(send);
+        CoordinateInfo coor = new CoordinateInfo(x,y,z,visibility);
+//        String msg = "X : " + x + "Y : " + y + "Z : " + z + "VISIBILITY : " + visibility;
+//        Log.i("check",Charset.defaultCharset().toString());
+//        Log.i("SOCKET", msg);
+        HashMap<SocketFunctionType, Object> req = new HashMap<>();
+        req.put(SocketFunctionType.COORDINATE, coor);
+        os.writeObject(req);
         os.flush();
     }
 

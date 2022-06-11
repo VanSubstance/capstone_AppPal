@@ -46,4 +46,8 @@ public class CoordinateInfo implements Serializable {
     public void setZ(float z) {
         this.z = z;
     }
+
+    public String toString() {
+        return "\nCoordinate::\n" + "X : " + x + "Y : " + y + "Z : " + z + "VISIBILITY : " + visibility + "\n";
+    }
 }
