@@ -2,6 +2,9 @@ import socket
 from _thread import *
 import struct
 import json
+import ast
+
+from gestureRecognizer import recognize
 
 socketList = []
 
@@ -20,14 +23,16 @@ def threaded(client_socket, addr):
 
   while True:
     try:
-      data = client_socket.recv(1024)
+      data = client_socket.recv(2048)
 
       if not data:
         print('>> Disconnected by ' + addr[0], ':', addr[1])
         break
 
-      print(data)
-      print(data.decode())
+      decoded = data.decode()
+      # print(decoded)
+      jsonData = json.loads(decoded)
+      executeFunction(client_socket, jsonData)
 
     except ConnectionResetError as e:
       print('>> Disconnected by ' + addr[0], ':', addr[1])
@@ -38,6 +43,30 @@ def threaded(client_socket, addr):
     print('remove client list : ',len(socketList))
 
   client_socket.close()
+
+
+def executeFunction(client_socket, jsonData):
+  function = jsonData['function']
+  data = jsonData['data']
+  del jsonData
+  if function == 'check':
+    print('Checking data:: ', data)
+  elif function == 'gesture':
+    data = ast.literal_eval(data)
+    gesture = recognize(data)
+    print('Gesture recognition:: ', gesture)
+    res = {
+      'function': 'gesture',
+      'data' : gesture,
+    }
+    client_socket.send(json.dumps(res).encode())
+  
+
+  
+
+
+
+
 
 try:
   while True:
