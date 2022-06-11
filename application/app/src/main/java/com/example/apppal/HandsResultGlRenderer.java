@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
+import java.util.ArrayList;
 import java.util.List;
 
 /** A custom implementation of {@link ResultGlRenderer} to render {@link HandsResult}. */
@@ -82,6 +83,7 @@ public class HandsResultGlRenderer implements ResultGlRenderer<HandsResult> {
 
   @Override
   public void renderResult(HandsResult result, float[] projectionMatrix) {
+    GestureRecognitionSocket send = new GestureRecognitionSocket();
     if (result == null) {
       return;
     }
@@ -96,15 +98,13 @@ public class HandsResultGlRenderer implements ResultGlRenderer<HandsResult> {
       drawConnections(
           result.multiHandLandmarks().get(i).getLandmarkList(),
           isLeftHand ? LEFT_HAND_CONNECTION_COLOR : RIGHT_HAND_CONNECTION_COLOR);
-      GestureRecognitionSocket send = new GestureRecognitionSocket();
+      ArrayList<CoordinateInfo> coordinateList = new ArrayList<>();
       for (NormalizedLandmark landmark : result.multiHandLandmarks().get(i).getLandmarkList()) {
         // Draws the landmark.
         // Get Coordinate
-        try {
-          send.sendCoordinateServer(landmark.getX(),landmark.getY(),landmark.getZ(),landmark.getVisibility());
-        } catch (IOException e) {
-          e.printStackTrace();
-        }
+        // Gather all coordinates information for single hand into one array
+        CoordinateInfo newCoor = new CoordinateInfo(landmark.getX(),landmark.getY(),landmark.getZ(),landmark.getVisibility());
+        coordinateList.add(newCoor);
         drawCircle(
             landmark.getX(),
             landmark.getY(),
@@ -114,6 +114,13 @@ public class HandsResultGlRenderer implements ResultGlRenderer<HandsResult> {
             landmark.getX(),
             landmark.getY(),
             isLeftHand ? LEFT_HAND_HOLLOW_CIRCLE_COLOR : RIGHT_HAND_HOLLOW_CIRCLE_COLOR);
+      }
+      try {
+        // Send all coordinates information for single hand into one array
+//        Log.d(TAG, "renderResult: " + coordinateList.size());
+        send.sendHandCoordinatesToServer(coordinateList);
+      } catch (IOException e) {
+        e.printStackTrace();
       }
     }
   }

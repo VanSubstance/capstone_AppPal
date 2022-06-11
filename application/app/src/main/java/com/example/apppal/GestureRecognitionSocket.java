@@ -12,6 +12,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class GestureRecognitionSocket extends Thread {
@@ -41,27 +42,10 @@ public class GestureRecognitionSocket extends Thread {
         }
     }
 
-
-    public void sendCoordinateServer(float x, float y, float z, float visibility) throws IOException {
-        CoordinateInfo coor = new CoordinateInfo(x,y,z,visibility);
-//        String msg = "X : " + x + "Y : " + y + "Z : " + z + "VISIBILITY : " + visibility;
-//        Log.i("check",Charset.defaultCharset().toString());
-//        Log.i("SOCKET", msg);
+    public void sendHandCoordinatesToServer(ArrayList<CoordinateInfo> handCoorList) throws IOException {
         HashMap<SocketFunctionType, Object> req = new HashMap<>();
-        req.put(SocketFunctionType.COORDINATE, coor);
+        req.put(SocketFunctionType.COORDINATE, handCoorList);
         os.writeObject(req);
         os.flush();
     }
-
-//    public void sendHelloToServer() {
-//        byte[] byteArr = null;
-//        String msg = "Hello Server";
-//        try {
-//            byteArr = msg.getBytes("utf-8");
-//            os.writeObject(byteArr);
-//            os.flush();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//    }
 }
