@@ -121,8 +121,6 @@ public class MainActivity extends AppCompatActivity {
                     logWristLandmark(handsResult, /*showPixelValues=*/ false);
                     glSurfaceView.setRenderData(handsResult);
                     glSurfaceView.requestRender();
-
-                    Bitmap bitmap = handsResult.inputBitmap();
                 });
 
         // The runnable to start camera after the gl surface view is attached.
@@ -199,16 +197,6 @@ public class MainActivity extends AppCompatActivity {
     private void initializeConnection() {
         gestureSocket = new GestureRecognitionSocket();
         gestureSocket.start();
-        Button startCameraButton = findViewById(R.id.button_connection);
-        startCameraButton.setOnClickListener(
-            v -> {
-                new Thread () {
-                    public void run() {
-                        gestureSocket.sendHelloToServer();
-                    }
-                }.start();
-            });
     }
-
 }
 
