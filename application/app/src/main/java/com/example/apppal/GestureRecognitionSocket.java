@@ -5,6 +5,7 @@ import android.util.Log;
 import static com.example.apppal.Storage.GlobalState.is;
 import static com.example.apppal.Storage.GlobalState.os;
 
+import com.example.apppal.Handler.SocketReceiveHandler;
 import com.example.apppal.VO.CoordinateInfo;
 
 import org.json.JSONException;
@@ -15,13 +16,11 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.Socket;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 public class GestureRecognitionSocket extends Thread {
     private static Socket socket;
+    private static SocketReceiveHandler socketReceiveHandler;
     public void run() {
         connect();
     }
@@ -36,8 +35,7 @@ public class GestureRecognitionSocket extends Thread {
             sendDataToServer("check", "Connection Test");
             is = new InputStreamReader(socket.getInputStream());
 
-            Object input = is.read();
-            Log.d("ClientThread", "Received data: " + input);
+            socketReceiveHandler = new SocketReceiveHandler();
 
         } catch (IOException  e) {
             Log.e("socket", e.toString());
@@ -46,10 +44,11 @@ public class GestureRecognitionSocket extends Thread {
     }
 
     public void sendHandCoordinatesToServer(ArrayList<CoordinateInfo> handCoorList) {
-        ArrayList<float[]> jointList = new ArrayList<>();
+        ArrayList<String> jointList = new ArrayList<>();
         for (CoordinateInfo coor : handCoorList) {
-            jointList.add(coor.toArray());
+            jointList.add(coor.toStringForJson());
         }
+//        Log.e("joint lists", jointList.toString());
         sendDataToServer("gesture", jointList);
     }
 

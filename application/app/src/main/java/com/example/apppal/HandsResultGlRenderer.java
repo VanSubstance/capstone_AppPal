@@ -60,6 +60,8 @@ public class HandsResultGlRenderer implements ResultGlRenderer<HandsResult> {
   private int positionHandle;
   private int projectionMatrixHandle;
   private int colorHandle;
+  private static int gestureRecognitionControll = 0;
+  private static final int gestureRecognitionSpeed = 6;
 
   private int loadShader(int type, String shaderCode) {
     int shader = GLES20.glCreateShader(type);
@@ -93,6 +95,7 @@ public class HandsResultGlRenderer implements ResultGlRenderer<HandsResult> {
 
     int numHands = result.multiHandLandmarks().size();
     for (int i = 0; i < numHands; ++i) {
+      gestureRecognitionControll += 1;
       boolean isLeftHand = result.multiHandedness().get(i).getLabel().equals("Left");
       Log.d(TAG, "Is is lefty?? " + result.multiHandedness().get(i).getLabel());
       drawConnections(
@@ -103,8 +106,10 @@ public class HandsResultGlRenderer implements ResultGlRenderer<HandsResult> {
         // Draws the landmark.
         // Get Coordinate
         // Gather all coordinates information for single hand into one array
-        CoordinateInfo newCoor = new CoordinateInfo(landmark.getX(),landmark.getY(),landmark.getZ(),landmark.getVisibility());
-        coordinateList.add(newCoor);
+        if (gestureRecognitionControll % gestureRecognitionSpeed == 0) {
+          CoordinateInfo newCoor = new CoordinateInfo(landmark.getX(),landmark.getY(),landmark.getZ(),landmark.getVisibility());
+          coordinateList.add(newCoor);
+        }
         drawCircle(
             landmark.getX(),
             landmark.getY(),
@@ -115,7 +120,9 @@ public class HandsResultGlRenderer implements ResultGlRenderer<HandsResult> {
             landmark.getY(),
             isLeftHand ? LEFT_HAND_HOLLOW_CIRCLE_COLOR : RIGHT_HAND_HOLLOW_CIRCLE_COLOR);
       }
-      send.sendHandCoordinatesToServer(coordinateList);
+      if (gestureRecognitionControll % gestureRecognitionSpeed == 0) {
+        send.sendHandCoordinatesToServer(coordinateList);
+      }
     }
   }
 

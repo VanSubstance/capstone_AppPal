@@ -51,9 +51,8 @@ public class CoordinateInfo implements Serializable {
         return "\nCoordinate::\n" + "X : " + x + "Y : " + y + "Z : " + z + "VISIBILITY : " + visibility + "\n";
     }
 
-    public float[] toArray() {
-        float[] ret = {x, y, z, visibility};
-        return ret;
+    public String toStringForJson() {
+        return "[" + x + "," + y + "," + z + "," + visibility + "]";
     }
 
 }
