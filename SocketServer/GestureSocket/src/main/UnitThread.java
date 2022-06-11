@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.Socket;
 import java.net.SocketException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
@@ -46,12 +47,12 @@ public class UnitThread extends Thread {
 					Object value = item.getValue();
 					switch (item.getKey()) {
 					case COORDINATE:
-						System.out.println("들어온 좌표 데이터:: " + (CoordinateInfo) value);
+						System.out.println("Received Coordinates List for single hand :: " + (ArrayList<CoordinateInfo>) value);
 						break;
 					case NOTICE:
 						break;
 					case STRING:
-						System.out.println("들어온 스트링 데이터:: " + (String) value);
+						System.out.println("Incomming string :: " + (String) value);
 						break;
 					default:
 						break;
