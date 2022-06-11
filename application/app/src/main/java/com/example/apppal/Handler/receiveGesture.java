@@ -13,7 +13,7 @@ public class receiveGesture {
     public void receiveHandler() {
         try {
             while (true) {
-                Object rcvdData = is.readObject();
+                Object rcvdData = is.read();
                 Log.d("socket data", "receiveHandler: " + rcvdData);
                 switch (rcvdData.toString()) {
                     case "pen":
@@ -28,8 +28,6 @@ public class receiveGesture {
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
     }

@@ -115,13 +115,7 @@ public class HandsResultGlRenderer implements ResultGlRenderer<HandsResult> {
             landmark.getY(),
             isLeftHand ? LEFT_HAND_HOLLOW_CIRCLE_COLOR : RIGHT_HAND_HOLLOW_CIRCLE_COLOR);
       }
-      try {
-        // Send all coordinates information for single hand into one array
-//        Log.d(TAG, "renderResult: " + coordinateList.size());
-        send.sendHandCoordinatesToServer(coordinateList);
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
+      send.sendHandCoordinatesToServer(coordinateList);
     }
   }
 

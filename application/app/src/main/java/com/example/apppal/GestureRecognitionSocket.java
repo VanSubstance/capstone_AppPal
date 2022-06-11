@@ -4,16 +4,21 @@ import android.util.Log;
 
 import static com.example.apppal.Storage.GlobalState.is;
 import static com.example.apppal.Storage.GlobalState.os;
+
 import com.example.apppal.VO.CoordinateInfo;
-import com.example.apppal.VO.SocketFunctionType;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.Socket;
-import java.nio.charset.Charset;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class GestureRecognitionSocket extends Thread {
     private static Socket socket;
@@ -25,27 +30,40 @@ public class GestureRecognitionSocket extends Thread {
             Log.i("checkpoint", "socket connecting...");
             socket = new Socket(Utils.PYTHON_SERVER_URL, Utils.GESTURE_SOCKET_PORT);
 
-            os = new ObjectOutputStream(socket.getOutputStream());
-            HashMap<SocketFunctionType, Object> req = new HashMap<>();
-            req.put(SocketFunctionType.STRING, "Hello!");
-            os.writeObject(req);
-            os.flush();
-            Log.d("ClientStream", "Sent to server.");
+            os = new OutputStreamWriter(socket.getOutputStream());
 
-            is = new ObjectInputStream(socket.getInputStream());
-            Object input = is.readObject();
+
+            sendDataToServer("check", "Connection Test");
+            is = new InputStreamReader(socket.getInputStream());
+
+            Object input = is.read();
             Log.d("ClientThread", "Received data: " + input);
 
-        } catch (IOException | ClassNotFoundException e) {
+        } catch (IOException  e) {
             Log.e("socket", e.toString());
             e.printStackTrace();
         }
     }
 
-    public void sendHandCoordinatesToServer(ArrayList<CoordinateInfo> handCoorList) throws IOException {
-        HashMap<SocketFunctionType, Object> req = new HashMap<>();
-        req.put(SocketFunctionType.COORDINATE, handCoorList);
-        os.writeObject(req);
-        os.flush();
+    public void sendHandCoordinatesToServer(ArrayList<CoordinateInfo> handCoorList) {
+        ArrayList<float[]> jointList = new ArrayList<>();
+        for (CoordinateInfo coor : handCoorList) {
+            jointList.add(coor.toArray());
+        }
+        sendDataToServer("gesture", jointList);
+    }
+
+    private static void sendDataToServer(String function, Object data) {
+        JSONObject req = new JSONObject();
+        try {
+            req.put("function", function);
+            req.put("data", data);
+            os.write(req.toString());
+            os.flush();
+        } catch (JSONException | UnsupportedEncodingException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

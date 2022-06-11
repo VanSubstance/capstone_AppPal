@@ -50,4 +50,10 @@ public class CoordinateInfo implements Serializable {
     public String toString() {
         return "\nCoordinate::\n" + "X : " + x + "Y : " + y + "Z : " + z + "VISIBILITY : " + visibility + "\n";
     }
+
+    public float[] toArray() {
+        float[] ret = {x, y, z, visibility};
+        return ret;
+    }
+
 }
