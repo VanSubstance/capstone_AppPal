@@ -17,11 +17,13 @@ package com.example.apppal;
 import android.opengl.GLES20;
 import android.util.Log;
 
+import com.example.apppal.VO.CoordinateInfo;
 import com.google.mediapipe.formats.proto.LandmarkProto.NormalizedLandmark;
 import com.google.mediapipe.solutioncore.ResultGlRenderer;
 import com.google.mediapipe.solutions.hands.Hands;
 import com.google.mediapipe.solutions.hands.HandsResult;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
@@ -94,8 +96,15 @@ public class HandsResultGlRenderer implements ResultGlRenderer<HandsResult> {
       drawConnections(
           result.multiHandLandmarks().get(i).getLandmarkList(),
           isLeftHand ? LEFT_HAND_CONNECTION_COLOR : RIGHT_HAND_CONNECTION_COLOR);
+      GestureRecognitionSocket send = new GestureRecognitionSocket();
       for (NormalizedLandmark landmark : result.multiHandLandmarks().get(i).getLandmarkList()) {
         // Draws the landmark.
+        // Get Coordinate
+        try {
+          send.sendCoordinateServer(landmark.getX(),landmark.getY(),landmark.getZ(),landmark.getVisibility());
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
         drawCircle(
             landmark.getX(),
             landmark.getY(),
