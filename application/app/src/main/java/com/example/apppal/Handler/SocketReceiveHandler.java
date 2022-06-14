@@ -13,6 +13,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 
 public class SocketReceiveHandler {
@@ -66,6 +68,11 @@ public class SocketReceiveHandler {
                 isDecidingMenuStage = ModeGestureHandler.detectGesture();
             } else {
                 if (Collections.frequency(listGesture, Utils.MENU_GESTURE) >= 7) {
+                    ArrayList<GestureType> temp = new ArrayList<>();
+                    for (int i = 0; i < 10; i++) {
+                        temp.add(GestureType.NONE);
+                    }
+                    listGesture = temp;
                     isDecidingMenuStage = true;
                 }
             }

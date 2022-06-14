@@ -1,5 +1,5 @@
 package com.example.apppal.VO;
 
 public enum GestureType {
-    PEN, HOLD, MASK,
+    PEN, HOLD, MASK, NONE,
 }

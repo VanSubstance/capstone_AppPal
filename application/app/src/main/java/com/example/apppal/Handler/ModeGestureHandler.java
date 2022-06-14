@@ -26,6 +26,8 @@ public class ModeGestureHandler {
         }
 
         GestureType currGesture = targetList.get(res);
+        Log.e("Detecting mode", "?? " + targetList.get(res));
+        if (currGesture == GestureType.NONE) return true;
         if (prevGesture == null || prevGesture != currGesture) {
             prevGesture = currGesture;
             freq = 0;
@@ -33,7 +35,6 @@ public class ModeGestureHandler {
             freq += 1;
         }
 
-        Log.e("Detecting mode", "?? " + prevGesture);
         if (freq == STANDARD_FREQ) {
             GlobalState.currentGesture = prevGesture;
             Log.e("Detecting mode", "Stack detected:: " + prevGesture);
