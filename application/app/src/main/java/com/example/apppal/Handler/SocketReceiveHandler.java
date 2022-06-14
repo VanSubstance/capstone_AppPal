@@ -1,28 +1,34 @@
 package com.example.apppal.Handler;
 
 import static com.example.apppal.Storage.GlobalState.is;
+import static com.example.apppal.Storage.GlobalState.listGesture;
 
 import android.util.Log;
 
 import com.example.apppal.Storage.GlobalState;
+import com.example.apppal.Utils;
 import com.example.apppal.VO.GestureType;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.Collections;
 
 public class SocketReceiveHandler {
+    private static boolean isDecidingMenuStage = false;
+
     public SocketReceiveHandler() {
         receiveHandler();
     }
+
     private void receiveHandler() {
         while (true) {
             String res = null;
             try {
                 StringBuffer sb = new StringBuffer();
                 int temp = is.read();
-                while(temp > 0 && temp != 125) {
+                while (temp > 0 && temp != 125) {
                     sb.append((char) temp);
                     temp = is.read();
                 }
@@ -33,16 +39,13 @@ public class SocketReceiveHandler {
                     case "gesture":
                         switch (resData.get("data").toString()) {
                             case "pen":
-                                Log.e("Gesture Recognition", "Current Gesture:: PEN");
-                                GlobalState.currentGesture = GestureType.PEN;
+                                stackGesture(GestureType.PEN);
                                 break;
                             case "hold":
-                                Log.e("Gesture Recognition", "Current Gesture:: HOLD");
-                                GlobalState.currentGesture = GestureType.HOLD;
+                                stackGesture(GestureType.HOLD);
                                 break;
                             case "mask":
-                                Log.e("Gesture Recognition", "Current Gesture:: MASK");
-                                GlobalState.currentGesture = GestureType.MASK;
+                                stackGesture(GestureType.MASK);
                                 break;
                         }
                         break;
@@ -51,6 +54,20 @@ public class SocketReceiveHandler {
                 }
             } catch (IOException | JSONException e) {
                 e.printStackTrace();
+            }
+        }
+    }
+
+    private static void stackGesture(GestureType nowGesture) {
+        listGesture.add(nowGesture);
+        if (listGesture.size() > 10) {
+            listGesture.remove(0);
+            if (isDecidingMenuStage) {
+                isDecidingMenuStage = ModeGestureHandler.detectGesture();
+            } else {
+                if (Collections.frequency(listGesture, Utils.MENU_GESTURE) >= 7) {
+                    isDecidingMenuStage = true;
+                }
             }
         }
     }
