@@ -23,7 +23,6 @@ import com.google.mediapipe.solutioncore.ResultGlRenderer;
 import com.google.mediapipe.solutions.hands.Hands;
 import com.google.mediapipe.solutions.hands.HandsResult;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
@@ -61,7 +60,7 @@ public class HandsResultGlRenderer implements ResultGlRenderer<HandsResult> {
   private int projectionMatrixHandle;
   private int colorHandle;
   private static int gestureRecognitionControll = 0;
-  private static final int gestureRecognitionSpeed = 6;
+  private static final int gestureRecognitionSpeed = 4;
 
   private int loadShader(int type, String shaderCode) {
     int shader = GLES20.glCreateShader(type);
