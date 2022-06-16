@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 
 // ContentResolver dependency
+import com.example.apppal.Storage.GlobalState;
 import com.google.mediapipe.formats.proto.LandmarkProto.Landmark;
 import com.google.mediapipe.formats.proto.LandmarkProto.NormalizedLandmark;
 import com.google.mediapipe.solutioncore.CameraInput;
@@ -197,6 +198,8 @@ public class MainActivity extends AppCompatActivity {
     private void initializeConnection() {
         gestureSocket = new GestureRecognitionSocket();
         gestureSocket.start();
+
+        GlobalState.textAnnounce = findViewById(R.id.text_announce);
     }
 }
 
