@@ -3,7 +3,7 @@ package com.example.apppal.Handler;
 import static com.example.apppal.Storage.GlobalState.is;
 import static com.example.apppal.Storage.GlobalState.listGesture;
 
-import android.util.Log;
+import android.os.Message;
 
 import com.example.apppal.Storage.GlobalState;
 import com.example.apppal.Utils;
@@ -16,9 +16,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class SocketReceiveHandler {
     private static boolean isDecidingMenuStage = false;
+    private static int loadingTimer = 0;
 
     public SocketReceiveHandler() {
         receiveHandler();
@@ -60,12 +63,16 @@ public class SocketReceiveHandler {
         }
     }
 
+    private static Timer timer = new Timer();
+    private static int secondLeft = 0;
+
     private static void stackGesture(GestureType nowGesture) {
         listGesture.add(nowGesture);
         if (listGesture.size() > 10) {
             listGesture.remove(0);
             if (isDecidingMenuStage) {
-                isDecidingMenuStage = ModeGestureHandler.detectGesture();
+                if (secondLeft == 0)
+                    isDecidingMenuStage = ModeGestureHandler.detectGesture();
             } else {
                 if (Collections.frequency(listGesture, Utils.MENU_GESTURE) >= 7) {
                     ArrayList<GestureType> temp = new ArrayList<>();
@@ -74,6 +81,23 @@ public class SocketReceiveHandler {
                     }
                     listGesture = temp;
                     isDecidingMenuStage = true;
+                    secondLeft = 3;
+                    TimerTask stopWatch = new TimerTask() {
+                        @Override
+                        public void run() {
+                            Message handler = GlobalState.announceHandler.obtainMessage();
+                            handler.what = Utils.TEXT_ANNOUNCE;
+                            if (secondLeft != 0) {
+                                secondLeft--;
+                                handler.obj = "detecting initialized in " + secondLeft + "...";
+                            } else {
+                                handler.obj = "detecting gesture...";
+                                this.cancel();
+                            }
+                            handler.sendToTarget();
+                        }
+                    };
+                    timer.schedule(stopWatch, 0, 1000);
                 }
             }
         }

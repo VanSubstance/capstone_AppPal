@@ -1,8 +1,10 @@
 package com.example.apppal.Handler;
 
+import android.os.Message;
 import android.util.Log;
 
 import com.example.apppal.Storage.GlobalState;
+import com.example.apppal.Utils;
 import com.example.apppal.VO.GestureType;
 
 import java.util.ArrayList;
@@ -37,6 +39,10 @@ public class ModeGestureHandler {
 
         if (freq == STANDARD_FREQ) {
             GlobalState.currentGesture = prevGesture;
+            Message handler = GlobalState.announceHandler.obtainMessage();
+            handler.what = Utils.TEXT_ANNOUNCE;
+            handler.obj = "!! " + prevGesture.toString() + " !!";
+            handler.sendToTarget();
             Log.e("Detecting mode", "Stack detected:: " + prevGesture);
             return false;
         }
