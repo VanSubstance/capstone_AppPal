@@ -34,7 +34,7 @@ import java.util.List;
 /**
  * A custom implementation of {@link ResultGlRenderer} to render {@link HandsResult}.
  */
-public class HandsResultGlRenderer implements ResultGlRenderer<HandsResult> {
+public class BaseGlRenderer implements ResultGlRenderer<HandsResult> {
   private static final String TAG = "HandsResultGlRenderer";
 
   private static final float[] LEFT_HAND_CONNECTION_COLOR = new float[]{0f, 0f, 0f, 0f};
@@ -126,9 +126,9 @@ public class HandsResultGlRenderer implements ResultGlRenderer<HandsResult> {
       if (gestureRecognitionControll % gestureRecognitionSpeed == 0) {
         send.sendHandCoordinatesToServer(coordinateList);
       }
-      for (CoordinateInfo trackCoor : GlobalState.tempCoorList) {
-        drawCircle(trackCoor.getX(), trackCoor.getY(), TEMP_TRACK_COLOR);
-      }
+    }
+    for (CoordinateInfo trackCoor : GlobalState.tempCoorList) {
+      drawCircle(trackCoor.getX(), trackCoor.getY(), TEMP_TRACK_COLOR);
     }
   }
 

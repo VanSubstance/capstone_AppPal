@@ -10,13 +10,13 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 
 // ContentResolver dependency
-import com.example.apppal.Renderer.BaseGIRenderer;
 import com.example.apppal.Storage.GlobalState;
 import com.google.mediapipe.formats.proto.LandmarkProto.Landmark;
 import com.google.mediapipe.formats.proto.LandmarkProto.NormalizedLandmark;
 import com.google.mediapipe.solutioncore.CameraInput;
 import com.google.mediapipe.solutioncore.SolutionGlSurfaceView;
 import com.google.mediapipe.solutions.hands.HandLandmark;
+import com.google.mediapipe.solutions.hands.Hands;
 import com.google.mediapipe.solutions.hands.HandsOptions;
 import com.google.mediapipe.solutions.hands.HandsResult;
 
@@ -26,7 +26,7 @@ import com.google.mediapipe.solutions.hands.HandsResult;
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
 
-    private BaseGIRenderer drawer;
+    private Hands drawer;
     // Run the pipeline and the model inference on GPU or CPU.
     private static final boolean RUN_ON_GPU = true;
 
@@ -96,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
         this.inputSource = inputSource;
         // Initializes a new MediaPipe drawer solution instance in the streaming mode.
         drawer =
-                new BaseGIRenderer(
+                new Hands(
                         this,
                         HandsOptions.builder()
                                 .setStaticImageMode(false)
@@ -114,7 +114,7 @@ public class MainActivity extends AppCompatActivity {
         // Initializes a new Gl surface view with a user-defined HandsResultGlRenderer.
         glSurfaceView =
                 new SolutionGlSurfaceView<>(this, drawer.getGlContext(), drawer.getGlMajorVersion());
-        glSurfaceView.setSolutionResultRenderer(new HandsResultGlRenderer());
+        glSurfaceView.setSolutionResultRenderer(new BaseGlRenderer());
         glSurfaceView.setRenderInputImage(true);
         drawer.setResultListener(
                 handsResult -> {
