@@ -1,6 +1,5 @@
 package com.example.apppal;
 
-import android.graphics.Bitmap;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -11,23 +10,23 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 
 // ContentResolver dependency
+import com.example.apppal.Renderer.BaseGIRenderer;
 import com.example.apppal.Storage.GlobalState;
 import com.google.mediapipe.formats.proto.LandmarkProto.Landmark;
 import com.google.mediapipe.formats.proto.LandmarkProto.NormalizedLandmark;
 import com.google.mediapipe.solutioncore.CameraInput;
 import com.google.mediapipe.solutioncore.SolutionGlSurfaceView;
 import com.google.mediapipe.solutions.hands.HandLandmark;
-import com.google.mediapipe.solutions.hands.Hands;
 import com.google.mediapipe.solutions.hands.HandsOptions;
 import com.google.mediapipe.solutions.hands.HandsResult;
 
 /**
- * Main activity of MediaPipe Hands app.
+ * Main activity of MediaPipe drawer app.
  */
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
 
-    private Hands hands;
+    private BaseGIRenderer drawer;
     // Run the pipeline and the model inference on GPU or CPU.
     private static final boolean RUN_ON_GPU = true;
 
@@ -58,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
         if (inputSource == InputSource.CAMERA) {
             // Restarts the camera and the opengl surface rendering.
             cameraInput = new CameraInput(this);
-            cameraInput.setNewFrameListener(textureFrame -> hands.send(textureFrame));
+            cameraInput.setNewFrameListener(textureFrame -> drawer.send(textureFrame));
             glSurfaceView.post(this::startCamera);
             glSurfaceView.setVisibility(View.VISIBLE);
         } else {
@@ -95,29 +94,29 @@ public class MainActivity extends AppCompatActivity {
      */
     private void setupStreamingModePipeline(InputSource inputSource) {
         this.inputSource = inputSource;
-        // Initializes a new MediaPipe Hands solution instance in the streaming mode.
-        hands =
-                new Hands(
+        // Initializes a new MediaPipe drawer solution instance in the streaming mode.
+        drawer =
+                new BaseGIRenderer(
                         this,
                         HandsOptions.builder()
                                 .setStaticImageMode(false)
                                 .setMaxNumHands(1)
                                 .setRunOnGpu(RUN_ON_GPU)
                                 .build());
-        hands.setErrorListener((message, e) -> Log.e(TAG, "MediaPipe Hands error:" + message));
+        drawer.setErrorListener((message, e) -> Log.e(TAG, "MediaPipe drawer error:" + message));
 
         if (inputSource == InputSource.CAMERA) {
             cameraInput = new CameraInput(this);
-            cameraInput.setNewFrameListener(textureFrame -> hands.send(textureFrame));
+            cameraInput.setNewFrameListener(textureFrame -> drawer.send(textureFrame));
         } else {
         }
 
         // Initializes a new Gl surface view with a user-defined HandsResultGlRenderer.
         glSurfaceView =
-                new SolutionGlSurfaceView<>(this, hands.getGlContext(), hands.getGlMajorVersion());
+                new SolutionGlSurfaceView<>(this, drawer.getGlContext(), drawer.getGlMajorVersion());
         glSurfaceView.setSolutionResultRenderer(new HandsResultGlRenderer());
         glSurfaceView.setRenderInputImage(true);
-        hands.setResultListener(
+        drawer.setResultListener(
                 handsResult -> {
                     logWristLandmark(handsResult, /*showPixelValues=*/ false);
                     glSurfaceView.setRenderData(handsResult);
@@ -141,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
     private void startCamera() {
         cameraInput.start(
                 this,
-                hands.getGlContext(),
+                drawer.getGlContext(),
                 CameraInput.CameraFacing.BACK,
                 glSurfaceView.getWidth(),
                 glSurfaceView.getHeight());
@@ -155,8 +154,8 @@ public class MainActivity extends AppCompatActivity {
         if (glSurfaceView != null) {
             glSurfaceView.setVisibility(View.GONE);
         }
-        if (hands != null) {
-            hands.close();
+        if (drawer != null) {
+            drawer.close();
         }
     }
 

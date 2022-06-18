@@ -117,10 +117,10 @@ public class HandsResultGlRenderer implements ResultGlRenderer<HandsResult> {
             landmark.getY(),
             isLeftHand ? LEFT_HAND_LANDMARK_COLOR : RIGHT_HAND_LANDMARK_COLOR);
         // Draws a hollow circle around the landmark.
-        drawHollowCircle(
-            landmark.getX(),
-            landmark.getY(),
-            isLeftHand ? LEFT_HAND_HOLLOW_CIRCLE_COLOR : RIGHT_HAND_HOLLOW_CIRCLE_COLOR);
+//        drawHollowCircle(
+//            landmark.getX(),
+//            landmark.getY(),
+//            isLeftHand ? LEFT_HAND_HOLLOW_CIRCLE_COLOR : RIGHT_HAND_HOLLOW_CIRCLE_COLOR);
       }
       DrawingToolHandler.trackGesture(coordinateList);
       if (gestureRecognitionControll % gestureRecognitionSpeed == 0) {
