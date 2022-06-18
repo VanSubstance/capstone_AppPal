@@ -48,7 +48,7 @@ public class CoordinateInfo implements Serializable {
     }
 
     public String toString() {
-        return "\nCoordinate::\n" + "X : " + x + "Y : " + y + "Z : " + z + "VISIBILITY : " + visibility + "\n";
+        return "\nCoordinate::\n" + "X : " + x + "\nY : " + y + "\nZ : " + z + "\nVISIBILITY : " + visibility + "\n";
     }
 
     public String toStringForJson() {

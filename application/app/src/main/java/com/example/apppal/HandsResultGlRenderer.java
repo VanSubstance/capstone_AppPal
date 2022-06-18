@@ -17,6 +17,8 @@ package com.example.apppal;
 import android.opengl.GLES20;
 import android.util.Log;
 
+import com.example.apppal.Handler.DrawingToolHandler;
+import com.example.apppal.Storage.GlobalState;
 import com.example.apppal.VO.CoordinateInfo;
 import com.google.mediapipe.formats.proto.LandmarkProto.NormalizedLandmark;
 import com.google.mediapipe.solutioncore.ResultGlRenderer;
@@ -29,18 +31,21 @@ import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-/** A custom implementation of {@link ResultGlRenderer} to render {@link HandsResult}. */
+/**
+ * A custom implementation of {@link ResultGlRenderer} to render {@link HandsResult}.
+ */
 public class HandsResultGlRenderer implements ResultGlRenderer<HandsResult> {
   private static final String TAG = "HandsResultGlRenderer";
 
-  private static final float[] LEFT_HAND_CONNECTION_COLOR = new float[] {0f, 0f, 0f, 0f};
-  private static final float[] RIGHT_HAND_CONNECTION_COLOR = new float[] {1f, 1f, 1f, 1f};
+  private static final float[] LEFT_HAND_CONNECTION_COLOR = new float[]{0f, 0f, 0f, 0f};
+  private static final float[] RIGHT_HAND_CONNECTION_COLOR = new float[]{1f, 1f, 1f, 1f};
   private static final float CONNECTION_THICKNESS = 25.0f;
-  private static final float[] LEFT_HAND_HOLLOW_CIRCLE_COLOR = new float[] {1f, 1f, 1f, 1f};
-  private static final float[] RIGHT_HAND_HOLLOW_CIRCLE_COLOR = new float[] {0f, 0f, 0f, 0f};
+  private static final float[] LEFT_HAND_HOLLOW_CIRCLE_COLOR = new float[]{1f, 1f, 1f, 1f};
+  private static final float[] RIGHT_HAND_HOLLOW_CIRCLE_COLOR = new float[]{0f, 0f, 0f, 0f};
   private static final float HOLLOW_CIRCLE_RADIUS = 0.01f;
-  private static final float[] LEFT_HAND_LANDMARK_COLOR = new float[] {0f, 0f, 0f, 0f};
-  private static final float[] RIGHT_HAND_LANDMARK_COLOR = new float[] {1f, 1f, 1f, 1f};
+  private static final float[] LEFT_HAND_LANDMARK_COLOR = new float[]{0f, 0f, 0f, 0f};
+  private static final float[] RIGHT_HAND_LANDMARK_COLOR = new float[]{1f, 1f, 1f, 1f};
+  private static final float[] TEMP_TRACK_COLOR = new float[]{1f, 0f, 1f, 0f};
   private static final float LANDMARK_RADIUS = 0.008f;
   private static final int NUM_SEGMENTS = 120;
   private static final String VERTEX_SHADER =
@@ -105,10 +110,8 @@ public class HandsResultGlRenderer implements ResultGlRenderer<HandsResult> {
         // Draws the landmark.
         // Get Coordinate
         // Gather all coordinates information for single hand into one array
-        if (gestureRecognitionControll % gestureRecognitionSpeed == 0) {
-          CoordinateInfo newCoor = new CoordinateInfo(landmark.getX(),landmark.getY(),landmark.getZ(),landmark.getVisibility());
-          coordinateList.add(newCoor);
-        }
+        CoordinateInfo newCoor = new CoordinateInfo(landmark.getX(), landmark.getY(), landmark.getZ(), landmark.getVisibility());
+        coordinateList.add(newCoor);
         drawCircle(
             landmark.getX(),
             landmark.getY(),
@@ -119,8 +122,12 @@ public class HandsResultGlRenderer implements ResultGlRenderer<HandsResult> {
             landmark.getY(),
             isLeftHand ? LEFT_HAND_HOLLOW_CIRCLE_COLOR : RIGHT_HAND_HOLLOW_CIRCLE_COLOR);
       }
+      DrawingToolHandler.trackGesture(coordinateList);
       if (gestureRecognitionControll % gestureRecognitionSpeed == 0) {
         send.sendHandCoordinatesToServer(coordinateList);
+      }
+      for (CoordinateInfo trackCoor : GlobalState.tempCoorList) {
+        drawCircle(trackCoor.getX(), trackCoor.getY(), TEMP_TRACK_COLOR);
       }
     }
   }
