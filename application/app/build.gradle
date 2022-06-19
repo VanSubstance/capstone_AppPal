@@ -37,4 +37,6 @@ dependencies {
     // MediaPipe Hands Solution.
     implementation 'com.google.mediapipe:solution-core:latest.release'
     implementation 'com.google.mediapipe:hands:latest.release'
+    // Ar Core.
+    implementation 'com.google.ar:core:1.31.0'
 }

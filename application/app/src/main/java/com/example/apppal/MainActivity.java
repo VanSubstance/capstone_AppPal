@@ -5,13 +5,16 @@ import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.Toast;
 
 // ContentResolver dependency
 import com.example.apppal.Storage.GlobalState;
+import com.google.ar.core.ArCoreApk;
 import com.google.mediapipe.formats.proto.LandmarkProto.Landmark;
 import com.google.mediapipe.formats.proto.LandmarkProto.NormalizedLandmark;
 import com.google.mediapipe.solutioncore.CameraInput;
@@ -50,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         setupLiveDemoUiComponents();
         initializeConnection();
+        checkArCompatibility();
     }
 
     @Override
@@ -200,6 +204,25 @@ public class MainActivity extends AppCompatActivity {
         gestureSocket.start();
 
         GlobalState.textAnnounce = findViewById(R.id.text_announce);
+    }
+
+    private void checkArCompatibility() {
+        ArCoreApk.Availability availability = ArCoreApk.getInstance().checkAvailability(this);
+        if (availability.isTransient()) {
+            // Continue to query availability at 5Hz while compatibility is checked in the background.
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    checkArCompatibility();
+                }
+            }, 200);
+        }
+        if (!availability.isSupported()) {
+            Toast.makeText(this, "해당 앱을 실행할 수 없습니다.\n앱을 종료해주세요.", Toast.LENGTH_SHORT);
+            moveTaskToBack(true);
+            finishAndRemoveTask();
+            android.os.Process.killProcess(android.os.Process.myPid());
+        }
     }
 }
 
