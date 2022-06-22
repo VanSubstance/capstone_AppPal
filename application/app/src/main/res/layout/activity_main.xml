@@ -15,26 +15,26 @@
     </FrameLayout>
 
     <Button
-        android:id="@+id/button_start_camera"
+        android:id="@+id/button_start_drawing"
         style="?android:attr/buttonBarButtonStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
         android:layout_marginBottom="10dp"
         android:background="@drawable/button_round"
-        android:text="@string/start_camera"
+        android:text="@string/start_drawing"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
     <Button
-        android:id="@+id/button_connection"
+        android:id="@+id/button_start_arcore"
         style="?android:attr/buttonBarButtonStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
         android:layout_marginBottom="100dp"
         android:background="@drawable/button_round"
-        android:text="connection"
+        android:text="@string/start_arcore"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 

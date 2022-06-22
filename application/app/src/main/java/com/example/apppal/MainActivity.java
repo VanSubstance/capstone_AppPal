@@ -83,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
      * Sets up the UI components for the live demo with camera input.
      */
     private void setupLiveDemoUiComponents() {
-        Button startCameraButton = findViewById(R.id.button_start_camera);
+        Button startCameraButton = findViewById(R.id.button_start_drawing);
         startCameraButton.setOnClickListener(
                 v -> {
                     if (inputSource == InputSource.CAMERA) {
