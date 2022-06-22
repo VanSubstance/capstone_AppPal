@@ -4,4 +4,8 @@
     <gradient android:color="#FFFFFF" />
     <corners android:radius="100dp" />
     <stroke android:width="5px" android:color="#000000" />
+    <padding android:top="10dp"/>
+    <padding android:bottom="10dp"/>
+    <padding android:left="10dp"/>
+    <padding android:right="10dp"/>
 </shape>
