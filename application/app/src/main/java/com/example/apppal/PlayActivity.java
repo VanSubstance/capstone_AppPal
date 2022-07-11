@@ -48,8 +48,7 @@ public class PlayActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.play_main);
         setupLiveDemoUiComponents();
-        checkArCompatibility();
-        setupAREnvironment();
+        initializeConnection();
     }
 
     @Override
@@ -84,19 +83,6 @@ public class PlayActivity extends AppCompatActivity {
         }
         stopCurrentPipeline();
         setupStreamingModePipeline(InputSource.CAMERA);
-    }
-
-    private void setupAREnvironment() {
-//        Button startArCoreButton = findViewById(R.id.button_start_arcore);
-//        startArCoreButton.setOnClickListener(
-//                v -> {
-//                    if (inputSource == InputSource.CAMERA) {
-//                        return;
-//                    }
-//                    stopCurrentPipeline();
-//                    setupStreamingModePipeline(InputSource.CAMERA);
-//                }
-//        );
     }
 
     /**
@@ -210,25 +196,6 @@ public class PlayActivity extends AppCompatActivity {
 
         GlobalState.textAnnounce = findViewById(R.id.text_announce);
         Utils.IS_GESTURE_DETECTION = true;
-    }
-
-    private void checkArCompatibility() {
-//        ArCoreApk.Availability availability = ArCoreApk.getInstance().checkAvailability(this);
-//        if (availability.isTransient()) {
-//            // Continue to query availability at 5Hz while compatibility is checked in the background.
-//            new Handler().postDelayed(new Runnable() {
-//                @Override
-//                public void run() {
-//                    checkArCompatibility();
-//                }
-//            }, 200);
-//        }
-//        if (!availability.isSupported()) {
-//            Toast.makeText(this, "해당 앱을 실행할 수 없습니다.\n앱을 종료해주세요.", Toast.LENGTH_SHORT);
-//            moveTaskToBack(true);
-//            finishAndRemoveTask();
-//            android.os.Process.killProcess(android.os.Process.myPid());
-//        }
     }
 }
 
