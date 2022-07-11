@@ -109,17 +109,17 @@ public class HandsResultGlRenderer implements ResultGlRenderer<HandsResult> {
           CoordinateInfo newCoor = new CoordinateInfo(landmark.getX(),landmark.getY(),landmark.getZ(),landmark.getVisibility());
           coordinateList.add(newCoor);
         }
-        drawCircle(
-            landmark.getX(),
-            landmark.getY(),
-            isLeftHand ? LEFT_HAND_LANDMARK_COLOR : RIGHT_HAND_LANDMARK_COLOR);
-        // Draws a hollow circle around the landmark.
-        drawHollowCircle(
-            landmark.getX(),
-            landmark.getY(),
-            isLeftHand ? LEFT_HAND_HOLLOW_CIRCLE_COLOR : RIGHT_HAND_HOLLOW_CIRCLE_COLOR);
+//        drawCircle(
+//            landmark.getX(),
+//            landmark.getY(),
+//            isLeftHand ? LEFT_HAND_LANDMARK_COLOR : RIGHT_HAND_LANDMARK_COLOR);
+//        // Draws a hollow circle around the landmark.
+//        drawHollowCircle(
+//            landmark.getX(),
+//            landmark.getY(),
+//            isLeftHand ? LEFT_HAND_HOLLOW_CIRCLE_COLOR : RIGHT_HAND_HOLLOW_CIRCLE_COLOR);
       }
-      if (gestureRecognitionControll % gestureRecognitionSpeed == 0) {
+      if (gestureRecognitionControll % gestureRecognitionSpeed == 0 && Utils.IS_GESTURE_DETECTION) {
         send.sendHandCoordinatesToServer(coordinateList);
       }
     }
