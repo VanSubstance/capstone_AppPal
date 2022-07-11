@@ -12,11 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.example.apppal;
+package com.example.apppal.renderer;
 
 import android.opengl.GLES20;
 import android.util.Log;
 
+import com.example.apppal.GestureRecognitionSocket;
 import com.example.apppal.VO.CoordinateInfo;
 import com.example.apppal.Handler.DrawingToolHandler;
 import com.example.apppal.Storage.GlobalState;
