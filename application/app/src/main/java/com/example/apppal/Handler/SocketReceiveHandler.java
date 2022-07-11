@@ -1,5 +1,6 @@
 package com.example.apppal.Handler;
 
+import static com.example.apppal.Storage.GlobalState.currentGesture;
 import static com.example.apppal.Storage.GlobalState.is;
 import static com.example.apppal.Storage.GlobalState.listGesture;
 
@@ -85,6 +86,7 @@ public class SocketReceiveHandler {
                     TimerTask stopWatch = new TimerTask() {
                         @Override
                         public void run() {
+                            currentGesture = GestureType.NONE;
                             Message handler = GlobalState.announceHandler.obtainMessage();
                             handler.what = Utils.TEXT_ANNOUNCE;
                             if (secondLeft != 0) {
