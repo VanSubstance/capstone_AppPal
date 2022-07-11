@@ -8,4 +8,5 @@ public class Utils {
     public final static GestureType MENU_GESTURE = GestureType.MASK;
 
     public final static int TEXT_ANNOUNCE = 0;
+    public static boolean IS_GESTURE_DETECTION = false;
 }
