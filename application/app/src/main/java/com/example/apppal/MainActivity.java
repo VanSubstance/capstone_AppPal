@@ -51,8 +51,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         setupLiveDemoUiComponents();
-        initializeConnection();
         checkArCompatibility();
+        setupAREnvironment();
     }
 
     @Override
@@ -90,7 +90,21 @@ public class MainActivity extends AppCompatActivity {
                     }
                     stopCurrentPipeline();
                     setupStreamingModePipeline(InputSource.CAMERA);
+                    initializeConnection();
                 });
+    }
+
+    private void setupAREnvironment() {
+        Button startArCoreButton = findViewById(R.id.button_start_arcore);
+        startArCoreButton.setOnClickListener(
+                v -> {
+                    if (inputSource == InputSource.CAMERA) {
+                        return;
+                    }
+                    stopCurrentPipeline();
+                    setupStreamingModePipeline(InputSource.CAMERA);
+                }
+        );
     }
 
     /**
@@ -203,6 +217,7 @@ public class MainActivity extends AppCompatActivity {
         gestureSocket.start();
 
         GlobalState.textAnnounce = findViewById(R.id.text_announce);
+        Utils.IS_GESTURE_DETECTION = true;
     }
 
     private void checkArCompatibility() {
