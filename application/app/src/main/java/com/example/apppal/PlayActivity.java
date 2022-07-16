@@ -13,7 +13,7 @@ import android.widget.Toast;
 
 // ContentResolver dependency
 import com.example.apppal.Storage.GlobalState;
-import com.example.apppal.renderer.ArRenderer;
+import com.example.apppal.renderer.ExampleRenderer;
 import com.example.apppal.renderer.HandsResultGlRenderer;
 import com.google.ar.core.Anchor;
 import com.google.ar.core.ArCoreApk;
@@ -79,7 +79,7 @@ public class PlayActivity extends AppCompatActivity {
 //        checkAREnable();
 
         mSurfaceView = new GLSurfaceView(this);
-        mSurfaceView.setRenderer(new ArRenderer());
+        mSurfaceView.setRenderer(new ExampleRenderer());
         setContentView(mSurfaceView);
     }
 

@@ -43,4 +43,5 @@ dependencies {
     // Firebase.
     implementation platform('com.google.firebase:firebase-bom:30.1.0')
     implementation 'com.google.firebase:firebase-analytics'
+    implementation 'de.javagl:obj:0.2.1'
 }

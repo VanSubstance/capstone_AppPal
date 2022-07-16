@@ -1,49 +1,134 @@
 package com.example.apppal.renderer;
 
+import android.content.res.AssetManager;
+import android.opengl.GLES30;
 import android.opengl.GLSurfaceView;
-import android.opengl.GLU;
+
+import com.example.apppal.renderer.tools.Framebuffer;
+import com.example.apppal.renderer.tools.Mesh;
+import com.example.apppal.renderer.tools.Shader;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-public class ArRenderer implements GLSurfaceView.Renderer {
-  private Square square;
-  private int zvalue, delta;
+/** A SampleRender context. */
+public class ArRenderer {
+  private static final String TAG = ArRenderer.class.getSimpleName();
 
-  public ArRenderer() {
-    square = new Square();
-    zvalue = -4;
-    delta = -1;
+  private final AssetManager assetManager;
+
+  private int viewportWidth = 1;
+  private int viewportHeight = 1;
+
+  /**
+   * Constructs a SampleRender object and instantiates GLSurfaceView parameters.
+   *
+   * @param glSurfaceView Android GLSurfaceView
+   * @param renderer Renderer implementation to receive callbacks
+   * @param assetManager AssetManager for loading Android resources
+   */
+  public ArRenderer(GLSurfaceView glSurfaceView, Renderer renderer, AssetManager assetManager) {
+    this.assetManager = assetManager;
+    glSurfaceView.setPreserveEGLContextOnPause(true);
+    glSurfaceView.setEGLContextClientVersion(3);
+    glSurfaceView.setEGLConfigChooser(8, 8, 8, 8, 16, 0);
+    glSurfaceView.setRenderer(
+      new GLSurfaceView.Renderer() {
+        @Override
+        public void onSurfaceCreated(GL10 gl, EGLConfig config) {
+          GLES30.glEnable(GLES30.GL_BLEND);
+          renderer.onSurfaceCreated(ArRenderer.this);
+        }
+
+        @Override
+        public void onSurfaceChanged(GL10 gl, int w, int h) {
+          viewportWidth = w;
+          viewportHeight = h;
+          renderer.onSurfaceChanged(ArRenderer.this, w, h);
+        }
+
+        @Override
+        public void onDrawFrame(GL10 gl) {
+          clear(/*framebuffer=*/ null, 0f, 0f, 0f, 1f);
+          renderer.onDrawFrame(ArRenderer.this);
+        }
+      });
+    glSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
+    glSurfaceView.setWillNotDraw(false);
   }
 
-  @Override
-  public void onSurfaceCreated(GL10 gl, EGLConfig eglConfig) {
-    gl.glClearColor(0, 0, 1, 0.5f);
-    gl.glShadeModel(GL10.GL_SMOOTH);
-    gl.glClearDepthf(1.0f);
-    gl.glEnable(GL10.GL_DEPTH_TEST);
-    gl.glDepthFunc(GL10.GL_LEQUAL);
-    gl.glHint(GL10.GL_PERSPECTIVE_CORRECTION_HINT, GL10.GL_NICEST);
+  /** Draw a {@link Mesh} with the specified {@link Shader}. */
+  public void draw(Mesh mesh, Shader shader) {
+    draw(mesh, shader, /*framebuffer=*/ null);
   }
 
-  @Override
-  public void onSurfaceChanged(GL10 gl, int width, int height) {
-    gl.glViewport(0, 0, width, height);
-    gl.glMatrixMode(GL10.GL_PROJECTION);
-    gl.glLoadIdentity();
-    GLU.gluPerspective(gl, 45.0f, (float) width / (float) height, 0.1f, 100.0f);
-    gl.glMatrixMode(GL10.GL_MODELVIEW);
-    gl.glLoadIdentity();
+  /**
+   * Draw a {@link Mesh} with the specified {@link Shader} to the given {@link Framebuffer}.
+   *
+   * <p>The {@code framebuffer} argument may be null, in which case the default framebuffer is used.
+   */
+  public void draw(Mesh mesh, Shader shader, Framebuffer framebuffer) {
+    useFramebuffer(framebuffer);
+    shader.lowLevelUse();
+    mesh.lowLevelDraw();
   }
 
-  @Override
-  public void onDrawFrame(GL10 gl) {
-    gl.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT);
-    gl.glLoadIdentity();
-    zvalue += delta;
-    gl.glTranslatef(0, 0, zvalue);
-    if (zvalue < -100 || zvalue > -4) delta *= -1;
-    gl.glTranslatef(0, 0, -4);
-    square.draw(gl);
+  /**
+   * Clear the given framebuffer.
+   *
+   * <p>The {@code framebuffer} argument may be null, in which case the default framebuffer is
+   * cleared.
+   */
+  public void clear(Framebuffer framebuffer, float r, float g, float b, float a) {
+    useFramebuffer(framebuffer);
+    GLES30.glClearColor(r, g, b, a);
+    GLES30.glDepthMask(true);
+    GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT | GLES30.GL_DEPTH_BUFFER_BIT);
+  }
+
+  /** Interface to be implemented for rendering callbacks. */
+  public static interface Renderer {
+    /**
+     * Called by {@link ArRenderer} when the GL render surface is created.
+     *
+     * <p>See {@link GLSurfaceView.Renderer#onSurfaceCreated}.
+     */
+    public void onSurfaceCreated(ArRenderer render);
+
+    /**
+     * Called by {@link ArRenderer} when the GL render surface dimensions are changed.
+     *
+     * <p>See {@link GLSurfaceView.Renderer#onSurfaceChanged}.
+     */
+    public void onSurfaceChanged(ArRenderer render, int width, int height);
+
+    /**
+     * Called by {@link ArRenderer} when a GL frame is to be rendered.
+     *
+     * <p>See {@link GLSurfaceView.Renderer#onDrawFrame}.
+     */
+    public void onDrawFrame(ArRenderer render);
+  }
+
+  /* package-private */
+  public AssetManager getAssets() {
+    return assetManager;
+  }
+
+  private void useFramebuffer(Framebuffer framebuffer) {
+    int framebufferId;
+    int viewportWidth;
+    int viewportHeight;
+    if (framebuffer == null) {
+      framebufferId = 0;
+      viewportWidth = this.viewportWidth;
+      viewportHeight = this.viewportHeight;
+    } else {
+      framebufferId = framebuffer.getFramebufferId();
+      viewportWidth = framebuffer.getWidth();
+      viewportHeight = framebuffer.getHeight();
+    }
+    GLES30.glBindFramebuffer(GLES30.GL_FRAMEBUFFER, framebufferId);
+    GLES30.glViewport(0, 0, viewportWidth, viewportHeight);
   }
 }
