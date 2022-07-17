@@ -8,11 +8,7 @@ import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.MenuItem;
 import android.view.MotionEvent;
-import android.view.View;
-import android.widget.ImageButton;
-import android.widget.PopupMenu;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
@@ -23,7 +19,6 @@ import com.example.apppal.helpers.DepthSettings;
 import com.example.apppal.helpers.DisplayRotationHelper;
 import com.example.apppal.helpers.FullScreenHelper;
 import com.example.apppal.helpers.InstantPlacementSettings;
-import com.example.apppal.helpers.SnackbarHelper;
 import com.example.apppal.helpers.TapHelper;
 import com.example.apppal.helpers.TrackingStateHelper;
 import com.example.apppal.renderer.ArRenderer;
@@ -66,8 +61,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import javax.microedition.khronos.opengles.GL10;
-
 /**
  * Main activity of MediaPipe Hands app.
  */
@@ -104,7 +97,6 @@ public class PlayArActivity extends AppCompatActivity implements ArRenderer.Rend
     private boolean installRequested;
 
     private Session session;
-    private final SnackbarHelper messageSnackbarHelper = new SnackbarHelper();
     private DisplayRotationHelper displayRotationHelper;
     private final TrackingStateHelper trackingStateHelper = new TrackingStateHelper(this);
     private TapHelper tapHelper;
@@ -116,10 +108,8 @@ public class PlayArActivity extends AppCompatActivity implements ArRenderer.Rend
     private boolean hasSetTextureNames = false;
 
     private final DepthSettings depthSettings = new DepthSettings();
-    private boolean[] depthSettingsMenuDialogCheckboxes = new boolean[2];
 
     private final InstantPlacementSettings instantPlacementSettings = new InstantPlacementSettings();
-    private boolean[] instantPlacementSettingsMenuDialogCheckboxes = new boolean[1];
     // Assumed distance from the device camera to the surface on which user will try to place objects.
     // This value affects the apparent scale of objects while the tracking method of the
     // Instant Placement point is SCREENSPACE_WITH_APPROXIMATE_DISTANCE.
@@ -178,30 +168,9 @@ public class PlayArActivity extends AppCompatActivity implements ArRenderer.Rend
 
         depthSettings.onCreate(this);
         instantPlacementSettings.onCreate(this);
-        ImageButton settingsButton = findViewById(R.id.settings_button);
-        settingsButton.setOnClickListener(
-          new View.OnClickListener() {
-              @Override
-              public void onClick(View v) {
-                  PopupMenu popup = new PopupMenu(PlayArActivity.this, v);
-                  popup.setOnMenuItemClickListener(PlayArActivity.this::settingsMenuClick);
-                  popup.inflate(R.menu.settings_menu);
-                  popup.show();
-              }
-          });
     }
 
     /** Menu button to launch feature specific settings. */
-    protected boolean settingsMenuClick(MenuItem item) {
-        if (item.getItemId() == R.id.depth_settings) {
-            launchDepthSettingsMenuDialog();
-            return true;
-        } else if (item.getItemId() == R.id.instant_placement_settings) {
-            launchInstantPlacementSettingsMenuDialog();
-            return true;
-        }
-        return false;
-    }
 
     @Override
     protected void onDestroy() {
@@ -261,7 +230,6 @@ public class PlayArActivity extends AppCompatActivity implements ArRenderer.Rend
             }
 
             if (message != null) {
-                messageSnackbarHelper.showError(this, message);
                 Log.e(TAG, "Exception creating session", exception);
                 return;
             }
@@ -278,7 +246,6 @@ public class PlayArActivity extends AppCompatActivity implements ArRenderer.Rend
             // https://developers.google.com/ar/develop/java/recording-and-playback
             session.resume();
         } catch (CameraNotAvailableException e) {
-            messageSnackbarHelper.showError(this, "Camera not available. Try restarting the app.");
             session = null;
             return;
         }
@@ -417,7 +384,6 @@ public class PlayArActivity extends AppCompatActivity implements ArRenderer.Rend
                 .setTexture("u_DfgTexture", dfgTexture);
         } catch (IOException e) {
             Log.e(TAG, "Failed to read a required asset file", e);
-            messageSnackbarHelper.showError(this, "Failed to read a required asset file: " + e);
         }
     }
 
@@ -456,7 +422,6 @@ public class PlayArActivity extends AppCompatActivity implements ArRenderer.Rend
             frame = session.update();
         } catch (CameraNotAvailableException e) {
             Log.e(TAG, "Camera not available during onDrawFrame", e);
-            messageSnackbarHelper.showError(this, "Camera not available. Try restarting the app.");
             return;
         }
         Camera camera = frame.getCamera();
@@ -468,7 +433,6 @@ public class PlayArActivity extends AppCompatActivity implements ArRenderer.Rend
             backgroundRenderer.setUseOcclusion(render, depthSettings.useDepthForOcclusion());
         } catch (IOException e) {
             Log.e(TAG, "Failed to read a required asset file", e);
-            messageSnackbarHelper.showError(this, "Failed to read a required asset file: " + e);
             return;
         }
         // BackgroundRenderer.updateDisplayGeometry must be called every frame to update the coordinates
@@ -508,11 +472,7 @@ public class PlayArActivity extends AppCompatActivity implements ArRenderer.Rend
         } else {
             message = SEARCHING_PLANE_MESSAGE;
         }
-        if (message == null) {
-            messageSnackbarHelper.hide(this);
-        } else {
-            messageSnackbarHelper.showMessage(this, message);
-        }
+        Log.e(TAG, "onDrawFrame: " + message);
 
         // -- Draw background
 
@@ -668,74 +628,6 @@ public class PlayArActivity extends AppCompatActivity implements ArRenderer.Rend
                 depthSettings.setUseDepthForOcclusion(false);
             })
           .show();
-    }
-
-    private void launchInstantPlacementSettingsMenuDialog() {
-        resetSettingsMenuDialogCheckboxes();
-        Resources resources = getResources();
-        new AlertDialog.Builder(this)
-          .setTitle(R.string.options_title_instant_placement)
-          .setMultiChoiceItems(
-            resources.getStringArray(R.array.instant_placement_options_array),
-            instantPlacementSettingsMenuDialogCheckboxes,
-            (DialogInterface dialog, int which, boolean isChecked) ->
-              instantPlacementSettingsMenuDialogCheckboxes[which] = isChecked)
-          .setPositiveButton(
-            R.string.done,
-            (DialogInterface dialogInterface, int which) -> applySettingsMenuDialogCheckboxes())
-          .setNegativeButton(
-            android.R.string.cancel,
-            (DialogInterface dialog, int which) -> resetSettingsMenuDialogCheckboxes())
-          .show();
-    }
-
-    /** Shows checkboxes to the user to facilitate toggling of depth-based effects. */
-    private void launchDepthSettingsMenuDialog() {
-        // Retrieves the current settings to show in the checkboxes.
-        resetSettingsMenuDialogCheckboxes();
-
-        // Shows the dialog to the user.
-        Resources resources = getResources();
-        if (session.isDepthModeSupported(Config.DepthMode.AUTOMATIC)) {
-            // With depth support, the user can select visualization options.
-            new AlertDialog.Builder(this)
-              .setTitle(R.string.options_title_with_depth)
-              .setMultiChoiceItems(
-                resources.getStringArray(R.array.depth_options_array),
-                depthSettingsMenuDialogCheckboxes,
-                (DialogInterface dialog, int which, boolean isChecked) ->
-                  depthSettingsMenuDialogCheckboxes[which] = isChecked)
-              .setPositiveButton(
-                R.string.done,
-                (DialogInterface dialogInterface, int which) -> applySettingsMenuDialogCheckboxes())
-              .setNegativeButton(
-                android.R.string.cancel,
-                (DialogInterface dialog, int which) -> resetSettingsMenuDialogCheckboxes())
-              .show();
-        } else {
-            // Without depth support, no settings are available.
-            new AlertDialog.Builder(this)
-              .setTitle(R.string.options_title_without_depth)
-              .setPositiveButton(
-                R.string.done,
-                (DialogInterface dialogInterface, int which) -> applySettingsMenuDialogCheckboxes())
-              .show();
-        }
-    }
-
-    private void applySettingsMenuDialogCheckboxes() {
-        depthSettings.setUseDepthForOcclusion(depthSettingsMenuDialogCheckboxes[0]);
-        depthSettings.setDepthColorVisualizationEnabled(depthSettingsMenuDialogCheckboxes[1]);
-        instantPlacementSettings.setInstantPlacementEnabled(
-          instantPlacementSettingsMenuDialogCheckboxes[0]);
-        configureSession();
-    }
-
-    private void resetSettingsMenuDialogCheckboxes() {
-        depthSettingsMenuDialogCheckboxes[0] = depthSettings.useDepthForOcclusion();
-        depthSettingsMenuDialogCheckboxes[1] = depthSettings.depthColorVisualizationEnabled();
-        instantPlacementSettingsMenuDialogCheckboxes[0] =
-          instantPlacementSettings.isInstantPlacementEnabled();
     }
 
     /** Checks if we detected at least one plane. */
