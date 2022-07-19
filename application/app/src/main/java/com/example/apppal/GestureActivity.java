@@ -36,8 +36,7 @@ public class GestureActivity extends AppCompatActivity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.gesture_main);
-    setupLiveDemoUiComponents();
-    initializeConnection();
+    setupGestureRecognition();
   }
 
   @Override
@@ -64,7 +63,7 @@ public class GestureActivity extends AppCompatActivity {
   /**
    * Sets up the UI components for the live demo with camera input.
    */
-  private void setupLiveDemoUiComponents() {
+  private void setupGestureRecognition() {
     setupStreamingModePipeline();
     initializeConnection();
   }

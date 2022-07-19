@@ -9,12 +9,15 @@ import android.opengl.Matrix;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.view.View;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.apppal.Storage.GlobalState;
 import com.example.apppal.helpers.CameraPermissionHelper;
 import com.example.apppal.helpers.DepthSettings;
 import com.example.apppal.helpers.DisplayRotationHelper;
@@ -23,6 +26,7 @@ import com.example.apppal.helpers.InstantPlacementSettings;
 import com.example.apppal.helpers.TapHelper;
 import com.example.apppal.helpers.TrackingStateHelper;
 import com.example.apppal.renderer.ArRenderer;
+import com.example.apppal.renderer.HandsResultGlRenderer;
 import com.example.apppal.renderer.tools.BackgroundRenderer;
 import com.example.apppal.renderer.tools.Framebuffer;
 import com.example.apppal.renderer.tools.Mesh;
@@ -55,7 +59,10 @@ import com.google.ar.core.exceptions.UnavailableDeviceNotCompatibleException;
 import com.google.ar.core.exceptions.UnavailableSdkTooOldException;
 import com.google.ar.core.exceptions.UnavailableUserDeclinedInstallationException;
 import com.google.mediapipe.solutioncore.CameraInput;
+import com.google.mediapipe.solutioncore.SolutionGlSurfaceView;
 import com.google.mediapipe.solutions.hands.Hands;
+import com.google.mediapipe.solutions.hands.HandsOptions;
+import com.google.mediapipe.solutions.hands.HandsResult;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -155,12 +162,14 @@ public class PlayArActivity extends AppCompatActivity implements ArRenderer.Rend
 
     private CameraInput cameraInput;
     private Hands hands;
+    private GestureRecognitionSocket gestureSocket;
+    private SolutionGlSurfaceView<HandsResult> glSurfaceView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.ar_main);
-        surfaceView = findViewById(R.id.surfaceview);
+        surfaceView = new GLSurfaceView(this, null);
         displayRotationHelper = new DisplayRotationHelper(/*context=*/ this);
 
         // Set up touch listener.
@@ -175,6 +184,13 @@ public class PlayArActivity extends AppCompatActivity implements ArRenderer.Rend
         depthSettings.onCreate(this);
         instantPlacementSettings.onCreate(this);
 
+        setupGestureRecognition();
+
+        FrameLayout frameLayout = findViewById(R.id.surfaceview);
+        frameLayout.removeAllViewsInLayout();
+        frameLayout.addView(surfaceView);
+        surfaceView.setVisibility(View.VISIBLE);
+        frameLayout.requestLayout();
     }
 
     /** Menu button to launch feature specific settings. */
@@ -273,13 +289,51 @@ public class PlayArActivity extends AppCompatActivity implements ArRenderer.Rend
             session.pause();
         }
     }
-//    private void setupLiveDemoUiComponents() {
-//        Button startCameraButton = findViewById(R.id.button_start_drawing);
-//        startCameraButton.setOnClickListener(
-//          v -> {
-//              setupStreamingModePipeline(GestureActivity.InputSource.CAMERA);
-//              initializeConnection();
+
+    private void setupGestureRecognition() {
+//        setupStreamingModePipeline();
+//        initializeConnection();
+    }
+
+//    private void setupStreamingModePipeline() {
+//        // Initializes a new MediaPipe Hands solution instance in the streaming mode.
+//        hands =
+//          new Hands(
+//            this,
+//            HandsOptions.builder()
+//              .setStaticImageMode(false)
+//              .setMaxNumHands(1)
+//              .setRunOnGpu(true)
+//              .build());
+//        hands.setErrorListener((message, e) -> Log.e(TAG, "MediaPipe Hands error:" + message));
+//        // Initializes a new Gl surface view with a user-defined HandsResultGlRenderer.
+//        glSurfaceView =
+//          new SolutionGlSurfaceView<>(this, hands.getGlContext(), hands.getGlMajorVersion());
+//        glSurfaceView.setSolutionResultRenderer(new HandsResultGlRenderer());
+//        glSurfaceView.setRenderInputImage(true);
+//        hands.setResultListener(
+//          handsResult -> {
+//              logWristLandmark(handsResult, /*showPixelValues=*/ false);
+//              glSurfaceView.setRenderData(handsResult);
+//              glSurfaceView.requestRender();
 //          });
+//        // The runnable to start camera after the gl surface view is attached.
+//        // For video input source, videoInput.start() will be called when the video uri is available.
+//        glSurfaceView.post(this::startCamera);
+//        // Updates the preview layout.
+//        FrameLayout frameLayout = findViewById(R.id.preview_display_layout);
+//        frameLayout.removeAllViewsInLayout();
+//        frameLayout.addView(glSurfaceView);
+//        glSurfaceView.setVisibility(View.VISIBLE);
+//        frameLayout.requestLayout();
+//    }
+//
+//    private void initializeConnection() {
+//        gestureSocket = new GestureRecognitionSocket();
+//        gestureSocket.start();
+//
+//        GlobalState.textAnnounce = findViewById(R.id.text_announce);
+//        Utils.IS_GESTURE_DETECTION = true;
 //    }
 
     @Override

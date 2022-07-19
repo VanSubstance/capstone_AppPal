@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
         Button startCameraButton = findViewById(R.id.button_start_drawing);
         startCameraButton.setOnClickListener(
                 v -> {
-                    Intent playIntent = new Intent(MainActivity.this, GestureActivity.class);
+                    Intent playIntent = new Intent(MainActivity.this, PlayArActivity.class);
                     startActivity(playIntent);
                     finish();
                 });
