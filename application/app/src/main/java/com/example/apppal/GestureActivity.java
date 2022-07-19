@@ -65,23 +65,14 @@ public class GestureActivity extends AppCompatActivity {
    * Sets up the UI components for the live demo with camera input.
    */
   private void setupLiveDemoUiComponents() {
-    Button startCameraButton = findViewById(R.id.button_start_drawing);
-    startCameraButton.setOnClickListener(
-      v -> {
-        if (inputSource == InputSource.CAMERA) {
-          return;
-        }
-        stopCurrentPipeline();
-        setupStreamingModePipeline(InputSource.CAMERA);
-        initializeConnection();
-      });
+    setupStreamingModePipeline();
+    initializeConnection();
   }
 
   /**
    * Sets up core workflow for streaming mode.
    */
-  private void setupStreamingModePipeline(InputSource inputSource) {
-    this.inputSource = inputSource;
+  private void setupStreamingModePipeline() {
     // Initializes a new MediaPipe Hands solution instance in the streaming mode.
     hands =
       new Hands(
@@ -92,11 +83,6 @@ public class GestureActivity extends AppCompatActivity {
           .setRunOnGpu(RUN_ON_GPU)
           .build());
     hands.setErrorListener((message, e) -> Log.e(TAG, "MediaPipe Hands error:" + message));
-    if (inputSource == InputSource.CAMERA) {
-      cameraInput = new CameraInput(this);
-      cameraInput.setNewFrameListener(textureFrame -> hands.send(textureFrame));
-    } else {
-    }
     // Initializes a new Gl surface view with a user-defined HandsResultGlRenderer.
     glSurfaceView =
       new SolutionGlSurfaceView<>(this, hands.getGlContext(), hands.getGlMajorVersion());
@@ -110,9 +96,7 @@ public class GestureActivity extends AppCompatActivity {
       });
     // The runnable to start camera after the gl surface view is attached.
     // For video input source, videoInput.start() will be called when the video uri is available.
-    if (inputSource == InputSource.CAMERA) {
-      glSurfaceView.post(this::startCamera);
-    }
+    glSurfaceView.post(this::startCamera);
     // Updates the preview layout.
     FrameLayout frameLayout = findViewById(R.id.preview_display_layout);
     frameLayout.removeAllViewsInLayout();
@@ -121,6 +105,8 @@ public class GestureActivity extends AppCompatActivity {
     frameLayout.requestLayout();
   }
   private void startCamera() {
+    cameraInput = new CameraInput(this);
+    cameraInput.setNewFrameListener(textureFrame -> hands.send(textureFrame));
     cameraInput.start(
       this,
       hands.getGlContext(),
@@ -128,18 +114,7 @@ public class GestureActivity extends AppCompatActivity {
       glSurfaceView.getWidth(),
       glSurfaceView.getHeight());
   }
-  private void stopCurrentPipeline() {
-    if (cameraInput != null) {
-      cameraInput.setNewFrameListener(null);
-      cameraInput.close();
-    }
-    if (glSurfaceView != null) {
-      glSurfaceView.setVisibility(View.GONE);
-    }
-    if (hands != null) {
-      hands.close();
-    }
-  }
+
   private void logWristLandmark(HandsResult result, boolean showPixelValues) {
     if (result.multiHandLandmarks().isEmpty()) {
       return;

@@ -9,6 +9,7 @@ import android.opengl.Matrix;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
@@ -53,6 +54,8 @@ import com.google.ar.core.exceptions.UnavailableArcoreNotInstalledException;
 import com.google.ar.core.exceptions.UnavailableDeviceNotCompatibleException;
 import com.google.ar.core.exceptions.UnavailableSdkTooOldException;
 import com.google.ar.core.exceptions.UnavailableUserDeclinedInstallationException;
+import com.google.mediapipe.solutioncore.CameraInput;
+import com.google.mediapipe.solutions.hands.Hands;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -150,6 +153,9 @@ public class PlayArActivity extends AppCompatActivity implements ArRenderer.Rend
     private final float[] worldLightDirection = {0.0f, 0.0f, 0.0f, 0.0f};
     private final float[] viewLightDirection = new float[4]; // view x world light direction
 
+    private CameraInput cameraInput;
+    private Hands hands;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -168,6 +174,7 @@ public class PlayArActivity extends AppCompatActivity implements ArRenderer.Rend
 
         depthSettings.onCreate(this);
         instantPlacementSettings.onCreate(this);
+
     }
 
     /** Menu button to launch feature specific settings. */
@@ -266,6 +273,14 @@ public class PlayArActivity extends AppCompatActivity implements ArRenderer.Rend
             session.pause();
         }
     }
+//    private void setupLiveDemoUiComponents() {
+//        Button startCameraButton = findViewById(R.id.button_start_drawing);
+//        startCameraButton.setOnClickListener(
+//          v -> {
+//              setupStreamingModePipeline(GestureActivity.InputSource.CAMERA);
+//              initializeConnection();
+//          });
+//    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] results) {
