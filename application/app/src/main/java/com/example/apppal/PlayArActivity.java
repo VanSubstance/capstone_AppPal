@@ -1,7 +1,6 @@
 package com.example.apppal;
 
 import android.content.DialogInterface;
-import android.content.res.Resources;
 import android.media.Image;
 import android.opengl.GLES30;
 import android.opengl.GLSurfaceView;
@@ -10,15 +9,12 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Button;
 import android.widget.FrameLayout;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.apppal.Storage.GlobalState;
-import com.example.apppal.helpers.CameraPermissionHelper;
 import com.example.apppal.helpers.DepthSettings;
 import com.example.apppal.helpers.DisplayRotationHelper;
 import com.example.apppal.helpers.FullScreenHelper;
@@ -169,28 +165,55 @@ public class PlayArActivity extends AppCompatActivity implements ArRenderer.Rend
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.ar_main);
-        surfaceView = new GLSurfaceView(this, null);
+
         displayRotationHelper = new DisplayRotationHelper(/*context=*/ this);
 
-        // Set up touch listener.
-        tapHelper = new TapHelper(/*context=*/ this);
-        surfaceView.setOnTouchListener(tapHelper);
-
-        // Set up renderer.
-        render = new ArRenderer(surfaceView, this, getAssets());
 
         installRequested = false;
 
         depthSettings.onCreate(this);
         instantPlacementSettings.onCreate(this);
 
-        setupGestureRecognition();
+        hands =
+          new Hands(
+            this,
+            HandsOptions.builder()
+              .setStaticImageMode(false)
+              .setMaxNumHands(1)
+              .setRunOnGpu(true)
+              .build());
+        hands.setErrorListener((message, e) -> Log.e(TAG, "MediaPipe Hands error:" + message));
+        // Initializes a new Gl surface view with a user-defined HandsResultGlRenderer.
+        glSurfaceView =
+          new SolutionGlSurfaceView<>(this, hands.getGlContext(), hands.getGlMajorVersion());
+        glSurfaceView.setSolutionResultRenderer(new HandsResultGlRenderer());
+        glSurfaceView.setRenderInputImage(true);
+        hands.setResultListener(
+          handsResult -> {
+              glSurfaceView.setRenderData(handsResult);
+              glSurfaceView.requestRender();
+          });
+        // The runnable to start camera after the gl surface view is attached.
+        // For video input source, videoInput.start() will be called when the video uri is available.
+        glSurfaceView.post(this::startCamera);
+
+        // Set up renderer.
+        render = new ArRenderer(glSurfaceView, this, getAssets());
+
+        // Set up touch listener.
+        tapHelper = new TapHelper(/*context=*/ this);
+        glSurfaceView.setOnTouchListener(tapHelper);
 
         FrameLayout frameLayout = findViewById(R.id.surfaceview);
         frameLayout.removeAllViewsInLayout();
-        frameLayout.addView(surfaceView);
-        surfaceView.setVisibility(View.VISIBLE);
+        // Updates the preview layout.
+        frameLayout.addView(glSurfaceView);
+        glSurfaceView.setVisibility(View.VISIBLE);
+
         frameLayout.requestLayout();
+
+        initializeConnection();
+
     }
 
     /** Menu button to launch feature specific settings. */
@@ -205,6 +228,9 @@ public class PlayArActivity extends AppCompatActivity implements ArRenderer.Rend
             session.close();
             session = null;
         }
+
+        glSurfaceView.setVisibility(View.GONE);
+        cameraInput.close();
 
         super.onDestroy();
     }
@@ -227,10 +253,6 @@ public class PlayArActivity extends AppCompatActivity implements ArRenderer.Rend
 
                 // ARCore requires camera permissions to operate. If we did not yet obtain runtime
                 // permission on Android M and above, now is a good time to ask the user for it.
-                if (!CameraPermissionHelper.hasCameraPermission(this)) {
-                    CameraPermissionHelper.requestCameraPermission(this);
-                    return;
-                }
 
                 // Create the session.
                 session = new Session(/* context= */ this);
@@ -275,6 +297,11 @@ public class PlayArActivity extends AppCompatActivity implements ArRenderer.Rend
 
         surfaceView.onResume();
         displayRotationHelper.onResume();
+
+        cameraInput = new CameraInput(this);
+        cameraInput.setNewFrameListener(textureFrame -> hands.send(textureFrame));
+        glSurfaceView.post(this::startCamera);
+        glSurfaceView.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -290,65 +317,27 @@ public class PlayArActivity extends AppCompatActivity implements ArRenderer.Rend
         }
     }
 
-    private void setupGestureRecognition() {
-//        setupStreamingModePipeline();
-//        initializeConnection();
-    }
+    private void initializeConnection() {
+        gestureSocket = new GestureRecognitionSocket();
+        gestureSocket.start();
 
-//    private void setupStreamingModePipeline() {
-//        // Initializes a new MediaPipe Hands solution instance in the streaming mode.
-//        hands =
-//          new Hands(
-//            this,
-//            HandsOptions.builder()
-//              .setStaticImageMode(false)
-//              .setMaxNumHands(1)
-//              .setRunOnGpu(true)
-//              .build());
-//        hands.setErrorListener((message, e) -> Log.e(TAG, "MediaPipe Hands error:" + message));
-//        // Initializes a new Gl surface view with a user-defined HandsResultGlRenderer.
-//        glSurfaceView =
-//          new SolutionGlSurfaceView<>(this, hands.getGlContext(), hands.getGlMajorVersion());
-//        glSurfaceView.setSolutionResultRenderer(new HandsResultGlRenderer());
-//        glSurfaceView.setRenderInputImage(true);
-//        hands.setResultListener(
-//          handsResult -> {
-//              logWristLandmark(handsResult, /*showPixelValues=*/ false);
-//              glSurfaceView.setRenderData(handsResult);
-//              glSurfaceView.requestRender();
-//          });
-//        // The runnable to start camera after the gl surface view is attached.
-//        // For video input source, videoInput.start() will be called when the video uri is available.
-//        glSurfaceView.post(this::startCamera);
-//        // Updates the preview layout.
-//        FrameLayout frameLayout = findViewById(R.id.preview_display_layout);
-//        frameLayout.removeAllViewsInLayout();
-//        frameLayout.addView(glSurfaceView);
-//        glSurfaceView.setVisibility(View.VISIBLE);
-//        frameLayout.requestLayout();
-//    }
-//
-//    private void initializeConnection() {
-//        gestureSocket = new GestureRecognitionSocket();
-//        gestureSocket.start();
-//
-//        GlobalState.textAnnounce = findViewById(R.id.text_announce);
-//        Utils.IS_GESTURE_DETECTION = true;
-//    }
+        GlobalState.textAnnounce = findViewById(R.id.text_announce);
+        Utils.IS_GESTURE_DETECTION = true;
+    }
+    private void startCamera() {
+        cameraInput = new CameraInput(this);
+        cameraInput.setNewFrameListener(textureFrame -> hands.send(textureFrame));
+        cameraInput.start(
+          this,
+          hands.getGlContext(),
+          CameraInput.CameraFacing.BACK,
+          glSurfaceView.getWidth(),
+          glSurfaceView.getHeight());
+    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] results) {
         super.onRequestPermissionsResult(requestCode, permissions, results);
-        if (!CameraPermissionHelper.hasCameraPermission(this)) {
-            // Use toast instead of snackbar here since the activity will exit.
-            Toast.makeText(this, "Camera permission is needed to run this application", Toast.LENGTH_LONG)
-              .show();
-            if (!CameraPermissionHelper.shouldShowRequestPermissionRationale(this)) {
-                // Permission denied with checking "Do not ask again".
-                CameraPermissionHelper.launchPermissionSettings(this);
-            }
-            finish();
-        }
     }
 
     @Override
@@ -541,7 +530,6 @@ public class PlayArActivity extends AppCompatActivity implements ArRenderer.Rend
         } else {
             message = SEARCHING_PLANE_MESSAGE;
         }
-        Log.e(TAG, "onDrawFrame: " + message);
 
         // -- Draw background
 

@@ -8,7 +8,14 @@
   android:orientation="vertical">
 
   <FrameLayout
-    android:id="@+id/preview_display_layout"
+    android:id="@+id/camera_view"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+  </FrameLayout>
+
+  <FrameLayout
+    android:id="@+id/hand_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 

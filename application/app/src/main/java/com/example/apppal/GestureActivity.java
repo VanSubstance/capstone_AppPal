@@ -1,7 +1,9 @@
 package com.example.apppal;
 
+import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.TextureView;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
@@ -32,6 +34,9 @@ public class GestureActivity extends AppCompatActivity {
   private CameraInput cameraInput;
   private SolutionGlSurfaceView<HandsResult> glSurfaceView;
   private GestureRecognitionSocket gestureSocket;
+  private TextureView textureView;
+
+  private GLSurfaceView cameraView;
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -89,7 +94,6 @@ public class GestureActivity extends AppCompatActivity {
     glSurfaceView.setRenderInputImage(true);
     hands.setResultListener(
       handsResult -> {
-        logWristLandmark(handsResult, /*showPixelValues=*/ false);
         glSurfaceView.setRenderData(handsResult);
         glSurfaceView.requestRender();
       });
@@ -97,7 +101,7 @@ public class GestureActivity extends AppCompatActivity {
     // For video input source, videoInput.start() will be called when the video uri is available.
     glSurfaceView.post(this::startCamera);
     // Updates the preview layout.
-    FrameLayout frameLayout = findViewById(R.id.preview_display_layout);
+    FrameLayout frameLayout = findViewById(R.id.hand_view);
     frameLayout.removeAllViewsInLayout();
     frameLayout.addView(glSurfaceView);
     glSurfaceView.setVisibility(View.VISIBLE);
