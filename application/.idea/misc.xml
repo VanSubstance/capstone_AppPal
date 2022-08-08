@@ -3,8 +3,10 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/repos/capstone_AppPal/application/app/src/main/res/drawable/gesture_main.xml" value="0.103" />
         <entry key="..\:/repos/capstone_AppPal/application/app/src/main/res/layout/activity_main.xml" value="0.2871376811594203" />
         <entry key="..\:/repos/capstone_AppPal/application/app/src/main/res/layout/ar_main.xml" value="0.22010869565217392" />
+        <entry key="..\:/repos/capstone_AppPal/application/app/src/main/res/layout/gesture_main.xml" value="0.21467391304347827" />
         <entry key="..\:/repos/capstone_AppPal/application/app/src/main/res/menu/settings_menu.xml" value="0.27760416666666665" />
       </map>
     </option>
