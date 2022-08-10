@@ -22,7 +22,6 @@ import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.capstone.apppal.analytics.AnalyticsEvents;
@@ -54,6 +53,8 @@ import static com.capstone.apppal.view.PairView.PairState.PARTNER_CONNECTED;
 import static com.capstone.apppal.view.PairView.PairState.PARTNER_CONNECTING;
 import static com.capstone.apppal.view.PairView.PairState.PARTNER_READY_AND_WAITING;
 import static com.capstone.apppal.view.PairView.PairState.PARTNER_RESOLVE_ERROR;
+
+import androidx.annotation.NonNull;
 
 /**
  * Created by Kat on 4/4/18.

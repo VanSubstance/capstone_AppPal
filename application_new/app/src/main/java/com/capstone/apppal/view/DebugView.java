@@ -16,10 +16,11 @@ package com.capstone.apppal.view;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.widget.FrameLayout;
 import android.widget.TextView;
+
+import androidx.annotation.Nullable;
 
 import com.capstone.apppal.BuildConfig;
 import com.capstone.apppal.R;

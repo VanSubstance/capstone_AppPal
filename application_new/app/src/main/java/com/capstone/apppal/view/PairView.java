@@ -19,8 +19,6 @@ import android.content.Context;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.constraint.ConstraintLayout;
-import android.support.constraint.ConstraintSet;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.Button;
@@ -40,6 +38,9 @@ import java.util.concurrent.TimeUnit;
 
 import static com.airbnb.lottie.LottieDrawable.INFINITE;
 import static com.airbnb.lottie.LottieDrawable.RESTART;
+
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.constraintlayout.widget.ConstraintSet;
 
 /**
  * Created by Kat on 3/29/18.

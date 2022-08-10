@@ -15,9 +15,10 @@
 package com.capstone.apppal.analytics;
 
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.util.Log;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.capstone.apppal.App;
 import com.capstone.apppal.BuildConfig;

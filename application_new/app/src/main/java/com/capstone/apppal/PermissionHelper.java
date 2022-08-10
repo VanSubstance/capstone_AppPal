@@ -24,8 +24,9 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.provider.Settings;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
+
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.capstone.apppal.analytics.AnalyticsEvents;
 import com.capstone.apppal.analytics.Fa;
@@ -131,7 +132,7 @@ public class PermissionHelper {
         alertDialog.setTitle(activity.getString(R.string.title_activity_permissions));
         alertDialog.setMessage(activity.getString(R.string.initial_permissions_required));
 
-        alertDialog.setButton(android.support.v7.app.AlertDialog.BUTTON_NEUTRAL,
+        alertDialog.setButton(androidx.appcompat.app.AlertDialog.BUTTON_NEUTRAL,
                 activity.getString(R.string.ask_me_again),
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
@@ -157,7 +158,7 @@ public class PermissionHelper {
         alertDialog.setTitle(activity.getString(R.string.title_activity_permissions));
         alertDialog.setMessage(activity.getString(R.string.initial_permissions_required));
 
-        alertDialog.setButton(android.support.v7.app.AlertDialog.BUTTON_NEUTRAL,
+        alertDialog.setButton(androidx.appcompat.app.AlertDialog.BUTTON_NEUTRAL,
                 activity.getString(R.string.open_system_permissions),
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
@@ -207,7 +208,7 @@ public class PermissionHelper {
         final AlertDialog
                 alertDialog = new AlertDialog.Builder(activity).create();
         alertDialog.setMessage(activity.getString(R.string.storage_permission_rationale));
-        alertDialog.setButton(android.support.v7.app.AlertDialog.BUTTON_POSITIVE,
+        alertDialog.setButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE,
                 activity.getString(R.string.ok),
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {

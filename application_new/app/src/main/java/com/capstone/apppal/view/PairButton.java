@@ -15,9 +15,10 @@
 package com.capstone.apppal.view;
 
 import android.content.Context;
-import android.support.constraint.ConstraintLayout;
 import android.util.AttributeSet;
 import android.widget.ImageView;
+
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.capstone.apppal.PairSessionManager;
 import com.capstone.apppal.R;

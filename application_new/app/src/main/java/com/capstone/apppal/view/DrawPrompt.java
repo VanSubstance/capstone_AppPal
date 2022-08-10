@@ -17,12 +17,13 @@ package com.capstone.apppal.view;
 import android.animation.Animator;
 import android.content.Context;
 import android.os.PowerManager;
-import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.annotation.Nullable;
 
 import com.capstone.apppal.R;
 
