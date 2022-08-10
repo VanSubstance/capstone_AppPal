@@ -15,3 +15,26 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
+
+# Keep FirebaseCrash#getInstance since it is called by reflection when Firebase is initialized.
+-keep class com.google.firebase.crash.FirebaseCrash {
+  public static com.google.firebase.crash.FirebaseCrash getInstance(com.google.firebase.FirebaseApp);
+}
+
+-dontwarn com.google.android.**
+-dontwarn com.google.firebase.**
+
+# Add this global rule
+-keepattributes Signature
+
+# This rule will properly ProGuard all the model classes in
+# the package com.yourcompany.models. Modify to fit the structure
+# of your app.
+-keepclassmembers class com.capstone.apppal.model.** {
+  *;
+}
+
+-keepclassmembers class javax.vecmath.** {
+  *;
+}
+

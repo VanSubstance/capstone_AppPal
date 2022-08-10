@@ -1,38 +1,41 @@
 #extension GL_OES_standard_derivatives : enable
-precision mediump float;
+precision highp float;
 
-uniform float visibility;
-uniform float alphaTest;
-uniform float drawMode;
-uniform float nearCutOff;
-uniform float farCutOff;
-varying vec4 vColor;
-varying float depth;
-varying float vCounters;
+//uniform sampler2D u_Texture;
+uniform sampler2D u_EndCapTexture;
+
+uniform float drawingDist;
+
+varying float v_Depth;
+varying float v_EndCapPosition;
+varying vec4 v_Color;
+varying vec2 v_TexCoord;
+varying vec2 v_TexCoordEndCap;
+varying vec2 v_TexCoordStartCap;
+
 float map(float value, float inMin, float inMax, float outMin, float outMax) {
-//  return outMin + (outMax - outMin) * (value - inMin) / (inMax - inMin);
   return ((value - inMin) / (inMax - inMin) * (outMax - outMin) + outMin);
 }
 
-
 void main() {
-    vec4 c = vColor;
-	if( c.a < alphaTest ) discard;
+    vec4 endCapTexture = texture2D(u_EndCapTexture, v_TexCoordEndCap);
+    vec4 startCapTexture = texture2D(u_EndCapTexture, v_TexCoordStartCap);
 
-	if(drawMode > 0.0){
-        if(depth <= nearCutOff){
-            c.gb *= map(depth, nearCutOff, nearCutOff * 0.95, 0.0, 1.0);
-        }
-        if(depth > nearCutOff && depth < farCutOff){
-             c.gb *= 0.0;
-        }
-        if(depth >= farCutOff){
-            c.gb *= map(depth, farCutOff, farCutOff * 1.05, 0.0, 1.0);
-        }
-	}
+    if(v_TexCoordEndCap.x > 1.0){
+        discard;
+    }
+
+    gl_FragColor = v_Color;
+    gl_FragColor.a *= min(startCapTexture.a, endCapTexture.a);
 
 
-    gl_FragColor = c;
+//    // Calculate the distance
+//    vec4 control = texture2D(u_Texture, v_TexCoord);
+//    float distDiff = abs(drawingDist - v_Depth);
+//
+//    if(distDiff > 0.0){
+//        float c = clamp(0.002/distDiff, 0.0, 1.0);
+//        gl_FragColor = max(gl_FragColor, mix(vec4(0), control, c));
+//    }
 
-	gl_FragColor.a *= step(vCounters,visibility);
-} 
+}

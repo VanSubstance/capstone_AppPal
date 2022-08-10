@@ -6,7 +6,7 @@ arcore_client.aar may use portions of the following libraries subject to the
 accompanying licenses:
 
 ***
-vecmath
+javax.vecmath
 ***
 
 Copyright (C) 1997,1998,1999

@@ -13,142 +13,224 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 -->
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/content"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/content"
-    tools:context="com.googlecreativelab.drawar.DrawAR">
+    tools:context="com.capstone.apppal.DrawARActivity">
 
-    <LinearLayout
+    <!-- surface view-->
+    <com.uncorkedstudios.android.view.recordablesurfaceview.RecordableSurfaceView
+        android:id="@+id/surfaceview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_gravity="top" />
 
-        <android.opengl.GLSurfaceView
-            android:id="@+id/surfaceview"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:layout_gravity="top"
-            android:layout_weight="1" />
+    <!-- Brush selection, record, undo-->
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/draw_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="bottom"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
+        <!-- Finding surfaces -->
+
+        <com.capstone.apppal.view.DebugView
+            android:id="@+id/debug_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <ImageButton
+            android:id="@+id/button_overflow_menu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/ripple_bg_borderless_oval"
+            android:contentDescription="@string/content_description_overflow_menu"
+            android:padding="16dp"
+            android:src="@drawable/ic_overflow"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.capstone.apppal.view.RecordButton
+            android:id="@+id/record_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:contentDescription="@string/content_description_record"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias=".93"
+            android:accessibilityTraversalBefore="@id/button_pair"/>
+
+        <com.capstone.apppal.view.BrushSelector
+            android:id="@+id/brush_selector"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="40dp"
+            app:layout_constraintBottom_toBottomOf="@id/record_button"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toLeftOf="@id/record_button"
+            android:accessibilityTraversalBefore="@id/record_button"/>
+
+        <com.capstone.apppal.view.PairButton
+            android:id="@+id/button_pair"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/content_description_join_friend"
+            app:layout_constraintBottom_toBottomOf="@id/record_button"
+            app:layout_constraintLeft_toRightOf="@id/record_button"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="@id/record_button" />
+
+        <TextView
+            android:id="@+id/pair_active"
+            style="@style/OverlayText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_pair_state_paired"
+            android:gravity="center"
+            android:paddingBottom="4dp"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            android:paddingTop="4dp"
+            android:text="@string/active"
+            android:textSize="10sp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@id/button_pair"
+            app:layout_constraintLeft_toLeftOf="@id/button_pair"
+            app:layout_constraintRight_toRightOf="@id/button_pair" />
+
+        <com.capstone.apppal.view.PairButtonToolTip
+            android:id="@+id/tooltip_button_pair"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@id/button_pair"
+            app:layout_constraintEnd_toEndOf="@id/button_pair"
+            app:layout_constraintStart_toStartOf="@id/button_pair"
+            android:layout_marginBottom="14dp"
+            android:layout_marginRight="@dimen/tooltip_offset"/>
+
+
+        <!-- Overflow Menu -->
         <LinearLayout
-            android:id="@+id/button_bar"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:background="@android:color/black"
-            android:orientation="horizontal">
+            android:id="@+id/layout_menu_items"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:background="@color/menu_bg_semi_transparent"
+            android:elevation="3dp"
+            android:orientation="vertical"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="@+id/button_overflow_menu"
+            app:layout_constraintTop_toBottomOf="@id/button_overflow_menu">
 
-            <ImageButton
-                android:layout_width="@android:dimen/app_icon_size"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:background="@android:color/transparent"
-                android:elevation="0dp"
-                android:onClick="onClickUndo"
-                android:src="@drawable/ic_undo_black_24dp"
-                android:tint="@android:color/darker_gray" />
+            <TextView
+                android:id="@+id/menu_item_share_app"
+                style="@style/MenuItem"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/menu_share_app" />
 
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/menu_line_semi_transparent_grey" />
 
-            <ImageButton
-                android:id="@+id/imageButton9"
-                android:layout_width="@android:dimen/app_icon_size"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:background="@android:color/transparent"
-                android:elevation="0dp"
-                android:onClick="onClickRecenter"
-                android:src="@drawable/ic_my_location_black_24dp"
-                android:tint="@android:color/darker_gray" />
+            <TextView
+                android:id="@+id/menu_item_about"
+                style="@style/MenuItem"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/menu_about" />
 
-            <ImageButton
-                android:id="@+id/imageButton13"
-                android:layout_width="@android:dimen/app_icon_size"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:background="@android:color/transparent"
-                android:elevation="0dp"
-                android:onClick="onClickClear"
-                android:src="@drawable/ic_delete_black_24dp"
-                android:tint="@android:color/darker_gray" />
+            <!--<View-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="1dp"-->
+            <!--android:background="@color/menu_line_semi_transparent_grey"/>-->
 
-            <ImageButton
-                android:id="@+id/settingsButton"
-                android:layout_width="@android:dimen/app_icon_size"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:background="@android:color/transparent"
-                android:elevation="0dp"
-                android:onClick="onClickSettings"
-                android:src="@drawable/ic_settings_black_24dp"
-                android:tint="@android:color/darker_gray" />
+            <!--<TextView-->
+            <!--android:id="@+id/menu_item_crash"-->
+            <!--android:text="Crash"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--style="@style/MenuItem"/>-->
+
+            <!--<View-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="1dp"-->
+            <!--android:background="@color/menu_line_semi_transparent_grey"/>-->
+
+            <!--<TextView-->
+            <!--android:id="@+id/menu_item_hide_ui"-->
+            <!--android:text="Hide UI"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--style="@style/MenuItem"/>-->
+
         </LinearLayout>
 
-    </LinearLayout>
+        <ImageButton
+            android:id="@+id/menu_item_clear"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/ripple_bg_borderless_oval"
+            android:contentDescription="@string/menu_clear"
+            android:padding="16dp"
+            android:src="@drawable/ic_clear"
+            android:visibility="gone"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
+        <ImageButton
+            android:id="@+id/undo_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/ripple_bg_borderless_oval"
+            android:contentDescription="@string/content_description_undo"
+            android:onClick="onClickUndo"
+            android:padding="16dp"
+            android:src="@drawable/ic_undo"
+            android:visibility="gone"
+            app:layout_constraintStart_toEndOf="@id/menu_item_clear"
+            app:layout_constraintTop_toTopOf="parent" />
 
-    <LinearLayout
-        android:id="@+id/strokeUI"
+    </android.support.constraint.ConstraintLayout>
+
+    <!-- Sharing -->
+    <com.capstone.apppal.view.PairView
+        android:id="@+id/view_join"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
+
+    <com.capstone.apppal.view.TrackingIndicator
+        android:id="@+id/finding_surfaces_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@android:color/background_dark"
-        android:orientation="vertical"
-        android:paddingBottom="10dp"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"
-        android:paddingTop="10dp">
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-        <Switch
-            android:id="@+id/debugView"
-            android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:checked="false"
-            android:onClick="onClickLineDebug"
-            android:text="Drawing plane highlight"
-            android:textColor="@android:color/darker_gray"
-            tools:checked="false" />
+    <com.capstone.apppal.view.PlaybackView
+        android:id="@+id/playback"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
 
-        <TextView
-            android:id="@+id/textView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Line Width"
-            android:textColor="@android:color/darker_gray" />
-
-        <SeekBar
-            android:id="@+id/lineWidth"
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:max="100"
-            android:progress="50" />
-
-        <TextView
-            android:id="@+id/textView4"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Distance Scale" />
-
-        <SeekBar
-            android:id="@+id/distanceScale"
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:max="100"
-            android:progress="50" />
-
-        <TextView
-            android:id="@+id/textView3"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Smoothing" />
-
-        <SeekBar
-            android:id="@+id/smoothingSeekBar"
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:max="100"
-            android:progress="50" />
-    </LinearLayout>
-
-
-</RelativeLayout>
+</android.support.constraint.ConstraintLayout>
