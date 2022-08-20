@@ -63,38 +63,24 @@
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <com.capstone.apppal.view.RecordButton
-            android:id="@+id/record_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:clickable="true"
-            android:contentDescription="@string/content_description_record"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias=".93"
-            android:accessibilityTraversalBefore="@id/button_pair"/>
-
         <com.capstone.apppal.view.BrushSelector
             android:id="@+id/brush_selector"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="40dp"
-            app:layout_constraintBottom_toBottomOf="@id/record_button"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toLeftOf="@id/record_button"
-            android:accessibilityTraversalBefore="@id/record_button"/>
+            android:layout_marginLeft="40dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"/>
 
         <com.capstone.apppal.view.PairButton
             android:id="@+id/button_pair"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="40dp"
+            android:layout_marginRight="40dp"
             android:contentDescription="@string/content_description_join_friend"
-            app:layout_constraintBottom_toBottomOf="@id/record_button"
-            app:layout_constraintLeft_toRightOf="@id/record_button"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="@id/record_button" />
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintRight_toRightOf="parent"/>
 
         <TextView
             android:id="@+id/pair_active"
