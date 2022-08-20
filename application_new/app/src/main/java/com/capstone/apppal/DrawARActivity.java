@@ -172,10 +172,6 @@ public class DrawARActivity extends BaseActivity
 
     private TrackingIndicator mTrackingIndicator;
 
-    private View mOverflowButton;
-
-    private LinearLayout mOverflowLayout;
-
     private View mClearDrawingButton;
 
     private Handler mHandler = new Handler(Looper.getMainLooper());
@@ -237,13 +233,8 @@ public class DrawARActivity extends BaseActivity
         mSurfaceView = findViewById(R.id.surfaceview);
         mSurfaceView.setRendererCallbacks(this);
 
-        mOverflowButton = findViewById(R.id.button_overflow_menu);
-        mOverflowButton.setOnClickListener(this);
-        mOverflowLayout = findViewById(R.id.layout_menu_items);
         mClearDrawingButton = findViewById(R.id.menu_item_clear);
         mClearDrawingButton.setOnClickListener(this);
-        findViewById(R.id.menu_item_about).setOnClickListener(this);
-        findViewById(R.id.menu_item_share_app).setOnClickListener(this);
 
 //        findViewById(R.id.menu_item_crash).setOnClickListener(this);
 //        findViewById(R.id.menu_item_hide_ui).setOnClickListener(this);
@@ -424,9 +415,6 @@ public class DrawARActivity extends BaseActivity
         // TODO: Only used id hidden by "Hide UI menu"
         findViewById(R.id.draw_container).setVisibility(View.VISIBLE);
 
-        if (!BuildConfig.SHOW_NAVIGATION) {
-            mOverflowButton.setVisibility(View.GONE);
-        }
     }
 
     /**
@@ -777,24 +765,6 @@ public class DrawARActivity extends BaseActivity
                 AnalyticsEvents.VALUE_TRUE);
     }
 
-    private void toggleOverflowMenu() {
-        if (mOverflowLayout.getVisibility() == View.VISIBLE) {
-            hideOverflowMenu();
-        } else {
-            showOverflowMenu();
-        }
-    }
-
-    private void showOverflowMenu() {
-        if (!mPlaybackView.isOpen()) { // only show overflow if not in playback view
-            mOverflowLayout.setVisibility(View.VISIBLE);
-        }
-    }
-
-    private void hideOverflowMenu() {
-        mOverflowLayout.setVisibility(View.GONE);
-    }
-
 
     private boolean stopRecording() {
         boolean stoppedSuccessfully;
@@ -813,7 +783,6 @@ public class DrawARActivity extends BaseActivity
             ErrorDialog.newInstance(R.string.stop_recording_failed, false).show(this);
         }
 
-        mOverflowButton.setVisibility(View.VISIBLE);
         enableView(mPairButton);
 
         return stoppedSuccessfully;
@@ -824,8 +793,6 @@ public class DrawARActivity extends BaseActivity
         boolean startSuccessful = mSurfaceView.startRecording();
 
         if (startSuccessful) {
-            mOverflowButton.setVisibility(View.GONE);
-            hideOverflowMenu();
             disableView(mPairButton);
             Log.v(TAG, "Recording Started");
         } else {
@@ -906,10 +873,6 @@ public class DrawARActivity extends BaseActivity
     }
 
     private void closeViewsOutsideTapTarget(MotionEvent tap) {
-        if (isOutsideViewBounds(mOverflowLayout, (int) tap.getRawX(), (int) tap.getRawY())
-                && mOverflowLayout.getVisibility() == View.VISIBLE) {
-            hideOverflowMenu();
-        }
         if (isOutsideViewBounds(mBrushSelector, (int) tap.getRawX(), (int) tap.getRawY())
                 && mBrushSelector.isOpen()) {
             mBrushSelector.close();
@@ -1053,29 +1016,11 @@ public class DrawARActivity extends BaseActivity
 
     @Override
     public void onClick(View v) {
-        boolean hideOverflow = true;
         boolean hidePairToolTip = true;
         switch (v.getId()) {
-            case R.id.button_overflow_menu:
-                toggleOverflowMenu();
-                hideOverflow = false;
-                break;
             case R.id.menu_item_clear:
                 onClickClear();
                 break;
-            case R.id.menu_item_about:
-                Intent intent = new Intent(this, AboutActivity.class);
-                startActivity(intent);
-                break;
-            case R.id.menu_item_share_app:
-                shareApp();
-                mAnalytics.send(AnalyticsEvents.EVENT_TAPPED_SHARE_APP);
-                break;
-//            case R.id.menu_item_crash:
-//                throw new RuntimeException("Intentional crash from overflow menu option");
-//            case R.id.menu_item_hide_ui:
-//                findViewById(R.id.draw_container).setVisibility(View.INVISIBLE);
-//                break;
             case R.id.button_pair:
                 if (mPairSessionManager.isInRoom()) {
                     LeaveRoomDialog.newInstance().show(this);
@@ -1088,9 +1033,6 @@ public class DrawARActivity extends BaseActivity
                 break;
         }
         mBrushSelector.close();
-        if (hideOverflow) {
-            hideOverflowMenu();
-        }
         if (hidePairToolTip) {
             mPairButtonToolTip.hide();
             if (!mPairSessionManager.isPaired())

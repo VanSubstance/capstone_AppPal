@@ -52,17 +52,6 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
-        <ImageButton
-            android:id="@+id/button_overflow_menu"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/ripple_bg_borderless_oval"
-            android:contentDescription="@string/content_description_overflow_menu"
-            android:padding="16dp"
-            android:src="@drawable/ic_overflow"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
         <com.capstone.apppal.view.BrushSelector
             android:id="@+id/brush_selector"
             android:layout_width="wrap_content"
@@ -110,65 +99,6 @@
             app:layout_constraintStart_toStartOf="@id/button_pair"
             android:layout_marginBottom="14dp"
             android:layout_marginRight="@dimen/tooltip_offset"/>
-
-
-        <!-- Overflow Menu -->
-        <LinearLayout
-            android:id="@+id/layout_menu_items"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:background="@color/menu_bg_semi_transparent"
-            android:elevation="3dp"
-            android:orientation="vertical"
-            android:visibility="gone"
-            app:layout_constraintEnd_toEndOf="@+id/button_overflow_menu"
-            app:layout_constraintTop_toBottomOf="@id/button_overflow_menu">
-
-            <TextView
-                android:id="@+id/menu_item_share_app"
-                style="@style/MenuItem"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/menu_share_app" />
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@color/menu_line_semi_transparent_grey" />
-
-            <TextView
-                android:id="@+id/menu_item_about"
-                style="@style/MenuItem"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/menu_about" />
-
-            <!--<View-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="1dp"-->
-            <!--android:background="@color/menu_line_semi_transparent_grey"/>-->
-
-            <!--<TextView-->
-            <!--android:id="@+id/menu_item_crash"-->
-            <!--android:text="Crash"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--style="@style/MenuItem"/>-->
-
-            <!--<View-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="1dp"-->
-            <!--android:background="@color/menu_line_semi_transparent_grey"/>-->
-
-            <!--<TextView-->
-            <!--android:id="@+id/menu_item_hide_ui"-->
-            <!--android:text="Hide UI"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--style="@style/MenuItem"/>-->
-
-        </LinearLayout>
 
         <ImageButton
             android:id="@+id/menu_item_clear"

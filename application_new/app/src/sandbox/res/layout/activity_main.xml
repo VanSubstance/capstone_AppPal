@@ -52,19 +52,6 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"/>
 
-        <!-- Overflow is hidden in Demo/Landscape-->
-        <ImageButton
-                android:id="@+id/button_overflow_menu"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/ripple_bg_borderless_oval"
-                android:contentDescription="@string/content_description_overflow_menu"
-                android:padding="16dp"
-                android:src="@drawable/ic_overflow"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                android:visibility="gone"/>
-
         <com.capstone.apppal.view.BrushSelector
                 android:id="@+id/brush_selector"
                 android:layout_width="wrap_content"
@@ -111,66 +98,6 @@
                 app:layout_constraintEnd_toEndOf="@id/button_pair"
                 android:visibility="gone"
                 android:layout_marginBottom="14dp"/>
-
-
-        <!-- Overflow Menu -->
-        <!-- Not accessible in Landscape, must keep so that references in DrawARActivity are not null -->
-        <LinearLayout
-                android:id="@+id/layout_menu_items"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:background="@color/menu_bg_semi_transparent"
-                android:elevation="3dp"
-                android:orientation="vertical"
-                android:visibility="gone"
-                app:layout_constraintEnd_toEndOf="@+id/button_overflow_menu"
-                app:layout_constraintTop_toBottomOf="@id/button_overflow_menu">
-
-            <TextView
-                    android:id="@+id/menu_item_share_app"
-                    android:text="@string/menu_share_app"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    style="@style/MenuItem"/>
-
-            <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="@color/menu_line_semi_transparent_grey"/>
-
-            <TextView
-                    android:id="@+id/menu_item_about"
-                    android:text="@string/menu_about"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    style="@style/MenuItem"/>
-
-            <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="@color/menu_line_semi_transparent_grey"/>
-
-            <TextView
-                    android:id="@+id/menu_item_crash"
-                    android:text="Crash"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    style="@style/MenuItem"/>
-
-            <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="@color/menu_line_semi_transparent_grey"/>
-
-            <TextView
-                    android:id="@+id/menu_item_hide_ui"
-                    android:text="Hide UI"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    style="@style/MenuItem"/>
-
-        </LinearLayout>
 
         <ImageButton
                 android:id="@+id/menu_item_clear"
