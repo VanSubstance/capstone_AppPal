@@ -54,7 +54,6 @@ import com.capstone.apppal.view.PairButton;
 import com.capstone.apppal.view.PairButtonToolTip;
 import com.capstone.apppal.view.PairView;
 import com.capstone.apppal.view.PlaybackView;
-import com.capstone.apppal.view.RecordButton;
 import com.capstone.apppal.view.TrackingIndicator;
 import com.google.ar.core.Anchor;
 import com.google.ar.core.ArCoreApk;
@@ -90,7 +89,7 @@ import javax.vecmath.Vector3f;
 
 public class DrawARActivity extends BaseActivity
         implements RecordableSurfaceView.RendererCallbacks, View.OnClickListener,
-        RecordButton.Listener, ClearDrawingDialog.Listener, PlaybackView.Listener,
+        ClearDrawingDialog.Listener, PlaybackView.Listener,
         ErrorDialog.Listener, RoomManager.StrokeUpdateListener, PairView.Listener,
         LeaveRoomDialog.Listener, PairSessionManager.AnchorStateListener,
         PairButtonToolTip.Listener, PairSessionManager.PartnerUpdateListener {
@@ -168,8 +167,6 @@ public class DrawARActivity extends BaseActivity
     private File mOutputFile;
 
     private BrushSelector mBrushSelector;
-
-    private RecordButton mRecordButton;
 
     private View mUndoButton;
 
@@ -261,9 +258,6 @@ public class DrawARActivity extends BaseActivity
 
         // set up brush selector
         mBrushSelector = findViewById(R.id.brush_selector);
-
-        mRecordButton = findViewById(R.id.record_button);
-        mRecordButton.setEnabled(false);
 
         // Reset the zero matrix
         Matrix.setIdentityM(mZeroMatrix, 0);
@@ -397,9 +391,6 @@ public class DrawARActivity extends BaseActivity
         mScreenHeight = displayMetrics.heightPixels;
         mScreenWidth = displayMetrics.widthPixels;
 
-        mRecordButton.reset();
-        mRecordButton.setListener(this);
-
         mPlaybackView.setListener(this);
 
         mPlaybackView.resume();
@@ -434,7 +425,6 @@ public class DrawARActivity extends BaseActivity
         findViewById(R.id.draw_container).setVisibility(View.VISIBLE);
 
         if (!BuildConfig.SHOW_NAVIGATION) {
-            mRecordButton.setVisibility(View.GONE);
             mOverflowButton.setVisibility(View.GONE);
         }
     }
@@ -444,9 +434,6 @@ public class DrawARActivity extends BaseActivity
      */
     @Override
     public void onPause() {
-        if (mRecordButton.isRecording()) {
-            mRecordButton.setRecording(false);
-        }
 
         // Note that the order matters - SurfaceView is paused first so that it does not try
         // to query the session. If Session is paused before GLSurfaceView, GLSurfaceView may
@@ -456,7 +443,6 @@ public class DrawARActivity extends BaseActivity
             mSession.pause();
         }
 
-        mRecordButton.setListener(null);
         mTrackingIndicator.resetTrackingTimeout();
 
         if (mPlaybackView != null) {
@@ -819,7 +805,6 @@ public class DrawARActivity extends BaseActivity
             Fa.get().exception(e, "Error stopping recording");
         }
         if (stoppedSuccessfully) {
-            mRecordButton.setEnabled(false);
             openPlayback(mOutputFile);
             Log.v(TAG, "Recording Stopped");
         } else {
@@ -995,13 +980,6 @@ public class DrawARActivity extends BaseActivity
             getWindowManager().getDefaultDisplay().getRealSize(size);
             mSurfaceView.initRecorder(mOutputFile, size.x, size.y, null, null);
 
-            // on some devices, this will not be on the UI thread when called from onSurfaceCreated
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    mRecordButton.setEnabled(true);
-                }
-            });
         } catch (IOException ioex) {
             Log.e(TAG, "Couldn't setup recording", ioex);
             Fa.get().exception(ioex, "Error setting up recording");
@@ -1121,33 +1099,6 @@ public class DrawARActivity extends BaseActivity
     }
 
     @Override
-    public boolean onRequestRecordingStart() {
-        return startRecording();
-    }
-
-    @Override
-    public boolean onRequestRecordingStop() {
-        return stopRecording();
-    }
-
-    @Override
-    public void onRequestRecordingCancel() {
-        try {
-            mSurfaceView.stopRecording();
-        } catch (RuntimeException e) {
-            Fa.get().exception(e, "Error stopping recording during cancel");
-        }
-
-        // reset everything to try again
-        onPlaybackClosed();
-
-        mOverflowButton.setVisibility(View.VISIBLE);
-
-        enableView(mPairButton);
-
-    }
-
-    @Override
     public void onBackPressed() {
         if (mPlaybackView.isOpen()) {
             mPlaybackView.close();
@@ -1173,7 +1124,6 @@ public class DrawARActivity extends BaseActivity
         showView(mTrackingIndicator);
 
         setupImmersive();
-        mRecordButton.reset();
         prepareForRecording();
     }
 
