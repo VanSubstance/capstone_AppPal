@@ -503,14 +503,13 @@ public class DrawARActivity extends BaseActivity
 
     switch (mToolSelector.getSelectedToolType()) {
       case ERASE:
-        Log.e(TAG, "trackPoint3f: 지우개...");
+        /**
+         * 지우개 모드
+         * */
         Vector3f targetPoint = newPoint[newPoint.length - 1];
         if (mAnchor != null && mAnchor.getTrackingState() == TrackingState.TRACKING) {
-          Log.e(TAG, "\ttrackPoint3f: 앵커 있음!!");
           point = LineUtils.TransformPointToPose(targetPoint, mAnchor.getPose());
-          Log.e(TAG, "trackPoint3f: 목표 좌표(앵커 기준):: " + point);
         } else {
-          Log.e(TAG, "\ttrackPoint3f: 앵커 없음!!");
           for (Stroke stroke : mStrokes) {
             boolean isPassed = false;
             for (Vector3f pointToErase : stroke.getPoints()) {
@@ -533,18 +532,37 @@ public class DrawARActivity extends BaseActivity
         }
         break;
       case STRAIGHT_LINE:
-        Log.e(TAG, "trackPoint3f: 직선...");
+        /**
+         * 직선 모드
+         * */
+        Log.e(TAG, "\ttrackPoint3f: 목표 선:: " + newPoint[0] + " ->> " + newPoint[newPoint.length - 1]);
+        for (int i = 0; i < newPoint.length; i++) {
+          if (mAnchor != null && mAnchor.getTrackingState() == TrackingState.TRACKING) {
+            point = LineUtils.TransformPointToPose(newPoint[i], mAnchor.getPose());
+            if (mStrokes.get(index).size() >= 2) {
+              mStrokes.get(index).replace(1, point);
+            } else {
+              mStrokes.get(index).add(point);
+            }
+          } else {
+            if (mStrokes.get(index).size() >= 2) {
+              mStrokes.get(index).replace(1, newPoint[i]);
+            } else {
+              mStrokes.get(index).add(newPoint[i]);
+            }
+          }
+        }
         break;
       case NORMAL_PEN:
       default:
-        Log.e(TAG, "trackPoint3f: 일반 펜...");
+        /**
+         * 일반 펜 모드
+         * */
         for (int i = 0; i < newPoint.length; i++) {
           if (mAnchor != null && mAnchor.getTrackingState() == TrackingState.TRACKING) {
-            Log.e(TAG, "\ttrackPoint3f: 앵커 있음!!");
             point = LineUtils.TransformPointToPose(newPoint[i], mAnchor.getPose());
             mStrokes.get(index).add(point);
           } else {
-            Log.e(TAG, "\ttrackPoint3f: 앵커 없음!!");
             mStrokes.get(index).add(newPoint[i]);
           }
         }
