@@ -40,8 +40,6 @@ public class ToolSelector extends ConstraintLayout implements View.OnClickListen
 
   private static final int ERASE = 1;
 
-  private static final int LARGE_BRUSH = 2;
-
   private static final Pair<Integer, AppSettings.ToolType> defaultTool = new Pair<>(NORMAL_PEN,
       AppSettings.ToolType.NORMAL_PEN);
 
@@ -181,12 +179,12 @@ public class ToolSelector extends ConstraintLayout implements View.OnClickListen
 
     switch (toolType) {
       case ERASE:
-        getResources().getValue(R.dimen.brush_scale_small, outValue, true);
+        getResources().getValue(R.drawable.ic_clear, outValue, true);
         mSelectedTool = ERASE;
         break;
       default:
       case NORMAL_PEN:
-        getResources().getValue(R.dimen.brush_scale_large, outValue, true);
+        getResources().getValue(R.drawable.brush_option_bg, outValue, true);
         mSelectedTool = NORMAL_PEN;
         break;
     }

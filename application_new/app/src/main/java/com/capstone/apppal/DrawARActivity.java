@@ -501,16 +501,31 @@ public class DrawARActivity extends BaseActivity
     if (index < 0)
       return;
 
-    Log.e(TAG, "Tracking current coordinate: 손가락 추적중 (3차원)... = " + newPoint[newPoint.length - 1]);
-    Log.e(TAG, "onTouchEvent: 현재 도구 판단:: " + (mToolSelector.getSelectedToolType() == AppSettings.ToolType.NORMAL_PEN ? "그리기" : "지우기"));
-
-    for (int i = 0; i < newPoint.length; i++) {
-      if (mAnchor != null && mAnchor.getTrackingState() == TrackingState.TRACKING) {
-        point = LineUtils.TransformPointToPose(newPoint[i], mAnchor.getPose());
-        mStrokes.get(index).add(point);
-      } else {
-        mStrokes.get(index).add(newPoint[i]);
-      }
+    switch (mToolSelector.getSelectedToolType()) {
+      case ERASE:
+        Log.e(TAG, "trackPoint3f: 지우개...");
+        if (mAnchor != null && mAnchor.getTrackingState() == TrackingState.TRACKING) {
+          Log.e(TAG, "\ttrackPoint3f: 앵커 있음!!");
+          point = LineUtils.TransformPointToPose(newPoint[newPoint.length - 1], mAnchor.getPose());
+          Log.e(TAG, "trackPoint3f: 목표 좌표(앵커 기준):: " + point);
+        } else {
+          Log.e(TAG, "\ttrackPoint3f: 앵커 없음!!");
+        }
+        break;
+      case NORMAL_PEN:
+      default:
+        Log.e(TAG, "trackPoint3f: 일반 펜...");
+        for (int i = 0; i < newPoint.length; i++) {
+          if (mAnchor != null && mAnchor.getTrackingState() == TrackingState.TRACKING) {
+            Log.e(TAG, "\ttrackPoint3f: 앵커 있음!!");
+            point = LineUtils.TransformPointToPose(newPoint[i], mAnchor.getPose());
+            mStrokes.get(index).add(point);
+          } else {
+            Log.e(TAG, "\ttrackPoint3f: 앵커 없음!!");
+            mStrokes.get(index).add(newPoint[i]);
+          }
+        }
+        break;
     }
 
     // update firebase database
