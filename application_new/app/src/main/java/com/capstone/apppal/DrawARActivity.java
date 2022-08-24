@@ -454,7 +454,7 @@ public class DrawARActivity extends BaseActivity
   /**
    * addStroke adds a new stroke to the scene
    */
-  private void addStroke() {
+  private void trackStroke() {
     mLineWidthMax = mBrushSelector.getSelectedLineWidth().getWidth();
 
     Stroke stroke = new Stroke();
@@ -476,31 +476,33 @@ public class DrawARActivity extends BaseActivity
   }
 
   /**
-   * addPoint2f adds a point to the current stroke
+   * trackPoint2f adds a point to the current stroke
    *
    * @param touchPoint a 2D point in screen space and is projected into 3D world space
    */
-  private void addPoint2f(Vector2f... touchPoint) {
+  private void trackPoint2f(Vector2f... touchPoint) {
     Vector3f[] newPoints = new Vector3f[touchPoint.length];
     for (int i = 0; i < touchPoint.length; i++) {
       newPoints[i] = LineUtils
           .GetWorldCoords(touchPoint[i], mScreenWidth, mScreenHeight, projmtx, viewmtx);
     }
-
-    addPoint3f(newPoints);
+    trackPoint3f(newPoints);
   }
 
   /**
-   * addPoint3f adds a point to the current stroke
+   * trackPoint3f adds a point to the current stroke
    *
    * @param newPoint a 3D point in world space
    */
-  private void addPoint3f(Vector3f... newPoint) {
+  private void trackPoint3f(Vector3f... newPoint) {
     Vector3f point;
     int index = mStrokes.size() - 1;
 
     if (index < 0)
       return;
+
+    Log.e(TAG, "Tracking current coordinate: 손가락 추적중 (3차원)... = " + newPoint[newPoint.length - 1]);
+    Log.e(TAG, "onTouchEvent: 현재 도구 판단:: " + (mToolSelector.getSelectedToolType() == AppSettings.ToolType.NORMAL_PEN ? "그리기" : "지우기"));
 
     for (int i = 0; i < newPoint.length; i++) {
       if (mAnchor != null && mAnchor.getTrackingState() == TrackingState.TRACKING) {
@@ -580,9 +582,7 @@ public class DrawARActivity extends BaseActivity
       if (numPoints > 0) {
         if (bNewTrack.get()) {
           bNewTrack.set(false);
-          Log.e(TAG, "update: This spot");
-          Log.e(TAG, "onTouchEvent: 현재 도구 판단:: " + (mToolSelector.getSelectedToolType() == AppSettings.ToolType.NORMAL_PEN ? "Normal Pen" : "Erase"));
-          addStroke();
+          trackStroke();
         }
 
         Vector2f[] points = new Vector2f[numPoints];
@@ -590,12 +590,12 @@ public class DrawARActivity extends BaseActivity
           points[i] = touchQueue.get(i);
           mLastTouch = new Vector2f(points[i].x, points[i].y);
         }
-        addPoint2f(points);
+        trackPoint2f(points);
       }
 
       // If no new points have been added, and touch is down, add last point again
       if (numPoints == 0 && bTouchDown.get()) {
-        addPoint2f(mLastTouch);
+        trackPoint2f(mLastTouch);
         mLineShaderRenderer.bNeedsUpdate.set(true);
       }
 
@@ -832,7 +832,7 @@ public class DrawARActivity extends BaseActivity
   /**
    * onTouchEvent handles saving the lastTouch screen position and setting bTouchDown and
    * bNewTrack
-   * AtomicBooleans to trigger addPoint3f and addStroke on the GL Thread to be called
+   * AtomicBooleans to trigger trackPoint3f and addStroke on the GL Thread to be called
    */
   @Override
   public boolean onTouchEvent(MotionEvent tap) {
