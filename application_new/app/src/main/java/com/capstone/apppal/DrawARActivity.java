@@ -532,6 +532,9 @@ public class DrawARActivity extends BaseActivity
           }
         }
         break;
+      case STRAIGHT_LINE:
+        Log.e(TAG, "trackPoint3f: 직선...");
+        break;
       case NORMAL_PEN:
       default:
         Log.e(TAG, "trackPoint3f: 일반 펜...");
