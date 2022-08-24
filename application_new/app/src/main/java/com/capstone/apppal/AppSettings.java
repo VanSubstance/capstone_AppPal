@@ -66,7 +66,8 @@ public class AppSettings {
 
     public enum ToolType {
         NORMAL_PEN(0),
-        ERASE(1);
+        STRAIGHT_LINE(1),
+        ERASE(2);
 
         private final int type;
 
