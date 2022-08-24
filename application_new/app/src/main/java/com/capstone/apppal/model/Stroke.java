@@ -133,6 +133,39 @@ public class Stroke {
     calculateTotalLength();
   }
 
+  // Replace point to stroke
+  public void replace(int index, Vector3f point) {
+    int s = points.size();
+
+    if (s == 0) {
+      // Prepare the biquad filter
+      biquadFilter = new BiquadFilter(AppSettings.getSmoothing(), 3);
+      for (int i = 0; i < AppSettings.getSmoothingCount(); i++) {
+        biquadFilter.update(point);
+      }
+    }
+
+    // Filter the point
+    point = biquadFilter.update(point);
+
+    // Check distance, and only add if moved far enough
+    if (s > 0) {
+      Vector3f lastPoint = points.get(s - 1);
+
+      Vector3f temp = new Vector3f();
+      temp.sub(point, lastPoint);
+
+      if (temp.length() < lineWidth / 10) {
+        return;
+      }
+    }
+
+    // Add the point
+    points.set(index, point);
+
+    calculateTotalLength();
+  }
+
   /**
    * Update called when there is new data from Firebase
    *
