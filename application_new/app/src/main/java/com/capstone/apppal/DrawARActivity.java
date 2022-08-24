@@ -504,12 +504,32 @@ public class DrawARActivity extends BaseActivity
     switch (mToolSelector.getSelectedToolType()) {
       case ERASE:
         Log.e(TAG, "trackPoint3f: 지우개...");
+        Vector3f targetPoint = newPoint[newPoint.length - 1];
         if (mAnchor != null && mAnchor.getTrackingState() == TrackingState.TRACKING) {
           Log.e(TAG, "\ttrackPoint3f: 앵커 있음!!");
-          point = LineUtils.TransformPointToPose(newPoint[newPoint.length - 1], mAnchor.getPose());
+          point = LineUtils.TransformPointToPose(targetPoint, mAnchor.getPose());
           Log.e(TAG, "trackPoint3f: 목표 좌표(앵커 기준):: " + point);
         } else {
           Log.e(TAG, "\ttrackPoint3f: 앵커 없음!!");
+          for (Stroke stroke : mStrokes) {
+            boolean isPassed = false;
+            for (Vector3f pointToErase : stroke.getPoints()) {
+              if (Math.abs(targetPoint.getX() - pointToErase.getX()) < 0.000005f
+                  || Math.abs(targetPoint.getY() - pointToErase.getY()) < 0.000005f
+                  || Math.abs(targetPoint.getZ() - pointToErase.getZ()) < 0.00005f) {
+                isPassed = true;
+                break;
+              }
+            }
+            if (isPassed) {
+              mPairSessionManager.undoStroke(stroke);
+              mStrokes.remove(stroke);
+              if (mStrokes.isEmpty()) {
+                showStrokeDependentUI();
+              }
+              mLineShaderRenderer.bNeedsUpdate.set(true);
+            }
+          }
         }
         break;
       case NORMAL_PEN:
