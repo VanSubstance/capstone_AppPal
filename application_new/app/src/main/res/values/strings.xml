@@ -38,6 +38,11 @@
     <string name="content_description_record">Record</string>
     <string name="content_description_stop_recording">Stop Recording</string>
 
+    <!-- Tool Selection -->
+    <string name="content_description_select_tool">Change Tool</string>
+    <string name="content_description_tool_pen">Normal Pen</string>
+    <string name="content_description_tool_erase">Erase</string>
+
     <!-- Permissions-->
     <string name="title_activity_permissions">Permissions Required</string>
     <string name="initial_permissions_required">Camera and audio permissions are required</string>
