@@ -64,6 +64,21 @@ public class AppSettings {
         }
     }
 
+    public enum ToolType {
+        NORMAL_PEN(0),
+        ERASE(1);
+
+        private final int type;
+
+        ToolType(int i) {
+            this.type = i;
+        }
+
+        public int getType() {
+            return type;
+        }
+    }
+
     public static float getStrokeDrawDistance() {
         return strokeDrawDistance;
     }
