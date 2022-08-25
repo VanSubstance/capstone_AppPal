@@ -21,6 +21,7 @@ import android.util.Pair;
 import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.ImageView;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
 
@@ -47,7 +48,7 @@ public class ToolSelector extends ConstraintLayout implements View.OnClickListen
 
   private View mNormalPenButton, mStraightLineButton, mEraseButton;
 
-  private View mSelectedToolIndicator;
+  private ImageView mSelectedToolIndicator;
 
   private int mSelectedTool = defaultTool.first;
 
@@ -188,30 +189,27 @@ public class ToolSelector extends ConstraintLayout implements View.OnClickListen
     return super.performClick();
   }
 
+  /**
+   * 현재 선택한 아이콘으로 변경되어야 함
+   * */
   private void onToolSelected(AppSettings.ToolType toolType) {
     mSelectedToolType = toolType;
 
-    TypedValue outValue = new TypedValue();
-
     switch (toolType) {
       case ERASE:
-        getResources().getValue(R.drawable.ic_clear, outValue, true);
+        mSelectedToolIndicator.setImageResource(R.drawable.ic_clear);
         mSelectedTool = ERASE;
         break;
       case STRAIGHT_LINE:
-        getResources().getValue(R.drawable.ic_selection_straight_line, outValue, true);
+        mSelectedToolIndicator.setImageResource(R.drawable.ic_selection_straight_line);
         mSelectedTool = STRAIGHT_LINE;
         break;
       default:
       case NORMAL_PEN:
-        getResources().getValue(R.drawable.ic_brush_size_option, outValue, true);
+        mSelectedToolIndicator.setImageResource(R.drawable.ic_brush_size_option);
         mSelectedTool = NORMAL_PEN;
         break;
     }
-
-    float scale = outValue.getFloat();
-
-    mSelectedToolIndicator.animate().scaleX(scale).scaleY(scale);
   }
 
   private void toggleToolSelectorVisibility() {
