@@ -45,9 +45,6 @@ public class Stroke {
   @PropertyName("lineWidth")
   private float lineWidth;
 
-  @PropertyName("isStart")
-  private AppSettings.StrokeType strokeType;
-
   @PropertyName("creator")
   public String creator = "";
 
@@ -75,40 +72,35 @@ public class Stroke {
 
   public Stroke() {
     // Default constructor required for calls to DataSnapshot.getValue(Stroke.class)
-    this.strokeType = AppSettings.StrokeType.SINGLE;
-    animationFilter = new BiquadFilter(0.025, 1);
-  }
-
-  public Stroke(AppSettings.StrokeType strokeType) {
-    this.strokeType = strokeType;
-    // Default constructor required for calls to DataSnapshot.getValue(Stroke.class)
     animationFilter = new BiquadFilter(0.025, 1);
   }
 
   // Add point to stroke
-  public void add(Vector3f point) {
+  public void add(Vector3f point, boolean isRaw) {
     int s = points.size();
 
-    if (s == 0) {
-      // Prepare the biquad filter
-      biquadFilter = new BiquadFilter(AppSettings.getSmoothing(), 3);
-      for (int i = 0; i < AppSettings.getSmoothingCount(); i++) {
-        biquadFilter.update(point);
+    if (!isRaw) {
+      if (s == 0) {
+        // Prepare the biquad filter
+        biquadFilter = new BiquadFilter(AppSettings.getSmoothing(), 3);
+        for (int i = 0; i < AppSettings.getSmoothingCount(); i++) {
+          biquadFilter.update(point);
+        }
       }
-    }
 
-    // Filter the point
-    point = biquadFilter.update(point);
+      // Filter the point
+      point = biquadFilter.update(point);
 
-    // Check distance, and only add if moved far enough
-    if (s > 0) {
-      Vector3f lastPoint = points.get(s - 1);
+      // Check distance, and only add if moved far enough
+      if (s > 0) {
+        Vector3f lastPoint = points.get(s - 1);
 
-      Vector3f temp = new Vector3f();
-      temp.sub(point, lastPoint);
+        Vector3f temp = new Vector3f();
+        temp.sub(point, lastPoint);
 
-      if (temp.length() < lineWidth / 10) {
-        return;
+        if (temp.length() < lineWidth / 10) {
+          return;
+        }
       }
     }
 
@@ -144,29 +136,31 @@ public class Stroke {
   }
 
   // Replace point to stroke
-  public void replace(int index, Vector3f point) {
+  public void replace(int index, Vector3f point, boolean isRaw) {
     int s = points.size();
 
-    if (s == 0) {
-      // Prepare the biquad filter
-      biquadFilter = new BiquadFilter(AppSettings.getSmoothing(), 3);
-      for (int i = 0; i < AppSettings.getSmoothingCount(); i++) {
-        biquadFilter.update(point);
+    if (!isRaw) {
+      if (s == 0) {
+        // Prepare the biquad filter
+        biquadFilter = new BiquadFilter(AppSettings.getSmoothing(), 3);
+        for (int i = 0; i < AppSettings.getSmoothingCount(); i++) {
+          biquadFilter.update(point);
+        }
       }
-    }
 
-    // Filter the point
-    point = biquadFilter.update(point);
+      // Filter the point
+      point = biquadFilter.update(point);
 
-    // Check distance, and only add if moved far enough
-    if (s > 0) {
-      Vector3f lastPoint = points.get(s - 1);
+      // Check distance, and only add if moved far enough
+      if (s > 0) {
+        Vector3f lastPoint = points.get(s - 1);
 
-      Vector3f temp = new Vector3f();
-      temp.sub(point, lastPoint);
+        Vector3f temp = new Vector3f();
+        temp.sub(point, lastPoint);
 
-      if (temp.length() < lineWidth / 10) {
-        return;
+        if (temp.length() < lineWidth / 10) {
+          return;
+        }
       }
     }
 
@@ -316,10 +310,6 @@ public class Stroke {
     return points.size();
   }
 
-  public AppSettings.StrokeType getStrokeType() {
-    return this.strokeType;
-  }
-
   @SuppressWarnings("unused")
   public List<Vector3f> getPoints() {
     return points;
@@ -395,6 +385,10 @@ public class Stroke {
     copy.firebaseReference = firebaseReference;
     copy.points = new ArrayList<>(points);
     return copy;
+  }
+
+  public void clearCoordinates() {
+    this.points.clear();
   }
 
   public String toString() {

@@ -460,23 +460,15 @@ public class DrawARActivity extends BaseActivity
     Stroke stroke;
     switch (mToolSelector.getSelectedToolType()) {
       case CUBE:
-        stroke = new Stroke(AppSettings.StrokeType.START);
-        stroke.localLine = true;
-        stroke.setLineWidth(mLineWidthMax);
-        mStrokes.add(stroke);
-        for (int i = 0; i < 1; i++) {
-          stroke = new Stroke(AppSettings.StrokeType.MIDDLE);
+        for (int i = 0; i < 12; i++) {
+          stroke = new Stroke();
           stroke.localLine = true;
           stroke.setLineWidth(mLineWidthMax);
           mStrokes.add(stroke);
         }
-        stroke = new Stroke(AppSettings.StrokeType.END);
-        stroke.localLine = true;
-        stroke.setLineWidth(mLineWidthMax);
-        mStrokes.add(stroke);
         break;
       default:
-        stroke = new Stroke(AppSettings.StrokeType.SINGLE);
+        stroke = new Stroke();
         stroke.localLine = true;
         stroke.setLineWidth(mLineWidthMax);
         mStrokes.add(stroke);
@@ -561,6 +553,7 @@ public class DrawARActivity extends BaseActivity
             }
           }
         }
+        mPairSessionManager.updateStroke(mStrokes.get(index));
         break;
       case STRAIGHT_LINE:
         /**
@@ -578,31 +571,48 @@ public class DrawARActivity extends BaseActivity
         break;
       case CUBE:
         /**
-         * 직사각형 모드
-         * 일단 선 세개로 테스트
-         * 여기까지 넘어왔을 때, 이미 Stroke는 만들어져 있다는 가정
-         * index - 2, -1, -0
-         * 최초 삽입은 현재 좌표여야 할 듯
-         * 랜덤?
+         * 직육면체 모드
          */
         if (newPoint.length > 0) {
           targetPoint = newPoint[newPoint.length - 1];
-          Log.e(TAG, "trackPoint3f: 직육면체 모드:: " + targetPoint);
           if (mAnchor != null && mAnchor.getTrackingState() == TrackingState.TRACKING) {
             point = LineUtils.TransformPointToPose(targetPoint, mAnchor.getPose());
             drawStraightLine(index, point);
           } else {
-            Vector3f newP = new Vector3f(
-                targetPoint.getX() + ((float) Math.random() / 5.0f),
-                targetPoint.getY() + ((float) Math.random() / 5.0f),
-                targetPoint.getZ() + ((float) Math.random() / 5.0f));
-            drawStraightLine(index - 2, newP);
-            newP = new Vector3f(
-                targetPoint.getX() - ((float) Math.random() / 5.0f),
-                targetPoint.getY() - ((float) Math.random() / 5.0f),
-                targetPoint.getZ() - ((float) Math.random() / 5.0f));
-            drawStraightLine(index - 1, newP);
-            drawStraightLine(index, targetPoint);
+            if (mStrokes.get(index - 11).size() == 0) {
+              for (int i = 11; i >= 0; i--) {
+                drawStraightLine(index - i, targetPoint);
+              }
+            } else {
+              Vector3f startCoor = mStrokes.get(index - 11).get(0);
+              float xs = startCoor.getX();
+              float ys = startCoor.getY();
+              float zs = startCoor.getZ();
+              float xe = targetPoint.getX();
+              float ye = targetPoint.getY();
+              float ze = targetPoint.getZ();
+              ArrayList<Vector3f> coorList = new ArrayList<>();
+              coorList.add(new Vector3f(xs, ys, zs));
+              coorList.add(new Vector3f(xe, ys, zs));
+              coorList.add(new Vector3f(xe, ye, zs));
+              coorList.add(new Vector3f(xs, ye, zs));
+              coorList.add(new Vector3f(xs, ys, ze));
+              coorList.add(new Vector3f(xe, ys, ze));
+              coorList.add(new Vector3f(xe, ye, ze));
+              coorList.add(new Vector3f(xs, ye, ze));
+              drawStraightLine(index - 11, coorList.get(1));
+              drawStraightLine(index - 10, coorList.get(1), coorList.get(2));
+              drawStraightLine(index - 9, coorList.get(2), coorList.get(3));
+              drawStraightLine(index - 8, coorList.get(3));
+              drawStraightLine(index - 7, coorList.get(4));
+              drawStraightLine(index - 6, coorList.get(1), coorList.get(5));
+              drawStraightLine(index - 5, coorList.get(2), coorList.get(6));
+              drawStraightLine(index - 4, coorList.get(3), coorList.get(7));
+              drawStraightLine(index - 3, coorList.get(4), coorList.get(5));
+              drawStraightLine(index - 2, coorList.get(5), coorList.get(6));
+              drawStraightLine(index - 1, coorList.get(6), coorList.get(7));
+              drawStraightLine(index - 0, coorList.get(7), coorList.get(4));
+            }
           }
         }
         break;
@@ -614,25 +624,50 @@ public class DrawARActivity extends BaseActivity
         for (int i = 0; i < newPoint.length; i++) {
           if (mAnchor != null && mAnchor.getTrackingState() == TrackingState.TRACKING) {
             point = LineUtils.TransformPointToPose(newPoint[i], mAnchor.getPose());
-            mStrokes.get(index).add(point);
+            mStrokes.get(index).add(point, false);
           } else {
-            mStrokes.get(index).add(newPoint[i]);
+            mStrokes.get(index).add(newPoint[i], false);
           }
         }
+        mPairSessionManager.updateStroke(mStrokes.get(index));
         break;
     }
 
     // update firebase database
-    mPairSessionManager.updateStroke(mStrokes.get(index));
     isDrawing = true;
   }
 
   public void drawStraightLine(int targetStrokeIndex, Vector3f targetPoint) {
     if (mStrokes.get(targetStrokeIndex).size() >= 2) {
-      mStrokes.get(targetStrokeIndex).replace(1, targetPoint);
+      mStrokes.get(targetStrokeIndex).replace(1, targetPoint, false);
     } else {
-      mStrokes.get(targetStrokeIndex).add(targetPoint);
+      mStrokes.get(targetStrokeIndex).add(targetPoint, false);
     }
+    mPairSessionManager.updateStroke(mStrokes.get(targetStrokeIndex));
+  }
+
+  public void drawStraightLine(int targetStrokeIndex, Vector3f startPoint, Vector3f endPoint) {
+    switch (mStrokes.get(targetStrokeIndex).size()) {
+      case 0:
+        mStrokes.get(targetStrokeIndex).add(startPoint, true);
+        mStrokes.get(targetStrokeIndex).add(endPoint, false);
+        break;
+      case 1:
+        mStrokes.get(targetStrokeIndex).replace(0, startPoint, true);
+        mStrokes.get(targetStrokeIndex).add(endPoint, false);
+        break;
+      case 2:
+        mStrokes.get(targetStrokeIndex).replace(0, startPoint, true);
+        mStrokes.get(targetStrokeIndex).replace(1, endPoint, false);
+        break;
+      default:
+        Log.e(TAG, "drawStraightLine: 뭔가 잘못된거임;;");
+        mStrokes.get(targetStrokeIndex).clearCoordinates();
+        mStrokes.get(targetStrokeIndex).add(startPoint, true);
+        mStrokes.get(targetStrokeIndex).add(endPoint, false);
+        break;
+    }
+    mPairSessionManager.updateStroke(mStrokes.get(targetStrokeIndex));
   }
 
   /**

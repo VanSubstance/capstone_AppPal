@@ -64,23 +64,6 @@ public class AppSettings {
     }
   }
 
-  public enum StrokeType {
-    SINGLE(0),
-    START(1),
-    MIDDLE(2),
-    END(3);
-
-    private final int strokeType;
-
-    StrokeType(int i) {
-      this.strokeType = i;
-    }
-
-    public int getStrokeType() {
-      return strokeType;
-    }
-  }
-
   public enum ToolType {
     NORMAL_PEN(0),
     STRAIGHT_LINE(1),
