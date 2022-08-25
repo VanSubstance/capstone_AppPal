@@ -45,6 +45,9 @@ public class Stroke {
   @PropertyName("lineWidth")
   private float lineWidth;
 
+  @PropertyName("isStart")
+  private AppSettings.StrokeType strokeType;
+
   @PropertyName("creator")
   public String creator = "";
 
@@ -71,6 +74,13 @@ public class Stroke {
 
 
   public Stroke() {
+    // Default constructor required for calls to DataSnapshot.getValue(Stroke.class)
+    this.strokeType = AppSettings.StrokeType.SINGLE;
+    animationFilter = new BiquadFilter(0.025, 1);
+  }
+
+  public Stroke(AppSettings.StrokeType strokeType) {
+    this.strokeType = strokeType;
     // Default constructor required for calls to DataSnapshot.getValue(Stroke.class)
     animationFilter = new BiquadFilter(0.025, 1);
   }
@@ -304,6 +314,10 @@ public class Stroke {
 
   public int size() {
     return points.size();
+  }
+
+  public AppSettings.StrokeType getStrokeType() {
+    return this.strokeType;
   }
 
   @SuppressWarnings("unused")

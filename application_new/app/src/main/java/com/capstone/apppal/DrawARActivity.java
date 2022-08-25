@@ -457,15 +457,45 @@ public class DrawARActivity extends BaseActivity
   private void trackStroke() {
     mLineWidthMax = mBrushSelector.getSelectedLineWidth().getWidth();
 
-    Stroke stroke = new Stroke();
-    stroke.localLine = true;
-    stroke.setLineWidth(mLineWidthMax);
-    mStrokes.add(stroke);
+    Stroke stroke;
+    switch (mToolSelector.getSelectedToolType()) {
+      case CUBE:
+        stroke = new Stroke(AppSettings.StrokeType.START);
+        stroke.localLine = true;
+        stroke.setLineWidth(mLineWidthMax);
+        mStrokes.add(stroke);
+        for (int i = 0; i < 1; i++) {
+          stroke = new Stroke(AppSettings.StrokeType.MIDDLE);
+          stroke.localLine = true;
+          stroke.setLineWidth(mLineWidthMax);
+          mStrokes.add(stroke);
+        }
+        stroke = new Stroke(AppSettings.StrokeType.END);
+        stroke.localLine = true;
+        stroke.setLineWidth(mLineWidthMax);
+        mStrokes.add(stroke);
+        break;
+      default:
+        stroke = new Stroke(AppSettings.StrokeType.SINGLE);
+        stroke.localLine = true;
+        stroke.setLineWidth(mLineWidthMax);
+        mStrokes.add(stroke);
+        break;
+    }
 
     // update firebase
     int index = mStrokes.size() - 1;
 //        mPairSessionManager.updateStroke(index, mStrokes.get(index));
-    mPairSessionManager.addStroke(mStrokes.get(index));
+    switch (mToolSelector.getSelectedToolType()) {
+      case CUBE:
+        for (int i = 2; i >= 0; i--) {
+          mPairSessionManager.addStroke(mStrokes.get(index - i));
+        }
+        break;
+      default:
+        mPairSessionManager.addStroke(mStrokes.get(index));
+        break;
+    }
 
     showStrokeDependentUI();
 
@@ -549,13 +579,31 @@ public class DrawARActivity extends BaseActivity
       case CUBE:
         /**
          * 직사각형 모드
-         * 시작 죄표: 0
-         * 현재 좌표: 2
-         * 계산해서 1, 3번 좌표 계산 및 삽입
+         * 일단 선 세개로 테스트
+         * 여기까지 넘어왔을 때, 이미 Stroke는 만들어져 있다는 가정
+         * index - 2, -1, -0
+         * 최초 삽입은 현재 좌표여야 할 듯
+         * 랜덤?
          */
         if (newPoint.length > 0) {
           targetPoint = newPoint[newPoint.length - 1];
           Log.e(TAG, "trackPoint3f: 직육면체 모드:: " + targetPoint);
+          if (mAnchor != null && mAnchor.getTrackingState() == TrackingState.TRACKING) {
+            point = LineUtils.TransformPointToPose(targetPoint, mAnchor.getPose());
+            drawStraightLine(index, point);
+          } else {
+            Vector3f newP = new Vector3f(
+                targetPoint.getX() + ((float) Math.random() / 5.0f),
+                targetPoint.getY() + ((float) Math.random() / 5.0f),
+                targetPoint.getZ() + ((float) Math.random() / 5.0f));
+            drawStraightLine(index - 2, newP);
+            newP = new Vector3f(
+                targetPoint.getX() - ((float) Math.random() / 5.0f),
+                targetPoint.getY() - ((float) Math.random() / 5.0f),
+                targetPoint.getZ() - ((float) Math.random() / 5.0f));
+            drawStraightLine(index - 1, newP);
+            drawStraightLine(index, targetPoint);
+          }
         }
         break;
       case NORMAL_PEN:
