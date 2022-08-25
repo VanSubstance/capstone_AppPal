@@ -496,6 +496,7 @@ public class DrawARActivity extends BaseActivity
    */
   private void trackPoint3f(Vector3f... newPoint) {
     Vector3f point;
+    Vector3f targetPoint;
     int index = mStrokes.size() - 1;
 
     if (index < 0)
@@ -506,7 +507,7 @@ public class DrawARActivity extends BaseActivity
         /**
          * 지우개 모드
          * */
-        Vector3f targetPoint = newPoint[newPoint.length - 1];
+        targetPoint = newPoint[newPoint.length - 1];
         if (mAnchor != null && mAnchor.getTrackingState() == TrackingState.TRACKING) {
           point = LineUtils.TransformPointToPose(targetPoint, mAnchor.getPose());
         } else {
@@ -535,22 +536,26 @@ public class DrawARActivity extends BaseActivity
         /**
          * 직선 모드
          * */
-        Log.e(TAG, "\ttrackPoint3f: 목표 선:: " + newPoint[0] + " ->> " + newPoint[newPoint.length - 1]);
-        for (int i = 0; i < newPoint.length; i++) {
+        if (newPoint.length > 0) {
+          targetPoint = newPoint[newPoint.length - 1];
           if (mAnchor != null && mAnchor.getTrackingState() == TrackingState.TRACKING) {
-            point = LineUtils.TransformPointToPose(newPoint[i], mAnchor.getPose());
-            if (mStrokes.get(index).size() >= 2) {
-              mStrokes.get(index).replace(1, point);
-            } else {
-              mStrokes.get(index).add(point);
-            }
+            point = LineUtils.TransformPointToPose(targetPoint, mAnchor.getPose());
+            drawStraightLine(index, point);
           } else {
-            if (mStrokes.get(index).size() >= 2) {
-              mStrokes.get(index).replace(1, newPoint[i]);
-            } else {
-              mStrokes.get(index).add(newPoint[i]);
-            }
+            drawStraightLine(index, targetPoint);
           }
+        }
+        break;
+      case CUBE:
+        /**
+         * 직사각형 모드
+         * 시작 죄표: 0
+         * 현재 좌표: 2
+         * 계산해서 1, 3번 좌표 계산 및 삽입
+         */
+        if (newPoint.length > 0) {
+          targetPoint = newPoint[newPoint.length - 1];
+          Log.e(TAG, "trackPoint3f: 직육면체 모드:: " + targetPoint);
         }
         break;
       case NORMAL_PEN:
@@ -572,6 +577,14 @@ public class DrawARActivity extends BaseActivity
     // update firebase database
     mPairSessionManager.updateStroke(mStrokes.get(index));
     isDrawing = true;
+  }
+
+  public void drawStraightLine(int targetStrokeIndex, Vector3f targetPoint) {
+    if (mStrokes.get(targetStrokeIndex).size() >= 2) {
+      mStrokes.get(targetStrokeIndex).replace(1, targetPoint);
+    } else {
+      mStrokes.get(targetStrokeIndex).add(targetPoint);
+    }
   }
 
   /**
