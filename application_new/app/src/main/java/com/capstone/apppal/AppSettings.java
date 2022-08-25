@@ -34,78 +34,95 @@ import javax.vecmath.Vector3f;
 
 public class AppSettings {
 
-    private static final Vector3f color = new Vector3f(1f, 1f, 1f);
+  private static final Vector3f color = new Vector3f(1f, 1f, 1f);
 
-    private static final float strokeDrawDistance = 0.13f;
+  private static final float strokeDrawDistance = 0.13f;
 
-    private static final float minDistance = 0.000001f;
+  private static final float minDistance = 0.000001f;
 
-    private static final float nearClip = 0.001f;
+  private static final float nearClip = 0.001f;
 
-    private static final float farClip = 100.0f;
+  private static final float farClip = 100.0f;
 
-    private static final float smoothing = 0.07f;
+  private static final float smoothing = 0.07f;
 
-    private static final int smoothingCount = 1500;
+  private static final int smoothingCount = 1500;
 
-    public enum LineWidth {
-        SMALL(0.006f),
-        MEDIUM(0.011f),
-        LARGE(0.020f);
+  public enum LineWidth {
+    SMALL(0.006f),
+    MEDIUM(0.011f),
+    LARGE(0.020f);
 
-        private final float width;
+    private final float width;
 
-        LineWidth(float i) {
-            this.width = i;
-        }
-
-        public float getWidth() {
-            return width;
-        }
+    LineWidth(float i) {
+      this.width = i;
     }
 
-    public enum ToolType {
-        NORMAL_PEN(0),
-        STRAIGHT_LINE(1),
-        CUBE(2),
-        ERASE(3);
+    public float getWidth() {
+      return width;
+    }
+  }
 
-        private final int type;
+  public enum StrokeType {
+    SINGLE(0),
+    START(1),
+    MIDDLE(2),
+    END(3);
 
-        ToolType(int i) {
-            this.type = i;
-        }
+    private final int strokeType;
 
-        public int getType() {
-            return type;
-        }
+    StrokeType(int i) {
+      this.strokeType = i;
     }
 
-    public static float getStrokeDrawDistance() {
-        return strokeDrawDistance;
+    public int getStrokeType() {
+      return strokeType;
+    }
+  }
+
+  public enum ToolType {
+    NORMAL_PEN(0),
+    STRAIGHT_LINE(1),
+    CUBE(2),
+    ERASE(3);
+
+    private final int type;
+
+    ToolType(int i) {
+      this.type = i;
     }
 
-    public static Vector3f getColor() {
-        return color;
+    public int getType() {
+      return type;
     }
+  }
 
-    public static float getMinDistance() {
-        return minDistance;
-    }
+  public static float getStrokeDrawDistance() {
+    return strokeDrawDistance;
+  }
 
-    static float getNearClip() {
-        return nearClip;
-    }
+  public static Vector3f getColor() {
+    return color;
+  }
 
-    static float getFarClip() {
-        return farClip;
-    }
+  public static float getMinDistance() {
+    return minDistance;
+  }
 
-    public static float getSmoothing() {
-        return smoothing;
-    }
+  static float getNearClip() {
+    return nearClip;
+  }
 
-    public static int getSmoothingCount() {
-        return smoothingCount;
-    }
+  static float getFarClip() {
+    return farClip;
+  }
+
+  public static float getSmoothing() {
+    return smoothing;
+  }
+
+  public static int getSmoothingCount() {
+    return smoothingCount;
+  }
 }
