@@ -577,7 +577,40 @@ public class DrawARActivity extends BaseActivity
           targetPoint = newPoint[newPoint.length - 1];
           if (mAnchor != null && mAnchor.getTrackingState() == TrackingState.TRACKING) {
             point = LineUtils.TransformPointToPose(targetPoint, mAnchor.getPose());
-            drawStraightLine(index, point);
+            if (mStrokes.get(index - 11).size() == 0) {
+              for (int i = 11; i >= 0; i--) {
+                drawStraightLine(index - i, point);
+              }
+            } else {
+              Vector3f startCoor = mStrokes.get(index - 11).get(0);
+              float xs = startCoor.getX();
+              float ys = startCoor.getY();
+              float zs = startCoor.getZ();
+              float xe = point.getX();
+              float ye = point.getY();
+              float ze = point.getZ();
+              ArrayList<Vector3f> coorList = new ArrayList<>();
+              coorList.add(new Vector3f(xs, ys, zs));
+              coorList.add(new Vector3f(xe, ys, zs));
+              coorList.add(new Vector3f(xe, ye, zs));
+              coorList.add(new Vector3f(xs, ye, zs));
+              coorList.add(new Vector3f(xs, ys, ze));
+              coorList.add(new Vector3f(xe, ys, ze));
+              coorList.add(new Vector3f(xe, ye, ze));
+              coorList.add(new Vector3f(xs, ye, ze));
+              drawStraightLine(index - 11, coorList.get(1));
+              drawStraightLine(index - 10, coorList.get(1), coorList.get(2));
+              drawStraightLine(index - 9, coorList.get(2), coorList.get(3));
+              drawStraightLine(index - 8, coorList.get(3));
+              drawStraightLine(index - 7, coorList.get(4));
+              drawStraightLine(index - 6, coorList.get(1), coorList.get(5));
+              drawStraightLine(index - 5, coorList.get(2), coorList.get(6));
+              drawStraightLine(index - 4, coorList.get(3), coorList.get(7));
+              drawStraightLine(index - 3, coorList.get(4), coorList.get(5));
+              drawStraightLine(index - 2, coorList.get(5), coorList.get(6));
+              drawStraightLine(index - 1, coorList.get(6), coorList.get(7));
+              drawStraightLine(index - 0, coorList.get(7), coorList.get(4));
+            }
           } else {
             if (mStrokes.get(index - 11).size() == 0) {
               for (int i = 11; i >= 0; i--) {
