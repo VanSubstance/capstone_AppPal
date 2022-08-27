@@ -459,6 +459,14 @@ public class DrawARActivity extends BaseActivity
 
     Stroke stroke;
     switch (mToolSelector.getSelectedToolType()) {
+      case RECT:
+        for (int i = 0; i < 4; i++) {
+          stroke = new Stroke();
+          stroke.localLine = true;
+          stroke.setLineWidth(mLineWidthMax);
+          mStrokes.add(stroke);
+        }
+        break;
       case CUBE:
         for (int i = 0; i < 12; i++) {
           stroke = new Stroke();
@@ -479,6 +487,11 @@ public class DrawARActivity extends BaseActivity
     int index = mStrokes.size() - 1;
 //        mPairSessionManager.updateStroke(index, mStrokes.get(index));
     switch (mToolSelector.getSelectedToolType()) {
+      case RECT:
+        for (int i = 3; i >= 0; i--) {
+          mPairSessionManager.addStroke(mStrokes.get(index - i));
+        }
+        break;
       case CUBE:
         for (int i = 11; i >= 0; i--) {
           mPairSessionManager.addStroke(mStrokes.get(index - i));
@@ -554,6 +567,62 @@ public class DrawARActivity extends BaseActivity
           }
         }
         mPairSessionManager.updateStroke(mStrokes.get(index));
+        break;
+      case RECT:
+        /**
+         * 직사각형 모드
+         */
+        if (newPoint.length > 0) {
+          targetPoint = newPoint[newPoint.length - 1];
+          if (mAnchor != null && mAnchor.getTrackingState() == TrackingState.TRACKING) {
+            point = LineUtils.TransformPointToPose(targetPoint, mAnchor.getPose());
+            if (mStrokes.get(index - 3).size() == 0) {
+              for (int i = 3; i >= 0; i--) {
+                drawStraightLine(index - i, point);
+              }
+            } else {
+              Vector3f startCoor = mStrokes.get(index - 3).get(0);
+              float xs = startCoor.getX();
+              float ys = startCoor.getY();
+              float zs = startCoor.getZ();
+              float xe = point.getX();
+              float ye = point.getY();
+              float ze = point.getZ();
+              ArrayList<Vector3f> coorList = new ArrayList<>();
+              coorList.add(new Vector3f(xs, ys, zs));
+              coorList.add(new Vector3f(xe, ys, zs));
+              coorList.add(new Vector3f(xe, ye, ze));
+              coorList.add(new Vector3f(xs, ye, ze));
+              drawStraightLine(index - 3, coorList.get(1));
+              drawStraightLine(index - 2, coorList.get(1), coorList.get(2));
+              drawStraightLine(index - 1, coorList.get(2), coorList.get(3));
+              drawStraightLine(index - 0, coorList.get(3));
+            }
+          } else {
+            if (mStrokes.get(index - 3).size() == 0) {
+              for (int i = 3; i >= 0; i--) {
+                drawStraightLine(index - i, targetPoint);
+              }
+            } else {
+              Vector3f startCoor = mStrokes.get(index - 3).get(0);
+              float xs = startCoor.getX();
+              float ys = startCoor.getY();
+              float zs = startCoor.getZ();
+              float xe = targetPoint.getX();
+              float ye = targetPoint.getY();
+              float ze = targetPoint.getZ();
+              ArrayList<Vector3f> coorList = new ArrayList<>();
+              coorList.add(new Vector3f(xs, ys, zs));
+              coorList.add(new Vector3f(xe, ys, zs));
+              coorList.add(new Vector3f(xe, ye, ze));
+              coorList.add(new Vector3f(xs, ye, ze));
+              drawStraightLine(index - 3, coorList.get(1));
+              drawStraightLine(index - 2, coorList.get(1), coorList.get(2));
+              drawStraightLine(index - 1, coorList.get(2), coorList.get(3));
+              drawStraightLine(index - 0, coorList.get(3));
+            }
+          }
+        }
         break;
       case STRAIGHT_LINE:
         /**

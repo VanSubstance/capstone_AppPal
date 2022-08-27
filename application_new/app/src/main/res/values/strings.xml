@@ -42,6 +42,7 @@
     <string name="content_description_select_tool">Change Tool</string>
     <string name="content_description_tool_pen">Normal Pen</string>
     <string name="content_description_tool_line">Straight Line</string>
+    <string name="content_description_tool_cube">Cube</string>
     <string name="content_description_tool_rectangle">Rectangle</string>
     <string name="content_description_tool_erase">Erase</string>
 
