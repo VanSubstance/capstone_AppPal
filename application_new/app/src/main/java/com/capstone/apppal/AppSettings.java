@@ -68,7 +68,8 @@ public class AppSettings {
     NORMAL_PEN(0),
     STRAIGHT_LINE(1),
     CUBE(2),
-    ERASE(3);
+    ERASE(3),
+    RECT(4);
 
     private final int type;
 
