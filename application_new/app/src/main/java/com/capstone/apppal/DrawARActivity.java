@@ -480,7 +480,7 @@ public class DrawARActivity extends BaseActivity
 //        mPairSessionManager.updateStroke(index, mStrokes.get(index));
     switch (mToolSelector.getSelectedToolType()) {
       case CUBE:
-        for (int i = 2; i >= 0; i--) {
+        for (int i = 11; i >= 0; i--) {
           mPairSessionManager.addStroke(mStrokes.get(index - i));
         }
         break;
