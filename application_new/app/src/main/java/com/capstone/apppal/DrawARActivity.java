@@ -832,9 +832,38 @@ public class DrawARActivity extends BaseActivity
     isDrawing = true;
   }
 
+  /**
+   * 선의 기본 단위:: x 기준 0.00001f
+   * 1. 시작점과 현재 점의 x 축 거리를 0.00001f 단위로 나누어
+   * 2. 좌표를 추가해준다
+   */
   public void drawStraightLine(int targetStrokeIndex, Vector3f targetPoint) {
     if (mStrokes.get(targetStrokeIndex).size() >= 2) {
-      mStrokes.get(targetStrokeIndex).replace(1, targetPoint, false);
+      Vector3f startPoint = mStrokes.get(targetStrokeIndex).get(0);
+      float xs = startPoint.getX();
+      float ys = startPoint.getY();
+      float zs = startPoint.getZ();
+      float xe = targetPoint.getX();
+      float ye = targetPoint.getY();
+      float ze = targetPoint.getZ();
+
+      Vector3f temp = new Vector3f();
+      temp.sub(startPoint, targetPoint);
+      int cnt = (int) Math.floor(temp.length() / 0.01);
+
+      float xL = (xe - xs) / cnt;
+      float yL = (ye - ys) / cnt;
+      float zL = (ze - zs) / cnt;
+      ArrayList<Vector3f> pointList = new ArrayList<>();
+      if (cnt != 0) {
+        for (int i = 0; i <= cnt; i++) {
+          pointList.add(new Vector3f(xs + (xL * i), ys + (yL * i), zs + (zL * i)));
+        }
+      } else {
+        pointList.add(startPoint);
+        pointList.add(targetPoint);
+      }
+      mStrokes.get(targetStrokeIndex).replaceAll(pointList);
     } else {
       mStrokes.get(targetStrokeIndex).add(targetPoint, false);
     }
@@ -842,26 +871,32 @@ public class DrawARActivity extends BaseActivity
   }
 
   public void drawStraightLine(int targetStrokeIndex, Vector3f startPoint, Vector3f endPoint) {
-    switch (mStrokes.get(targetStrokeIndex).size()) {
-      case 0:
-        mStrokes.get(targetStrokeIndex).add(startPoint, true);
-        mStrokes.get(targetStrokeIndex).add(endPoint, false);
-        break;
-      case 1:
-        mStrokes.get(targetStrokeIndex).replace(0, startPoint, true);
-        mStrokes.get(targetStrokeIndex).add(endPoint, false);
-        break;
-      case 2:
-        mStrokes.get(targetStrokeIndex).replace(0, startPoint, true);
-        mStrokes.get(targetStrokeIndex).replace(1, endPoint, false);
-        break;
-      default:
-        Log.e(TAG, "drawStraightLine: 뭔가 잘못된거임;;");
-        mStrokes.get(targetStrokeIndex).clearCoordinates();
-        mStrokes.get(targetStrokeIndex).add(startPoint, true);
-        mStrokes.get(targetStrokeIndex).add(endPoint, false);
-        break;
+    float xs = startPoint.getX();
+    float ys = startPoint.getY();
+    float zs = startPoint.getZ();
+    float xe = endPoint.getX();
+    float ye = endPoint.getY();
+    float ze = endPoint.getZ();
+
+    Vector3f temp = new Vector3f();
+    temp.sub(startPoint, endPoint);
+    int cnt = (int) Math.floor(temp.length() / 0.01);
+    Log.e(TAG, "drawStraightLine: 길이:: " + temp.length() );
+    Log.e(TAG, "drawStraightLine: 사이 점 개수:: " + cnt );
+
+    float xL = (xe - xs) / cnt;
+    float yL = (ye - ys) / cnt;
+    float zL = (ze - zs) / cnt;
+    ArrayList<Vector3f> pointList = new ArrayList<>();
+    if (cnt != 0) {
+      for (int i = 0; i <= cnt; i++) {
+        pointList.add(new Vector3f(xs + (xL * i), ys + (yL * i), zs + (zL * i)));
+      }
+    } else {
+      pointList.add(startPoint);
+      pointList.add(endPoint);
     }
+    mStrokes.get(targetStrokeIndex).replaceAll(pointList);
     mPairSessionManager.updateStroke(mStrokes.get(targetStrokeIndex));
   }
 
