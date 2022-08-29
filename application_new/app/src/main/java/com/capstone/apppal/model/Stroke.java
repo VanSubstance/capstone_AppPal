@@ -170,6 +170,38 @@ public class Stroke {
     calculateTotalLength();
   }
 
+  public void replaceAll(ArrayList<Vector3f> pointList) {
+    points = new ArrayList<>();
+    for (int i = 0; i < pointList.size(); i++) {
+      Vector3f point = pointList.get(i);
+      if (i == 0) {
+        // Prepare the biquad filter
+        biquadFilter = new BiquadFilter(AppSettings.getSmoothing(), 3);
+        for (int j = 0; j < AppSettings.getSmoothingCount(); j++) {
+          biquadFilter.update(point);
+        }
+      }
+//
+//      // Filter the point
+//      point = biquadFilter.update(point);
+//
+//      // Check distance, and only add if moved far enough
+      if (i > 0) {
+        Vector3f lastPoint = pointList.get(i - 1);
+
+        Vector3f temp = new Vector3f();
+        temp.sub(point, lastPoint);
+
+        if (temp.length() < lineWidth / 10) {
+          return;
+        }
+      }
+      points.add(point);
+    }
+
+    calculateTotalLength();
+  }
+
 
   public void truncatePoints(int startIndex, int lastIndex) {
     this.points = new ArrayList<>(this.points.subList(startIndex, lastIndex));
@@ -340,9 +372,9 @@ public class Stroke {
 
     // if points havent been set, or if creator or lineWidth has changed, force a full update
     if (previousStrokeUpdate == null
-        || previousStrokeUpdate.stroke.points.size() == 0
-        || !previousStrokeUpdate.stroke.creator.equals(strokeUpdate.stroke.creator)
-        || previousStrokeUpdate.stroke.lineWidth != strokeUpdate.stroke.lineWidth) {
+      || previousStrokeUpdate.stroke.points.size() == 0
+      || !previousStrokeUpdate.stroke.creator.equals(strokeUpdate.stroke.creator)
+      || previousStrokeUpdate.stroke.lineWidth != strokeUpdate.stroke.lineWidth) {
       firebaseReference.setValue(strokeUpdate.stroke, completionListener);
     } else {
       // If only points have updated, calculate the changes since last update, and only upload those points
