@@ -170,6 +170,11 @@ public class Stroke {
     calculateTotalLength();
   }
 
+
+  public void truncatePoints(int startIndex, int lastIndex) {
+    this.points = new ArrayList<>(this.points.subList(startIndex, lastIndex));
+  }
+
   /**
    * Update called when there is new data from Firebase
    *

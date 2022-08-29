@@ -89,11 +89,11 @@ import javax.vecmath.Vector3f;
  */
 
 public class DrawARActivity extends BaseActivity
-    implements RecordableSurfaceView.RendererCallbacks, View.OnClickListener,
-    ClearDrawingDialog.Listener, PlaybackView.Listener,
-    ErrorDialog.Listener, RoomManager.StrokeUpdateListener, PairView.Listener,
-    LeaveRoomDialog.Listener, PairSessionManager.AnchorStateListener,
-    PairButtonToolTip.Listener, PairSessionManager.PartnerUpdateListener {
+  implements RecordableSurfaceView.RendererCallbacks, View.OnClickListener,
+  ClearDrawingDialog.Listener, PlaybackView.Listener,
+  ErrorDialog.Listener, RoomManager.StrokeUpdateListener, PairView.Listener,
+  LeaveRoomDialog.Listener, PairSessionManager.AnchorStateListener,
+  PairButtonToolTip.Listener, PairSessionManager.PartnerUpdateListener {
 
   private static final String TAG = "DrawARActivity";
 
@@ -274,11 +274,11 @@ public class DrawARActivity extends BaseActivity
 
       AlertDialog.Builder builder = new AlertDialog.Builder(this);
       builder.setTitle("Pick global session")
-          .setItems(R.array.sessions_array, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-              GlobalRoomManager.setGlobalRoomName(String.valueOf(which));
-            }
-          });
+        .setItems(R.array.sessions_array, new DialogInterface.OnClickListener() {
+          public void onClick(DialogInterface dialog, int which) {
+            GlobalRoomManager.setGlobalRoomName(String.valueOf(which));
+          }
+        });
       AlertDialog dialog = builder.create();
       dialog.show();
     } else {
@@ -323,7 +323,7 @@ public class DrawARActivity extends BaseActivity
       try {
         if (mSession == null) {
           switch (ArCoreApk.getInstance()
-              .requestInstall(this, mUserRequestedARCoreInstall)) {
+            .requestInstall(this, mUserRequestedARCoreInstall)) {
             case INSTALLED:
               mSession = new Session(this);
 
@@ -356,7 +356,7 @@ public class DrawARActivity extends BaseActivity
       config.setCloudAnchorMode(Config.CloudAnchorMode.ENABLED);
       if (!mSession.isSupported(config)) {
         Toast.makeText(getApplicationContext(), R.string.ar_not_supported,
-            Toast.LENGTH_LONG).show();
+          Toast.LENGTH_LONG).show();
         finish();
         return;
       }
@@ -369,7 +369,7 @@ public class DrawARActivity extends BaseActivity
         mSession.resume();
       } catch (CameraNotAvailableException e) {
         ErrorDialog.newInstance(R.string.error_camera_not_available, true)
-            .show(this);
+          .show(this);
       } catch (Exception e) {
         ErrorDialog.newInstance(R.string.error_resuming_session, true).show(this);
       }
@@ -505,7 +505,7 @@ public class DrawARActivity extends BaseActivity
     showStrokeDependentUI();
 
     mAnalytics.setUserProperty(AnalyticsEvents.USER_PROPERTY_HAS_DRAWN,
-        AnalyticsEvents.VALUE_TRUE);
+      AnalyticsEvents.VALUE_TRUE);
 
     mTrackingIndicator.setDrawnInSession();
   }
@@ -519,7 +519,7 @@ public class DrawARActivity extends BaseActivity
     Vector3f[] newPoints = new Vector3f[touchPoint.length];
     for (int i = 0; i < touchPoint.length; i++) {
       newPoints[i] = LineUtils
-          .GetWorldCoords(touchPoint[i], mScreenWidth, mScreenHeight, projmtx, viewmtx);
+        .GetWorldCoords(touchPoint[i], mScreenWidth, mScreenHeight, projmtx, viewmtx);
     }
     trackPoint3f(newPoints);
   }
@@ -545,13 +545,12 @@ public class DrawARActivity extends BaseActivity
         targetPoint = newPoint[newPoint.length - 1];
         if (mAnchor != null && mAnchor.getTrackingState() == TrackingState.TRACKING) {
           point = LineUtils.TransformPointToPose(targetPoint, mAnchor.getPose());
-        } else {
           for (Stroke stroke : mStrokes) {
             boolean isPassed = false;
             for (Vector3f pointToErase : stroke.getPoints()) {
-              if (Math.abs(targetPoint.getX() - pointToErase.getX()) < 0.000005f
-                  || Math.abs(targetPoint.getY() - pointToErase.getY()) < 0.000005f
-                  || Math.abs(targetPoint.getZ() - pointToErase.getZ()) < 0.00005f) {
+              if (Math.abs(point.getX() - pointToErase.getX()) < 0.00001f
+                || Math.abs(point.getY() - pointToErase.getY()) < 0.00001f
+                || Math.abs(point.getZ() - pointToErase.getZ()) < 0.00001f) {
                 isPassed = true;
                 break;
               }
@@ -561,6 +560,40 @@ public class DrawARActivity extends BaseActivity
               mStrokes.remove(stroke);
               if (mStrokes.isEmpty()) {
                 showStrokeDependentUI();
+              }
+              mLineShaderRenderer.bNeedsUpdate.set(true);
+            }
+          }
+        } else {
+          for (int j = 0; j < mStrokes.size(); j++) {
+            Stroke stroke = mStrokes.get(j);
+            boolean isPassed = false;
+            int targetIndex = 0;
+            List<Vector3f> pointList = stroke.getPoints();
+            for (int i = 0; i < pointList.size(); i++) {
+              Vector3f pointToErase = pointList.get(i);
+              if (Math.abs(targetPoint.getX() - pointToErase.getX()) < 0.00001f
+                || Math.abs(targetPoint.getY() - pointToErase.getY()) < 0.00001f
+                || Math.abs(targetPoint.getZ() - pointToErase.getZ()) < 0.00001f) {
+                isPassed = true;
+                targetIndex = i;
+                break;
+              }
+            }
+            if (isPassed) {
+              if (targetIndex < 3) {
+                mStrokes.get(j).truncatePoints(targetIndex, stroke.size());
+              } else if (stroke.size() - 3 < targetIndex) {
+                mStrokes.get(j).truncatePoints(0, targetIndex);
+              } else {
+                Stroke backStroke = new Stroke();
+                backStroke.localLine = true;
+                backStroke.setLineWidth(mLineWidthMax);
+                backStroke.updateStrokeData(stroke);
+                backStroke.truncatePoints(targetIndex + 1, stroke.size());
+                mStrokes.get(j).truncatePoints(0, targetIndex - 1);
+                mStrokes.add(backStroke);
+                mPairSessionManager.addStroke(mStrokes.get(index + 1));
               }
               mLineShaderRenderer.bNeedsUpdate.set(true);
             }
@@ -797,13 +830,13 @@ public class DrawARActivity extends BaseActivity
       if (mTrackingIndicator.trackingState == TrackingState.TRACKING && !bHasTracked.get()) {
         bHasTracked.set(true);
         mAnalytics
-            .setUserProperty(AnalyticsEvents.USER_PROPERTY_TRACKING_ESTABLISHED,
-                AnalyticsEvents.VALUE_TRUE);
+          .setUserProperty(AnalyticsEvents.USER_PROPERTY_TRACKING_ESTABLISHED,
+            AnalyticsEvents.VALUE_TRUE);
       }
 
       // Get projection matrix.
       mFrame.getCamera().getProjectionMatrix(projmtx, 0, AppSettings.getNearClip(),
-          AppSettings.getFarClip());
+        AppSettings.getFarClip());
       mFrame.getCamera().getViewMatrix(viewmtx, 0);
 
       float[] position = new float[3];
@@ -818,7 +851,7 @@ public class DrawARActivity extends BaseActivity
       if (mLastFramePosition != null) {
         Vector3f distance = new Vector3f(position[0], position[1], position[2]);
         distance.sub(new Vector3f(mLastFramePosition[0], mLastFramePosition[1],
-            mLastFramePosition[2]));
+          mLastFramePosition[2]));
 
         if (distance.length() > 0.15) {
           bTouchDown.set(false);
@@ -916,8 +949,8 @@ public class DrawARActivity extends BaseActivity
           @Override
           public void run() {
             mDebugView
-                .setRenderInfo(mLineShaderRenderer.mNumPoints, deltaTime,
-                    mRenderDuration);
+              .setRenderInfo(mLineShaderRenderer.mNumPoints, deltaTime,
+                mRenderDuration);
           }
         });
 
@@ -952,8 +985,8 @@ public class DrawARActivity extends BaseActivity
 
       // Draw Lines
       if (mTrackingIndicator.isTracking() || (
-          // keep painting through 5 frames where we're not tracking
-          (bHasTracked.get() && mFramesNotTracked < MAX_UNTRACKED_FRAMES))) {
+        // keep painting through 5 frames where we're not tracking
+        (bHasTracked.get() && mFramesNotTracked < MAX_UNTRACKED_FRAMES))) {
 
         if (!mTrackingIndicator.isTracking()) {
           mFramesNotTracked++;
@@ -973,9 +1006,9 @@ public class DrawARActivity extends BaseActivity
 
         // Render the lines
         mLineShaderRenderer
-            .draw(viewmtx, projmtx, mScreenWidth, mScreenHeight,
-                AppSettings.getNearClip(),
-                AppSettings.getFarClip());
+          .draw(viewmtx, projmtx, mScreenWidth, mScreenHeight,
+            AppSettings.getNearClip(),
+            AppSettings.getFarClip());
       }
 
       if (mDebugEnabled) {
@@ -1023,7 +1056,7 @@ public class DrawARActivity extends BaseActivity
     bUndo.set(true);
 
     mAnalytics.setUserProperty(AnalyticsEvents.USER_PROPERTY_TAPPED_UNDO,
-        AnalyticsEvents.VALUE_TRUE);
+      AnalyticsEvents.VALUE_TRUE);
   }
 
 
@@ -1078,7 +1111,7 @@ public class DrawARActivity extends BaseActivity
   private void onClickClear() {
     ClearDrawingDialog.newInstance(mPairSessionManager.isPaired()).show(this);
     mAnalytics.setUserProperty(AnalyticsEvents.USER_PROPERTY_TAPPED_CLEAR,
-        AnalyticsEvents.VALUE_TRUE);
+      AnalyticsEvents.VALUE_TRUE);
   }
 
   // ------- Touch events
@@ -1124,7 +1157,7 @@ public class DrawARActivity extends BaseActivity
         }
         return true;
       } else if (action == MotionEvent.ACTION_UP
-          || tap.getAction() == MotionEvent.ACTION_CANCEL) {
+        || tap.getAction() == MotionEvent.ACTION_CANCEL) {
         bTouchDown.set(false);
         return true;
       }
@@ -1135,15 +1168,15 @@ public class DrawARActivity extends BaseActivity
 
   private void closeViewsOutsideTapTarget(MotionEvent tap) {
     if (isOutsideViewBounds(mBrushSelector, (int) tap.getRawX(), (int) tap.getRawY())
-        && mBrushSelector.isOpen()) {
+      && mBrushSelector.isOpen()) {
       mBrushSelector.close();
     }
     if (isOutsideViewBounds(mToolSelector, (int) tap.getRawX(), (int) tap.getRawY())
-        && mToolSelector.isOpen()) {
+      && mToolSelector.isOpen()) {
       mToolSelector.close();
     }
     if (isOutsideViewBounds(mPairButtonToolTip, (int) tap.getRawX(), (int) tap.getRawY())
-        && mPairButtonToolTip.getVisibility() == View.VISIBLE) {
+      && mPairButtonToolTip.getVisibility() == View.VISIBLE) {
       mPairButtonToolTip.hide();
     }
   }
@@ -1171,13 +1204,13 @@ public class DrawARActivity extends BaseActivity
     Calendar c = Calendar.getInstance();
 
     String filename = "JustALine_" +
-        c.get(Calendar.YEAR) + "-" +
-        (c.get(Calendar.MONTH) + 1) + "-" +
-        c.get(Calendar.DAY_OF_MONTH)
-        + "_" +
-        c.get(Calendar.HOUR_OF_DAY) +
-        c.get(Calendar.MINUTE) +
-        c.get(Calendar.SECOND);
+      c.get(Calendar.YEAR) + "-" +
+      (c.get(Calendar.MONTH) + 1) + "-" +
+      c.get(Calendar.DAY_OF_MONTH)
+      + "_" +
+      c.get(Calendar.HOUR_OF_DAY) +
+      c.get(Calendar.MINUTE) +
+      c.get(Calendar.SECOND);
 
     tempFile = new File(dir, filename + ".mp4");
 
@@ -1258,8 +1291,8 @@ public class DrawARActivity extends BaseActivity
       public void run() {
         mUndoButton.setVisibility(mStrokes.size() > 0 ? View.VISIBLE : View.GONE);
         mClearDrawingButton.setVisibility(
-            (mStrokes.size() > 0 || mSharedStrokes.size() > 0) ? View.VISIBLE
-                : View.GONE);
+          (mStrokes.size() > 0 || mSharedStrokes.size() > 0) ? View.VISIBLE
+            : View.GONE);
         mTrackingIndicator.setHasStrokes(mStrokes.size() > 0);
       }
     });
@@ -1360,7 +1393,7 @@ public class DrawARActivity extends BaseActivity
 
     Fa.get().send(AnalyticsEvents.EVENT_TAPPED_START_PAIR);
     Fa.get().setUserProperty(AnalyticsEvents.USER_PROPERTY_HAS_TAPPED_PAIR,
-        AnalyticsEvents.VALUE_TRUE);
+      AnalyticsEvents.VALUE_TRUE);
   }
 
   @Override
@@ -1521,14 +1554,14 @@ public class DrawARActivity extends BaseActivity
   @Override
   public void onAnchorChangedLeftRoom() {
     ErrorDialog.newInstance(R.string.drawing_session_ended, false)
-        .show(this);
+      .show(this);
   }
 
   @Override
   public void onConnectivityLostLeftRoom() {
     ErrorDialog.newInstance(R.string.pair_no_data_connection_title,
-            R.string.pair_no_data_connection_body, false)
-        .show(this);
+        R.string.pair_no_data_connection_body, false)
+      .show(this);
   }
 
   @Override
