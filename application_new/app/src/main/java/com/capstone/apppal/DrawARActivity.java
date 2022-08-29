@@ -545,25 +545,62 @@ public class DrawARActivity extends BaseActivity
         targetPoint = newPoint[newPoint.length - 1];
         if (mAnchor != null && mAnchor.getTrackingState() == TrackingState.TRACKING) {
           point = LineUtils.TransformPointToPose(targetPoint, mAnchor.getPose());
-          for (Stroke stroke : mStrokes) {
+          for (int j = 0; j < mStrokes.size(); j++) {
+            Stroke stroke = mStrokes.get(j);
             boolean isPassed = false;
-            for (Vector3f pointToErase : stroke.getPoints()) {
+            int targetIndex = 0;
+            List<Vector3f> pointList = stroke.getPoints();
+            for (int i = 0; i < pointList.size(); i++) {
+              Vector3f pointToErase = pointList.get(i);
               if (Math.abs(point.getX() - pointToErase.getX()) < 0.00001f
                 || Math.abs(point.getY() - pointToErase.getY()) < 0.00001f
                 || Math.abs(point.getZ() - pointToErase.getZ()) < 0.00001f) {
                 isPassed = true;
+                targetIndex = i;
                 break;
               }
             }
             if (isPassed) {
-              mPairSessionManager.undoStroke(stroke);
-              mStrokes.remove(stroke);
-              if (mStrokes.isEmpty()) {
-                showStrokeDependentUI();
+              if (targetIndex < 3) {
+                mStrokes.get(j).truncatePoints(targetIndex, stroke.size());
+              } else if (stroke.size() - 3 < targetIndex) {
+                mStrokes.get(j).truncatePoints(0, targetIndex);
+              } else {
+                Stroke backStroke = new Stroke();
+                backStroke.localLine = true;
+                backStroke.setLineWidth(mLineWidthMax);
+                backStroke.updateStrokeData(stroke);
+                backStroke.truncatePoints(targetIndex + 1, stroke.size());
+                mStrokes.get(j).truncatePoints(0, targetIndex - 1);
+                mStrokes.add(backStroke);
+                mPairSessionManager.addStroke(mStrokes.get(index + 1));
               }
               mLineShaderRenderer.bNeedsUpdate.set(true);
             }
           }
+          /**
+           * 기존 한 획 통째로 삭제 기능
+           * 추후 추가를 위해 코드 보존
+           */
+//          for (Stroke stroke : mStrokes) {
+//            boolean isPassed = false;
+//            for (Vector3f pointToErase : stroke.getPoints()) {
+//              if (Math.abs(point.getX() - pointToErase.getX()) < 0.00001f
+//                || Math.abs(point.getY() - pointToErase.getY()) < 0.00001f
+//                || Math.abs(point.getZ() - pointToErase.getZ()) < 0.00001f) {
+//                isPassed = true;
+//                break;
+//              }
+//            }
+//            if (isPassed) {
+//              mPairSessionManager.undoStroke(stroke);
+//              mStrokes.remove(stroke);
+//              if (mStrokes.isEmpty()) {
+//                showStrokeDependentUI();
+//              }
+//              mLineShaderRenderer.bNeedsUpdate.set(true);
+//            }
+//          }
         } else {
           for (int j = 0; j < mStrokes.size(); j++) {
             Stroke stroke = mStrokes.get(j);
@@ -598,6 +635,29 @@ public class DrawARActivity extends BaseActivity
               mLineShaderRenderer.bNeedsUpdate.set(true);
             }
           }
+          /**
+           * 기존 한 획 통째로 삭제 기능
+           * 추후 추가를 위해 코드 보존
+           */
+//          for (Stroke stroke : mStrokes) {
+//            boolean isPassed = false;
+//            for (Vector3f pointToErase : stroke.getPoints()) {
+//              if (Math.abs(targetPoint.getX() - pointToErase.getX()) < 0.00001f
+//                || Math.abs(targetPoint.getY() - pointToErase.getY()) < 0.00001f
+//                || Math.abs(targetPoint.getZ() - pointToErase.getZ()) < 0.00001f) {
+//                isPassed = true;
+//                break;
+//              }
+//            }
+//            if (isPassed) {
+//              mPairSessionManager.undoStroke(stroke);
+//              mStrokes.remove(stroke);
+//              if (mStrokes.isEmpty()) {
+//                showStrokeDependentUI();
+//              }
+//              mLineShaderRenderer.bNeedsUpdate.set(true);
+//            }
+//          }
         }
         mPairSessionManager.updateStroke(mStrokes.get(index));
         break;
