@@ -1037,7 +1037,6 @@ public class DrawARActivity extends BaseActivity
         }
       }
       if (mLineShaderRenderer.bNeedsUpdate.get()) {
-        mLineShaderRenderer.setColor(AppSettings.getColor());
         mLineShaderRenderer.mDrawDistance = AppSettings.getStrokeDrawDistance();
         float distanceScale = 0.0f;
         mLineShaderRenderer.setDistanceScale(distanceScale);

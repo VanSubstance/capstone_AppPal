@@ -265,7 +265,8 @@ public class LineShaderRenderer {
    * @param color a Vector3f representing R, G, B for the X, Y, Z values
    */
   public void setColor(Vector3f color) {
-    mColor = new Vector3f(color);
+    Log.e(TAG, "setColor: 색 변경!!! " + color);
+    mColor = color;
   }
 
 
@@ -505,9 +506,6 @@ public class LineShaderRenderer {
    * and unbinds the shader attributes and VBO.
    */
   public void draw(float[] cameraView, float[] cameraPerspective, float screenWidth, float screenHeight, float nearClip, float farClip) {
-    Log.e(TAG, "draw: 언제 불러와지는거지 ㅎ;");
-
-
     Matrix.multiplyMM(mModelViewMatrix, 0, cameraView, 0, mModelMatrix, 0);
     Matrix.multiplyMM(mModelViewProjectionMatrix, 0, cameraPerspective, 0, mModelViewMatrix, 0);
 
@@ -556,6 +554,8 @@ public class LineShaderRenderer {
         mModelViewUniform, 1, false, mModelViewMatrix, 0);
     GLES20.glUniformMatrix4fv(
         mProjectionUniform, 1, false, cameraPerspective, 0);
+
+//    Log.e(TAG, "draw: 언제 불러와지는거지 ㅎ;" + mColor);
 
     GLES20.glUniform2f(mResolutionUniform, screenWidth, screenHeight);
     GLES20.glUniform3f(mColorUniform, mColor.x, mColor.y, mColor.z);

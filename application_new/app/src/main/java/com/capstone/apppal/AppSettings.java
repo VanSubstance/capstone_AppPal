@@ -71,7 +71,7 @@ public class AppSettings {
    */
 
   public enum ColorType {
-    WHITE(1f, 1f, 1f),
+    WHITE(256f, 256f, 256f),
     BLACK(0f, 0f, 0f),
     RED(219f, 85f, 77f),
     GREEN(64f, 221f, 115f),
@@ -80,7 +80,7 @@ public class AppSettings {
     private final Vector3f color;
 
     ColorType(float r, float g, float b) {
-      this.color = new Vector3f(0f, 0f, 0f);
+      this.color = new Vector3f(r/256f, g/256f, b/256f);
     }
 
     public Vector3f getColor() {
