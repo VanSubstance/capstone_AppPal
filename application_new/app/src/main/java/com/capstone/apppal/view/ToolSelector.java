@@ -34,7 +34,7 @@ import com.capstone.apppal.R;
 
 public class ToolSelector extends ConstraintLayout implements View.OnClickListener {
 
-  private static final String TAG = "BrushSelector";
+  private static final String TAG = "ToolSelector";
 
   private static final int NORMAL_PEN = 0;
   private static final int STRAIGHT_LINE = 1;
