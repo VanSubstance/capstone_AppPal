@@ -34,7 +34,7 @@ import javax.vecmath.Vector3f;
 
 public class AppSettings {
 
-  private static final Vector3f color = new Vector3f(1f, 1f, 1f);
+  private static Vector3f mColor = new Vector3f(0f, 0f, 0f);
 
   private static final float strokeDrawDistance = 0.13f;
 
@@ -64,6 +64,30 @@ public class AppSettings {
     }
   }
 
+  /**
+   * red: rgb(219, 85, 77)
+   * green: 64, 221, 115
+   * blue: rgb(97, 85, 219)
+   */
+
+  public enum ColorType {
+    WHITE(1f, 1f, 1f),
+    BLACK(0f, 0f, 0f),
+    RED(219f, 85f, 77f),
+    GREEN(64f, 221f, 115f),
+    BLUE(97f, 85f, 219f);
+
+    private final Vector3f color;
+
+    ColorType(float r, float g, float b) {
+      this.color = new Vector3f(0f, 0f, 0f);
+    }
+
+    public Vector3f getColor() {
+      return color;
+    }
+  }
+
   public enum ToolType {
     NORMAL_PEN(0),
     STRAIGHT_LINE(1),
@@ -86,8 +110,12 @@ public class AppSettings {
     return strokeDrawDistance;
   }
 
+  public static void setColor(float r, float g, float b) {
+    mColor = new Vector3f(r, g, b);
+  }
+
   public static Vector3f getColor() {
-    return color;
+    return mColor;
   }
 
   public static float getMinDistance() {

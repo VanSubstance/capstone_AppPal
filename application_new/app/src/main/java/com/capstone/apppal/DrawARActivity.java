@@ -47,6 +47,7 @@ import com.capstone.apppal.rendering.LineUtils;
 import com.capstone.apppal.rendering.PointCloudRenderer;
 import com.capstone.apppal.view.BrushSelector;
 import com.capstone.apppal.view.ClearDrawingDialog;
+import com.capstone.apppal.view.ColorSelector;
 import com.capstone.apppal.view.DebugView;
 import com.capstone.apppal.view.ErrorDialog;
 import com.capstone.apppal.view.LeaveRoomDialog;
@@ -149,6 +150,8 @@ public class DrawARActivity extends BaseActivity
 
   private float mLineWidthMax = 0.33f;
 
+  private Vector3f mSelectedColor = new Vector3f();
+
   private float[] mLastFramePosition;
 
   private Boolean isDrawing = false;
@@ -170,6 +173,8 @@ public class DrawARActivity extends BaseActivity
   private BrushSelector mBrushSelector;
 
   private ToolSelector mToolSelector;
+
+  private ColorSelector mColorSelector;
 
   private View mUndoButton;
 
@@ -250,10 +255,10 @@ public class DrawARActivity extends BaseActivity
 
     mUndoButton = findViewById(R.id.undo_button);
 
-    // set up brush selector
+    // set up draw settting selector
     mBrushSelector = findViewById(R.id.brush_selector);
-
     mToolSelector = findViewById(R.id.tool_selector);
+    mColorSelector = findViewById(R.id.color_selector);
 
     // Reset the zero matrix
     Matrix.setIdentityM(mZeroMatrix, 0);
@@ -456,6 +461,8 @@ public class DrawARActivity extends BaseActivity
    */
   private void trackStroke() {
     mLineWidthMax = mBrushSelector.getSelectedLineWidth().getWidth();
+    mSelectedColor = mColorSelector.getSelectedColorType().getColor();
+    mLineShaderRenderer.setColor(mSelectedColor);
 
     Stroke stroke;
     switch (mToolSelector.getSelectedToolType()) {
@@ -464,6 +471,7 @@ public class DrawARActivity extends BaseActivity
           stroke = new Stroke();
           stroke.localLine = true;
           stroke.setLineWidth(mLineWidthMax);
+          stroke.setColor(mSelectedColor);
           mStrokes.add(stroke);
         }
         break;
@@ -472,6 +480,7 @@ public class DrawARActivity extends BaseActivity
           stroke = new Stroke();
           stroke.localLine = true;
           stroke.setLineWidth(mLineWidthMax);
+          stroke.setColor(mSelectedColor);
           mStrokes.add(stroke);
         }
         break;
@@ -479,6 +488,7 @@ public class DrawARActivity extends BaseActivity
         stroke = new Stroke();
         stroke.localLine = true;
         stroke.setLineWidth(mLineWidthMax);
+        stroke.setColor(mSelectedColor);
         mStrokes.add(stroke);
         break;
     }
@@ -570,6 +580,7 @@ public class DrawARActivity extends BaseActivity
                 backStroke.localLine = true;
                 backStroke.setLineWidth(mLineWidthMax);
                 backStroke.updateStrokeData(stroke);
+                backStroke.setColor(mSelectedColor);
                 backStroke.truncatePoints(targetIndex + 1, stroke.size());
                 mStrokes.get(j).truncatePoints(0, targetIndex - 1);
                 mStrokes.add(backStroke);
@@ -626,6 +637,7 @@ public class DrawARActivity extends BaseActivity
                 Stroke backStroke = new Stroke();
                 backStroke.localLine = true;
                 backStroke.setLineWidth(mLineWidthMax);
+                backStroke.setColor(mSelectedColor);
                 backStroke.updateStrokeData(stroke);
                 backStroke.truncatePoints(targetIndex + 1, stroke.size());
                 mStrokes.get(j).truncatePoints(0, targetIndex - 1);
@@ -881,8 +893,6 @@ public class DrawARActivity extends BaseActivity
     Vector3f temp = new Vector3f();
     temp.sub(startPoint, endPoint);
     int cnt = (int) Math.floor(temp.length() / 0.01);
-    Log.e(TAG, "drawStraightLine: 길이:: " + temp.length() );
-    Log.e(TAG, "drawStraightLine: 사이 점 개수:: " + cnt );
 
     float xL = (xe - xs) / cnt;
     float yL = (ye - ys) / cnt;

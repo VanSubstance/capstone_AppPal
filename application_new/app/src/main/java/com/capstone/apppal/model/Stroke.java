@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 
 import javax.vecmath.Vector3f;
 
@@ -41,6 +42,9 @@ public class Stroke {
 
   @PropertyName("points")
   private ArrayList<Vector3f> points = new ArrayList<>();
+
+  @PropertyName("color")
+  private Vector3f color = new Vector3f();
 
   @PropertyName("lineWidth")
   private float lineWidth;
@@ -73,6 +77,7 @@ public class Stroke {
   public Stroke() {
     // Default constructor required for calls to DataSnapshot.getValue(Stroke.class)
     animationFilter = new BiquadFilter(0.025, 1);
+    this.color = AppSettings.getColor();
   }
 
   // Add point to stroke
@@ -361,6 +366,14 @@ public class Stroke {
     this.lineWidth = lineWidth;
   }
 
+  public Vector3f getColor() {
+    return color;
+  }
+
+  public void setColor(Vector3f color) {
+    this.color = color;
+  }
+
   public void setFirebaseValue(StrokeUpdate strokeUpdate, StrokeUpdate previousStrokeUpdate,
                                DatabaseReference.CompletionListener completionListener) {
 //        Stroke copy = new Stroke();
@@ -372,9 +385,9 @@ public class Stroke {
 
     // if points havent been set, or if creator or lineWidth has changed, force a full update
     if (previousStrokeUpdate == null
-      || previousStrokeUpdate.stroke.points.size() == 0
-      || !previousStrokeUpdate.stroke.creator.equals(strokeUpdate.stroke.creator)
-      || previousStrokeUpdate.stroke.lineWidth != strokeUpdate.stroke.lineWidth) {
+        || previousStrokeUpdate.stroke.points.size() == 0
+        || !previousStrokeUpdate.stroke.creator.equals(strokeUpdate.stroke.creator)
+        || previousStrokeUpdate.stroke.lineWidth != strokeUpdate.stroke.lineWidth) {
       firebaseReference.setValue(strokeUpdate.stroke, completionListener);
     } else {
       // If only points have updated, calculate the changes since last update, and only upload those points
