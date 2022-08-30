@@ -56,6 +56,7 @@ public class LineShaderRenderer {
   private int mPositionAttribute = 0;
   private int mPreviousAttribute = 0;
   private int mNextAttribute = 0;
+  private int mColorAttribute = 0;
   private int mSideAttribute = 0;
   private int mWidthAttribute = 0;
   private int mLengthsAttribute = 0;
@@ -69,7 +70,7 @@ public class LineShaderRenderer {
   private int mProjectionUniform = 0;
   private int mModelViewUniform = 0;
   private int mResolutionUniform = 0;
-  private int mColorUniform = 0;
+//  private int mColorUniform = 0;
   private int mNearUniform = 0;
   private int mFarUniform = 0;
   private int mDrawingDistUniform = 0;
@@ -77,6 +78,7 @@ public class LineShaderRenderer {
 
   private float[] mPositions;
   private float[] mNext;
+  private float[] mColors;
   private float[] mSide;
   private float[] mWidth;
   private float[] mPrevious;
@@ -86,6 +88,7 @@ public class LineShaderRenderer {
   private int mPositionAddress;
   private int mPreviousAddress;
   private int mNextAddress;
+  private int mColorAddress;
   private int mSideAddress;
   private int mWidthAddress;
   private int mLengthAddress;
@@ -180,6 +183,8 @@ public class LineShaderRenderer {
     mPositionAttribute = GLES20.glGetAttribLocation(mProgramName, "position");
     mPreviousAttribute = GLES20.glGetAttribLocation(mProgramName, "previous");
     mNextAttribute = GLES20.glGetAttribLocation(mProgramName, "next");
+    Log.e(TAG, "createOnGlThread: 가가멜" + mColorAttribute);
+    mColorAttribute = GLES20.glGetAttribLocation(mProgramName, "color");
     mSideAttribute = GLES20.glGetAttribLocation(mProgramName, "side");
     mWidthAttribute = GLES20.glGetAttribLocation(mProgramName, "width");
     mLengthsAttribute = GLES20.glGetAttribLocation(mProgramName, "length");
@@ -189,7 +194,7 @@ public class LineShaderRenderer {
     mProjectionUniform = GLES20.glGetUniformLocation(mProgramName, "projectionMatrix");
     mModelViewUniform = GLES20.glGetUniformLocation(mProgramName, "modelViewMatrix");
     mResolutionUniform = GLES20.glGetUniformLocation(mProgramName, "resolution");
-    mColorUniform = GLES20.glGetUniformLocation(mProgramName, "color");
+//    mColorUniform = GLES20.glGetUniformLocation(mProgramName, "color");
     mNearUniform = GLES20.glGetUniformLocation(mProgramName, "near");
     mFarUniform = GLES20.glGetUniformLocation(mProgramName, "far");
     mLineDepthScaleUniform = GLES20.glGetUniformLocation(mProgramName, "lineDepthScale");
@@ -265,7 +270,6 @@ public class LineShaderRenderer {
    * @param color a Vector3f representing R, G, B for the X, Y, Z values
    */
   public void setColor(Vector3f color) {
-    Log.e(TAG, "setColor: 색 변경!!! " + color);
     mColor = color;
   }
 
@@ -333,6 +337,7 @@ public class LineShaderRenderer {
       mPositions = new float[count * 3];
       mNext = new float[count * 3];
       mPrevious = new float[count * 3];
+      mColors = new float[count * 3];
 
       mSide = new float[count];
       mWidth = new float[count];
@@ -355,7 +360,7 @@ public class LineShaderRenderer {
 
     float mLineWidthMax = mLineWidth = line.getLineWidth();
 
-    Vector3f mColor = mColor = line.getColor();
+    Vector3f mColor = line.getColor();
 
     float length = 0;
     float totalLength;
@@ -424,6 +429,10 @@ public class LineShaderRenderer {
     mNext[index * 3 + 1] = next.y;
     mNext[index * 3 + 2] = next.z;
 
+    mColors[index * 3] = color.x;
+    mColors[index * 3 + 1] = color.y;
+    mColors[index * 3 + 2] = color.z;
+
     mPrevious[index * 3] = prev.x;
     mPrevious[index * 3 + 1] = prev.y;
     mPrevious[index * 3 + 2] = prev.z;
@@ -452,6 +461,7 @@ public class LineShaderRenderer {
     FloatBuffer current = toFloatBuffer(mPositions);
     FloatBuffer next = toFloatBuffer(mNext);
     FloatBuffer previous = toFloatBuffer(mPrevious);
+    FloatBuffer color = toFloatBuffer(mColors);
 
     FloatBuffer side = toFloatBuffer(mSide);
     FloatBuffer width = toFloatBuffer(mWidth);
@@ -464,7 +474,8 @@ public class LineShaderRenderer {
     mPositionAddress = 0;
     mNextAddress = mPositionAddress + mNumBytes * 3 * BYTES_PER_FLOAT;
     mPreviousAddress = mNextAddress + mNumBytes * 3 * BYTES_PER_FLOAT;
-    mSideAddress = mPreviousAddress + mNumBytes * 3 * BYTES_PER_FLOAT;
+    mColorAddress = mPreviousAddress + mNumBytes * 3 * BYTES_PER_FLOAT;
+    mSideAddress = mColorAddress + mNumBytes * 3 * BYTES_PER_FLOAT;
     mWidthAddress = mSideAddress + mNumBytes * BYTES_PER_FLOAT;
     mLengthAddress = mWidthAddress + mNumBytes * BYTES_PER_FLOAT;
     mEndCapsAddress = mLengthAddress + mNumBytes * BYTES_PER_FLOAT;
@@ -482,6 +493,8 @@ public class LineShaderRenderer {
         next);
     GLES20.glBufferSubData(GLES20.GL_ARRAY_BUFFER, mPreviousAddress, mNumBytes * 3 * BYTES_PER_FLOAT,
         previous);
+    GLES20.glBufferSubData(GLES20.GL_ARRAY_BUFFER, mColorAddress, mNumBytes * 3 * BYTES_PER_FLOAT,
+        color);
     GLES20.glBufferSubData(GLES20.GL_ARRAY_BUFFER, mSideAddress, mNumBytes * BYTES_PER_FLOAT,
         side);
     GLES20.glBufferSubData(GLES20.GL_ARRAY_BUFFER, mWidthAddress, mNumBytes * BYTES_PER_FLOAT,
@@ -541,6 +554,8 @@ public class LineShaderRenderer {
     GLES20.glVertexAttribPointer(
         mNextAttribute, FLOATS_PER_POINT, GLES20.GL_FLOAT, false, BYTES_PER_POINT, mNextAddress);
     GLES20.glVertexAttribPointer(
+        mColorAttribute, FLOATS_PER_POINT, GLES20.GL_FLOAT, false, BYTES_PER_POINT, mColorAddress);
+    GLES20.glVertexAttribPointer(
         mSideAttribute, 1, GLES20.GL_FLOAT, false, BYTES_PER_FLOAT, mSideAddress);
     GLES20.glVertexAttribPointer(
         mWidthAttribute, 1, GLES20.GL_FLOAT, false, BYTES_PER_FLOAT, mWidthAddress);
@@ -558,7 +573,7 @@ public class LineShaderRenderer {
 //    Log.e(TAG, "draw: 언제 불러와지는거지 ㅎ;" + mColor);
 
     GLES20.glUniform2f(mResolutionUniform, screenWidth, screenHeight);
-    GLES20.glUniform3f(mColorUniform, mColor.x, mColor.y, mColor.z);
+//    GLES20.glUniform3f(mColorUniform, mColor.x, mColor.y, mColor.z);
     GLES20.glUniform1f(mNearUniform, nearClip);
     GLES20.glUniform1f(mFarUniform, farClip);
     GLES20.glUniform1f(mLineDepthScaleUniform, mLineDepthScale);
@@ -567,6 +582,7 @@ public class LineShaderRenderer {
     GLES20.glEnableVertexAttribArray(mPositionAttribute);
     GLES20.glEnableVertexAttribArray(mPreviousAttribute);
     GLES20.glEnableVertexAttribArray(mNextAttribute);
+    GLES20.glEnableVertexAttribArray(mColorAttribute);
     GLES20.glEnableVertexAttribArray(mSideAttribute);
     GLES20.glEnableVertexAttribArray(mWidthAttribute);
     GLES20.glEnableVertexAttribArray(mLengthsAttribute);
@@ -578,6 +594,7 @@ public class LineShaderRenderer {
     GLES20.glDisableVertexAttribArray(mLengthsAttribute);
     GLES20.glDisableVertexAttribArray(mWidthAttribute);
     GLES20.glDisableVertexAttribArray(mSideAttribute);
+    GLES20.glDisableVertexAttribArray(mColorAttribute);
     GLES20.glDisableVertexAttribArray(mNextAttribute);
     GLES20.glDisableVertexAttribArray(mPreviousAttribute);
     GLES20.glDisableVertexAttribArray(mPositionAttribute);
