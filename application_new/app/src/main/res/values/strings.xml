@@ -38,6 +38,21 @@
     <string name="content_description_record">Record</string>
     <string name="content_description_stop_recording">Stop Recording</string>
 
+    <!-- Tool Selection -->
+    <string name="content_description_select_tool">Change Tool</string>
+    <string name="content_description_tool_pen">Normal Pen</string>
+    <string name="content_description_tool_line">Straight Line</string>
+    <string name="content_description_tool_cube">Cube</string>
+    <string name="content_description_tool_rectangle">Rectangle</string>
+    <string name="content_description_tool_erase">Erase</string>
+
+    <!-- Color Selection -->
+    <string name="content_description_select_color">Change Color</string>
+    <string name="content_description_color_white">White</string>
+    <string name="content_description_color_black">Black</string>
+    <string name="content_description_color_red">Red</string>
+    <string name="content_description_color_green">Green</string>
+    <string name="content_description_color_blue">Blue</string>
     <!-- Permissions-->
     <string name="title_activity_permissions">Permissions Required</string>
     <string name="initial_permissions_required">Camera and audio permissions are required</string>

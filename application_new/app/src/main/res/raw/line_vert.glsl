@@ -3,6 +3,7 @@ precision highp float;
 attribute vec3 position;
 attribute vec3 previous;
 attribute vec3 next;
+attribute vec3 color;
 attribute float side;
 attribute float width;
 attribute float counters;
@@ -13,7 +14,6 @@ uniform mat4 projectionMatrix;
 uniform mat4 modelViewMatrix;
 uniform vec2 resolution;
 uniform float lineDepthScale;
-uniform vec3 color;
 uniform float near;
 uniform float far;
 
