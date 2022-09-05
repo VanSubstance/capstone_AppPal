@@ -19,8 +19,13 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.ImageFormat;
 import android.graphics.Rect;
+import android.graphics.YuvImage;
 import android.icu.util.Calendar;
+import android.media.Image;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
 import android.os.Bundle;
@@ -31,7 +36,6 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.View;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -67,10 +71,18 @@ import com.google.ar.core.Session;
 import com.google.ar.core.TrackingState;
 import com.google.ar.core.exceptions.CameraNotAvailableException;
 import com.google.ar.core.exceptions.NotTrackingException;
+import com.google.ar.core.exceptions.NotYetAvailableException;
+import com.google.mediapipe.formats.proto.LandmarkProto;
+import com.google.mediapipe.solutions.hands.HandLandmark;
+import com.google.mediapipe.solutions.hands.Hands;
+import com.google.mediapipe.solutions.hands.HandsOptions;
+import com.google.mediapipe.solutions.hands.HandsResult;
 import com.uncorkedstudios.android.view.recordablesurfaceview.RecordableSurfaceView;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -219,6 +231,12 @@ public class DrawARActivity extends BaseActivity
   private PairSessionManager mPairSessionManager;
 
   /**
+   * 미디어파이프용 변수들
+   */
+
+  private Hands hands;
+
+  /**
    * Setup the app when main activity is created
    */
   @SuppressLint("ApplySharedPref")
@@ -293,6 +311,7 @@ public class DrawARActivity extends BaseActivity
     mPairSessionManager.addPartnerUpdateListener(mPairButton);
     mPairSessionManager.addPartnerUpdateListener(this);
     mPairSessionManager.setAnchorStateListener(this);
+    setupLiveDemoUiComponents();
   }
 
   @Override
@@ -424,7 +443,6 @@ public class DrawARActivity extends BaseActivity
 
     // TODO: Only used id hidden by "Hide UI menu"
     findViewById(R.id.draw_container).setVisibility(View.VISIBLE);
-
   }
 
   /**
@@ -947,6 +965,30 @@ public class DrawARActivity extends BaseActivity
       float[] position = new float[3];
 
       mFrame.getCamera().getPose().getTranslation(position, 0);
+
+      /**
+       * 카메라에서 현재 프레임 이미지 추출
+       */
+      Image cameraImage = null;
+      try {
+        cameraImage =
+          mFrame.acquireCameraImage();
+        byte[] bytes = imageToByte(cameraImage);
+        Bitmap bitmapImage = BitmapFactory.decodeByteArray(bytes, 0, bytes.length, null);
+        hands.send(bitmapImage);
+      } catch (NotYetAvailableException e) {
+        // NotYetAvailableException is an exception that can be expected when the camera is not ready
+        // yet. The image may become available on a next frame.
+        Log.e(TAG, "update: " + e);
+      } catch (RuntimeException e) {
+        // A different exception occurred, e.g. DeadlineExceededException, ResourceExhaustedException.
+        // Handle this error appropriately.
+        Log.e(TAG, "update: " + e);
+      } finally {
+        if (cameraImage != null) {
+          cameraImage.close();
+        }
+      }
 
       // Multiply the zero matrix
       Matrix.multiplyMM(viewmtx, 0, viewmtx, 0, mZeroMatrix, 0);
@@ -1801,6 +1843,111 @@ public class DrawARActivity extends BaseActivity
   public void onExitRoomSelected() {
     mPairSessionManager.leaveRoom(true);
     Fa.get().send(AnalyticsEvents.EVENT_TAPPED_DISCONNECT_PAIRED_SESSION);
+  }
+
+  /**
+   * mediapipe 관련 함수들
+   */
+
+  private void setupLiveDemoUiComponents() {
+    stopCurrentPipeline();
+    setupStreamingModePipeline();
+  }
+
+  private void setupStreamingModePipeline() {
+    // Initializes a new MediaPipe Hands solution instance in the streaming mode.
+    hands =
+      new Hands(
+        this,
+        HandsOptions.builder()
+          .setStaticImageMode(true)
+          .setMaxNumHands(1)
+          .setRunOnGpu(false)
+          .build());
+    hands.setErrorListener((message, e) -> Log.e(TAG, "MediaPipe Hands error:: " + message));
+
+    // Initializes a new Gl surface view with a user-defined HandsResultGlRenderer.
+    hands.setResultListener(
+      handsResult -> {
+        logWristLandmark(handsResult, /*showPixelValues=*/ false);
+      });
+
+  }
+
+  private void stopCurrentPipeline() {
+    if (hands != null) {
+      hands.close();
+    }
+  }
+
+  private void logWristLandmark(HandsResult result, boolean showPixelValues) {
+    if (result.multiHandLandmarks().isEmpty()) {
+      return;
+    }
+    LandmarkProto.NormalizedLandmark wristLandmark =
+      result.multiHandLandmarks().get(0).getLandmarkList().get(HandLandmark.WRIST);
+    // For Bitmaps, show the pixel values. For texture inputs, show the normalized coordinates.
+    if (showPixelValues) {
+      int width = result.inputBitmap().getWidth();
+      int height = result.inputBitmap().getHeight();
+      Log.i(
+        TAG,
+        String.format(
+          "MediaPipe Hand wrist coordinates (pixel values): x=%f, y=%f",
+          wristLandmark.getX() * width, wristLandmark.getY() * height));
+    } else {
+      Log.i(
+        TAG,
+        String.format(
+          "MediaPipe Hand wrist normalized coordinates (value range: [0, 1]): x=%f, y=%f",
+          wristLandmark.getX(), wristLandmark.getY()));
+    }
+    if (result.multiHandWorldLandmarks().isEmpty()) {
+      return;
+    }
+    LandmarkProto.Landmark wristWorldLandmark =
+      result.multiHandWorldLandmarks().get(0).getLandmarkList().get(HandLandmark.WRIST);
+    Log.i(
+      TAG,
+      String.format(
+        "MediaPipe Hand wrist world coordinates (in meters with the origin at the hand's"
+          + " approximate geometric center): x=%f m, y=%f m, z=%f m",
+        wristWorldLandmark.getX(), wristWorldLandmark.getY(), wristWorldLandmark.getZ()));
+  }
+
+  private static byte[] imageToByte(Image image){
+    byte[] byteArray = null;
+    byteArray = NV21toJPEG(YUV420toNV21(image),image.getWidth(),image.getHeight(),100);
+    return byteArray;
+  }
+
+  private static byte[] NV21toJPEG(byte[] nv21, int width, int height, int quality) {
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    YuvImage yuv = new YuvImage(nv21, ImageFormat.NV21, width, height, null);
+    yuv.compressToJpeg(new Rect(0, 0, width, height), quality, out);
+    return out.toByteArray();
+  }
+
+  private static byte[] YUV420toNV21(Image image) {
+    byte[] nv21;
+    // Get the three planes.
+    ByteBuffer yBuffer = image.getPlanes()[0].getBuffer();
+    ByteBuffer uBuffer = image.getPlanes()[1].getBuffer();
+    ByteBuffer vBuffer = image.getPlanes()[2].getBuffer();
+
+    int ySize = yBuffer.remaining();
+    int uSize = uBuffer.remaining();
+    int vSize = vBuffer.remaining();
+
+
+    nv21 = new byte[ySize + uSize + vSize];
+
+    //U and V are swapped
+    yBuffer.get(nv21, 0, ySize);
+    vBuffer.get(nv21, ySize, vSize);
+    uBuffer.get(nv21, ySize + vSize, uSize);
+
+    return nv21;
   }
 
 }
