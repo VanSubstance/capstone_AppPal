@@ -183,7 +183,6 @@ public class LineShaderRenderer {
     mPositionAttribute = GLES20.glGetAttribLocation(mProgramName, "position");
     mPreviousAttribute = GLES20.glGetAttribLocation(mProgramName, "previous");
     mNextAttribute = GLES20.glGetAttribLocation(mProgramName, "next");
-    Log.e(TAG, "createOnGlThread: 가가멜" + mColorAttribute);
     mColorAttribute = GLES20.glGetAttribLocation(mProgramName, "color");
     mSideAttribute = GLES20.glGetAttribLocation(mProgramName, "side");
     mWidthAttribute = GLES20.glGetAttribLocation(mProgramName, "width");
