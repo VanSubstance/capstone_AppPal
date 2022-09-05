@@ -46,15 +46,13 @@ public class ColorSelector extends ConstraintLayout implements View.OnClickListe
   private static final Pair<Integer, AppSettings.ColorType> defaultTool = new Pair<>(WHITE,
       AppSettings.ColorType.WHITE);
 
-  private View mColorButton;
+  private View mBackground;
 
   private View mWhiteButton,
       mBlackButton,
       mRedButton,
       mGreenButton,
       mBlueButton;
-
-  private ImageView mSelectedColorIndicator;
 
   private int mSelectedColor = defaultTool.first;
 
@@ -87,10 +85,8 @@ public class ColorSelector extends ConstraintLayout implements View.OnClickListe
   private void init() {
     inflate(getContext(), R.layout.view_color_selector, this);
 
-    mColorButton = findViewById(R.id.color_button);
-    mColorButton.setOnClickListener(this);
-
-    mSelectedColorIndicator = findViewById(R.id.selected_color_indicator);
+    mBackground = findViewById(R.id.color_background_pie);
+    mBackground.setOnClickListener(this);
 
     mWhiteButton = findViewById(R.id.color_selection_white);
     mBlackButton = findViewById(R.id.color_selection_black);
@@ -104,7 +100,7 @@ public class ColorSelector extends ConstraintLayout implements View.OnClickListe
     mGreenButton.setOnClickListener(this);
     mBlueButton.setOnClickListener(this);
 
-    mColorButton.setOnTouchListener(new OnTouchListener() {
+    mBackground.setOnTouchListener(new OnTouchListener() {
       @Override
       public boolean onTouch(View v, MotionEvent event) {
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
@@ -238,24 +234,24 @@ public class ColorSelector extends ConstraintLayout implements View.OnClickListe
 
     switch (colorType) {
       case BLACK:
-        mSelectedColorIndicator.setImageResource(R.drawable.ic_color_black);
+//        mSelectedColorIndicator.setImageResource(R.drawable.ic_color_black);
         mSelectedColor = BLACK;
         break;
       case RED:
-        mSelectedColorIndicator.setImageResource(R.drawable.ic_color_red);
+//        mSelectedColorIndicator.setImageResource(R.drawable.ic_color_red);
         mSelectedColor = RED;
         break;
       case GREEN:
-        mSelectedColorIndicator.setImageResource(R.drawable.ic_color_green);
+//        mSelectedColorIndicator.setImageResource(R.drawable.ic_color_green);
         mSelectedColor = GREEN;
         break;
       case BLUE:
-        mSelectedColorIndicator.setImageResource(R.drawable.ic_color_blue);
+//        mSelectedColorIndicator.setImageResource(R.drawable.ic_color_blue);
         mSelectedColor = BLUE;
         break;
       default:
       case WHITE:
-        mSelectedColorIndicator.setImageResource(R.drawable.ic_brush_size_option);
+//        mSelectedColorIndicator.setImageResource(R.drawable.ic_brush_size_option);
         mSelectedColor = WHITE;
         break;
     }
@@ -263,7 +259,7 @@ public class ColorSelector extends ConstraintLayout implements View.OnClickListe
 
   private void toggleColorSelectorVisibility() {
     if (mIsOpen) {
-      float y = mSelectedColorIndicator.getY();
+      float y = mBackground.getY();
       Animator.AnimatorListener hideListener = new Animator.AnimatorListener() {
         @Override
         public void onAnimationStart(Animator animation) {
@@ -272,6 +268,7 @@ public class ColorSelector extends ConstraintLayout implements View.OnClickListe
 
         @Override
         public void onAnimationEnd(Animator animation) {
+          mBackground.setVisibility(GONE);
           mWhiteButton.setVisibility(GONE);
           mBlackButton.setVisibility(GONE);
           mRedButton.setVisibility(GONE);
@@ -289,13 +286,16 @@ public class ColorSelector extends ConstraintLayout implements View.OnClickListe
 
         }
       };
-      mBlueButton.animate().alpha(0).setListener(hideListener).translationY(y);
+      mBackground.animate().alpha(0).setListener(hideListener).translationY(y);
+      mBlueButton.animate().alpha(0).translationY(y);
       mGreenButton.animate().alpha(0).translationY(y);
       mRedButton.animate().alpha(0).translationY(y);
       mBlackButton.animate().alpha(0).translationY(y);
       mWhiteButton.animate().alpha(0).translationY(y);
-      mBlackButton.setEnabled(false);
+
+      mBackground.setEnabled(false);
       mGreenButton.setEnabled(false);
+      mBlueButton.setEnabled(false);
       mRedButton.setEnabled(false);
       mBlackButton.setEnabled(false);
       mWhiteButton.setEnabled(false);
@@ -309,6 +309,7 @@ public class ColorSelector extends ConstraintLayout implements View.OnClickListe
 
         @Override
         public void onAnimationEnd(Animator animation) {
+          mBackground.setVisibility(VISIBLE);
           mWhiteButton.setVisibility(VISIBLE);
           mBlackButton.setVisibility(VISIBLE);
           mRedButton.setVisibility(VISIBLE);
@@ -326,18 +327,21 @@ public class ColorSelector extends ConstraintLayout implements View.OnClickListe
 
         }
       };
-      mBlueButton.animate().alpha(1).setListener(showListener).translationY(0);
+      mBackground.animate().alpha(1).setListener(showListener).translationY(0);
+      mBlueButton.animate().alpha(1).translationY(0);
       mGreenButton.animate().alpha(1).translationY(0);
       mRedButton.animate().alpha(1).translationY(0);
       mBlackButton.animate().alpha(1).translationY(0);
       mWhiteButton.animate().alpha(1).translationY(0);
-      mBlackButton.setEnabled(true);
+
+      mBackground.setEnabled(true);
+      mBlueButton.setEnabled(true);
       mGreenButton.setEnabled(true);
       mRedButton.setEnabled(true);
       mBlackButton.setEnabled(true);
       mWhiteButton.setEnabled(true);
 
-      mColorButton.setAccessibilityTraversalBefore(R.id.color_selection_blue);
+      mBackground.setAccessibilityTraversalBefore(R.id.color_selection_blue);
       mBlueButton.setAccessibilityTraversalBefore(R.id.color_selection_green);
       mGreenButton.setAccessibilityTraversalBefore(R.id.color_selection_red);
       mRedButton.setAccessibilityTraversalBefore(R.id.color_selection_black);
@@ -358,6 +362,10 @@ public class ColorSelector extends ConstraintLayout implements View.OnClickListe
     if (mIsOpen) {
       toggleColorSelectorVisibility();
     }
+  }
+
+  public void toggle() {
+    toggleColorSelectorVisibility();
   }
 
 }

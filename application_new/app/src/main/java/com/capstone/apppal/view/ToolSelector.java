@@ -43,17 +43,15 @@ public class ToolSelector extends ConstraintLayout implements View.OnClickListen
   private static final int ERASE = 3;
 
   private static final Pair<Integer, AppSettings.ToolType> defaultTool = new Pair<>(NORMAL_PEN,
-      AppSettings.ToolType.NORMAL_PEN);
+    AppSettings.ToolType.NORMAL_PEN);
 
-  private View mToolButton;
+  private View mBackground;
 
   private View mNormalPenButton,
-      mStraightLineButton,
-      mCubeButton,
-      mRectButton,
-      mEraseButton;
-
-  private ImageView mSelectedToolIndicator;
+    mStraightLineButton,
+    mCubeButton,
+    mRectButton,
+    mEraseButton;
 
   private int mSelectedTool = defaultTool.first;
 
@@ -86,10 +84,8 @@ public class ToolSelector extends ConstraintLayout implements View.OnClickListen
   private void init() {
     inflate(getContext(), R.layout.view_tool_selector, this);
 
-    mToolButton = findViewById(R.id.tool_button);
-    mToolButton.setOnClickListener(this);
-
-    mSelectedToolIndicator = findViewById(R.id.selected_tool_indicator);
+    mBackground = findViewById(R.id.tool_background_pie);
+    mBackground.setOnClickListener(this);
 
     mNormalPenButton = findViewById(R.id.tool_selection_pen);
     mStraightLineButton = findViewById(R.id.tool_selection_line);
@@ -103,7 +99,7 @@ public class ToolSelector extends ConstraintLayout implements View.OnClickListen
     mRectButton.setOnClickListener(this);
     mEraseButton.setOnClickListener(this);
 
-    mToolButton.setOnTouchListener(new OnTouchListener() {
+    mBackground.setOnTouchListener(new OnTouchListener() {
       @Override
       public boolean onTouch(View v, MotionEvent event) {
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
@@ -116,35 +112,35 @@ public class ToolSelector extends ConstraintLayout implements View.OnClickListen
 
           //determine which button was released over
           if (mNormalPenButtonLoc[1] < yloc && yloc < (mNormalPenButtonLoc[1] + mNormalPenButton
-              .getHeight())) {
+            .getHeight())) {
             //prevent calling an update when not needed
             if (mSelectedTool != NORMAL_PEN) {
               toolType = AppSettings.ToolType.NORMAL_PEN;
               onToolSelected(toolType);
             }
           } else if (mStraightLineButtonLoc[1] < yloc && yloc < (mStraightLineButtonLoc[1] + mStraightLineButton
-              .getHeight())) {
+            .getHeight())) {
             //prevent calling an update when not needed
             if (mSelectedTool != STRAIGHT_LINE) {
               toolType = AppSettings.ToolType.STRAIGHT_LINE;
               onToolSelected(toolType);
             }
           } else if (mCubeButtonLoc[1] < yloc && yloc < (mCubeButtonLoc[1] + mCubeButton
-              .getHeight())) {
+            .getHeight())) {
             //prevent calling an update when not needed
             if (mSelectedTool != CUBE) {
               toolType = AppSettings.ToolType.CUBE;
               onToolSelected(toolType);
             }
           } else if (mRectButtonLoc[1] < yloc && yloc < (mRectButtonLoc[1] + mRectButton
-              .getHeight())) {
+            .getHeight())) {
             //prevent calling an update when not needed
             if (mSelectedTool != RECT) {
               toolType = AppSettings.ToolType.RECT;
               onToolSelected(toolType);
             }
           } else if (mEraseButtonLoc[1] < yloc && yloc < (mEraseButtonLoc[1]
-              + mEraseButton.getHeight())) {
+            + mEraseButton.getHeight())) {
             if (mSelectedTool != ERASE) {
               toolType = AppSettings.ToolType.ERASE;
               onToolSelected(toolType);
@@ -155,19 +151,19 @@ public class ToolSelector extends ConstraintLayout implements View.OnClickListen
           //toggle if over a button
           float yloc = event.getRawY();
           if (mNormalPenButtonLoc[1] < yloc && yloc < (mNormalPenButtonLoc[1] + mNormalPenButton
-              .getHeight())) {
+            .getHeight())) {
             toggleToolSelectorVisibility();
           } else if (mStraightLineButtonLoc[1] < yloc && yloc < (mStraightLineButtonLoc[1] + mStraightLineButton
-              .getHeight())) {
+            .getHeight())) {
             toggleToolSelectorVisibility();
           } else if (mCubeButtonLoc[1] < yloc && yloc < (mCubeButtonLoc[1] + mCubeButton
-              .getHeight())) {
+            .getHeight())) {
             toggleToolSelectorVisibility();
           } else if (mRectButtonLoc[1] < yloc && yloc < (mRectButtonLoc[1] + mRectButton
-              .getHeight())) {
+            .getHeight())) {
             toggleToolSelectorVisibility();
           } else if (mEraseButtonLoc[1] < yloc && yloc < (mEraseButtonLoc[1]
-              + mEraseButton.getHeight())) {
+            + mEraseButton.getHeight())) {
             toggleToolSelectorVisibility();
           }
         }
@@ -236,24 +232,24 @@ public class ToolSelector extends ConstraintLayout implements View.OnClickListen
 
     switch (toolType) {
       case ERASE:
-        mSelectedToolIndicator.setImageResource(R.drawable.ic_clear);
+//        mSelectedToolIndicator.setImageResource(R.drawable.ic_clear);
         mSelectedTool = ERASE;
         break;
       case STRAIGHT_LINE:
-        mSelectedToolIndicator.setImageResource(R.drawable.ic_selection_straight_line);
+//        mSelectedToolIndicator.setImageResource(R.drawable.ic_selection_straight_line);
         mSelectedTool = STRAIGHT_LINE;
         break;
       case CUBE:
-        mSelectedToolIndicator.setImageResource(R.drawable.ic_selection_cube);
+//        mSelectedToolIndicator.setImageResource(R.drawable.ic_selection_cube);
         mSelectedTool = CUBE;
         break;
       case RECT:
-        mSelectedToolIndicator.setImageResource(R.drawable.ic_selection_rect);
+//        mSelectedToolIndicator.setImageResource(R.drawable.ic_selection_rect);
         mSelectedTool = RECT;
         break;
       default:
       case NORMAL_PEN:
-        mSelectedToolIndicator.setImageResource(R.drawable.ic_brush_size_option);
+//        mSelectedToolIndicator.setImageResource(R.drawable.ic_brush_size_option);
         mSelectedTool = NORMAL_PEN;
         break;
     }
@@ -261,7 +257,8 @@ public class ToolSelector extends ConstraintLayout implements View.OnClickListen
 
   private void toggleToolSelectorVisibility() {
     if (mIsOpen) {
-      float y = mSelectedToolIndicator.getY();
+//      float y = mSelectedToolIndicator.getY();
+      float y = mBackground.getY();
       Animator.AnimatorListener hideListener = new Animator.AnimatorListener() {
         @Override
         public void onAnimationStart(Animator animation) {
@@ -270,6 +267,7 @@ public class ToolSelector extends ConstraintLayout implements View.OnClickListen
 
         @Override
         public void onAnimationEnd(Animator animation) {
+          mBackground.setVisibility(GONE);
           mNormalPenButton.setVisibility(GONE);
           mStraightLineButton.setVisibility(GONE);
           mCubeButton.setVisibility(GONE);
@@ -287,11 +285,14 @@ public class ToolSelector extends ConstraintLayout implements View.OnClickListen
 
         }
       };
-      mEraseButton.animate().alpha(0).setListener(hideListener).translationY(y);
+      mBackground.animate().alpha(0).setListener(hideListener).translationY(y);
+      mEraseButton.animate().alpha(0).translationY(y);
       mRectButton.animate().alpha(0).translationY(y);
       mCubeButton.animate().alpha(0).translationY(y);
       mStraightLineButton.animate().alpha(0).translationY(y);
       mNormalPenButton.animate().alpha(0).translationY(y);
+
+      mBackground.setEnabled(false);
       mEraseButton.setEnabled(false);
       mRectButton.setEnabled(false);
       mCubeButton.setEnabled(false);
@@ -307,6 +308,7 @@ public class ToolSelector extends ConstraintLayout implements View.OnClickListen
 
         @Override
         public void onAnimationEnd(Animator animation) {
+          mBackground.setVisibility(VISIBLE);
           mNormalPenButton.setVisibility(VISIBLE);
           mStraightLineButton.setVisibility(VISIBLE);
           mCubeButton.setVisibility(VISIBLE);
@@ -324,18 +326,21 @@ public class ToolSelector extends ConstraintLayout implements View.OnClickListen
 
         }
       };
-      mEraseButton.animate().alpha(1).setListener(showListener).translationY(0);
+      mBackground.animate().alpha(1).setListener(showListener).translationY(0);
+      mEraseButton.animate().alpha(1).translationY(0);
       mRectButton.animate().alpha(1).translationY(0);
       mCubeButton.animate().alpha(1).translationY(0);
       mStraightLineButton.animate().alpha(1).translationY(0);
       mNormalPenButton.animate().alpha(1).translationY(0);
+
+      mBackground.setEnabled(true);
       mEraseButton.setEnabled(true);
       mRectButton.setEnabled(true);
       mCubeButton.setEnabled(true);
       mStraightLineButton.setEnabled(true);
       mNormalPenButton.setEnabled(true);
 
-      mToolButton.setAccessibilityTraversalBefore(R.id.tool_selection_erase);
+      mBackground.setAccessibilityTraversalBefore(R.id.tool_selection_erase);
       mEraseButton.setAccessibilityTraversalBefore(R.id.tool_selection_rect);
       mRectButton.setAccessibilityTraversalBefore(R.id.tool_selection_cube);
       mCubeButton.setAccessibilityTraversalBefore(R.id.tool_selection_pen);
@@ -356,6 +361,10 @@ public class ToolSelector extends ConstraintLayout implements View.OnClickListen
     if (mIsOpen) {
       toggleToolSelectorVisibility();
     }
+  }
+
+  public void toggle() {
+    toggleToolSelectorVisibility();
   }
 
 }
