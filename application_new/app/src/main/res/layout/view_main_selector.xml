@@ -1,19 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent">
 
   <FrameLayout
-    android:id="@+id/background_pie"
-    android:clickable="false"
+    android:id="@+id/main_background_pie"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginBottom="8dp"
-    app:layout_constraintTop_toTopOf="parent"
-    app:layout_constraintLeft_toLeftOf="parent"
-    app:layout_constraintRight_toRightOf="parent">
+    android:clickable="true"
+    app:layout_constraintRight_toRightOf="parent"
+    app:layout_constraintTop_toTopOf="parent">
 
     <ImageView
       android:layout_width="match_parent"
@@ -25,13 +23,13 @@
 
   <FrameLayout
     android:id="@+id/menu_button"
-    android:clickable="true"
     android:layout_width="@dimen/brush_input_plus_padding"
     android:layout_height="@dimen/brush_input_plus_padding"
+    android:layout_marginBottom="120dp"
     android:background="@drawable/ripple_bg_borderless_oval"
+    android:clickable="true"
     android:contentDescription="@string/content_description_select_menu"
     android:padding="@dimen/padding"
-    android:layout_marginBottom="120dp"
     app:layout_constraintBottom_toBottomOf="parent"
     app:layout_constraintLeft_toLeftOf="parent">
 
@@ -47,9 +45,9 @@
       android:layout_width="@dimen/brush_input_width"
       android:layout_height="@dimen/brush_input_height"
       android:layout_gravity="center"
-      android:paddingEnd="@dimen/brush_size_indicator_padding_right"
       android:paddingStart="@dimen/brush_size_indicator_padding_left"
       android:paddingTop="@dimen/brush_size_indicator_padding_top"
+      android:paddingEnd="@dimen/brush_size_indicator_padding_right"
       android:scaleX="@dimen/brush_scale_large"
       android:scaleY="@dimen/brush_scale_large"
       android:src="@drawable/ic_brush_size_option" />
@@ -57,16 +55,16 @@
 
   <FrameLayout
     android:id="@+id/tool_button"
-    android:clickable="true"
     android:layout_width="@dimen/brush_input_plus_padding"
     android:layout_height="@dimen/brush_input_plus_padding"
-    android:background="@drawable/ripple_bg_borderless_oval"
-    android:contentDescription="@string/content_description_select_tool"
-    android:padding="@dimen/padding"
     android:layout_marginTop="20dp"
     android:layout_marginRight="20dp"
-    app:layout_constraintTop_toTopOf="parent"
-    app:layout_constraintRight_toRightOf="parent">
+    android:background="@drawable/ripple_bg_borderless_oval"
+    android:clickable="true"
+    android:contentDescription="@string/content_description_select_tool"
+    android:padding="@dimen/padding"
+    app:layout_constraintRight_toRightOf="parent"
+    app:layout_constraintTop_toTopOf="parent">
 
     <ImageView
       android:layout_width="match_parent"
@@ -76,12 +74,13 @@
       tools:ignore="ContentDescription" />
 
     <ImageView
+      android:id="@+id/selected_tool_indicator"
       android:layout_width="@dimen/brush_input_width"
       android:layout_height="@dimen/brush_input_height"
       android:layout_gravity="center"
-      android:paddingEnd="@dimen/brush_size_indicator_padding_right"
       android:paddingStart="@dimen/brush_size_indicator_padding_left"
       android:paddingTop="@dimen/brush_size_indicator_padding_top"
+      android:paddingEnd="@dimen/brush_size_indicator_padding_right"
       android:scaleX="@dimen/brush_scale_large"
       android:scaleY="@dimen/brush_scale_large"
       android:src="@drawable/ic_brush_size_option" />
@@ -89,17 +88,16 @@
 
   <FrameLayout
     android:id="@+id/color_button"
-    android:clickable="true"
     android:layout_width="@dimen/brush_input_plus_padding"
     android:layout_height="@dimen/brush_input_plus_padding"
+    android:layout_marginTop="98dp"
+    android:layout_marginRight="202dp"
     android:background="@drawable/ripple_bg_borderless_oval"
+    android:clickable="true"
     android:contentDescription="@string/content_description_select_color"
     android:padding="@dimen/padding"
-    android:layout_marginTop="80dp"
-    android:layout_marginRight="20dp"
-    app:layout_constraintTop_toTopOf="parent"
-    app:layout_constraintLeft_toLeftOf="parent"
-    app:layout_constraintRight_toRightOf="parent">
+    app:layout_constraintRight_toRightOf="parent"
+    app:layout_constraintTop_toTopOf="parent">
 
     <ImageView
       android:layout_width="match_parent"
@@ -109,12 +107,13 @@
       tools:ignore="ContentDescription" />
 
     <ImageView
+      android:id="@+id/selected_color_indicator"
       android:layout_width="@dimen/brush_input_width"
       android:layout_height="@dimen/brush_input_height"
       android:layout_gravity="center"
-      android:paddingEnd="@dimen/brush_size_indicator_padding_right"
       android:paddingStart="@dimen/brush_size_indicator_padding_left"
       android:paddingTop="@dimen/brush_size_indicator_padding_top"
+      android:paddingEnd="@dimen/brush_size_indicator_padding_right"
       android:scaleX="@dimen/brush_scale_medium"
       android:scaleY="@dimen/brush_scale_medium"
       android:src="@drawable/ic_brush_size_option" />
@@ -122,16 +121,16 @@
 
   <FrameLayout
     android:id="@+id/brush_button"
-    android:clickable="true"
     android:layout_width="@dimen/brush_input_plus_padding"
     android:layout_height="@dimen/brush_input_plus_padding"
+    android:layout_marginTop="280dp"
+    android:layout_marginRight="280dp"
     android:background="@drawable/ripple_bg_borderless_oval"
+    android:clickable="true"
     android:contentDescription="@string/content_description_select_brush"
     android:padding="@dimen/padding"
-    android:layout_marginTop="200dp"
-    android:layout_marginRight="280dp"
-    app:layout_constraintTop_toTopOf="parent"
-    app:layout_constraintRight_toRightOf="parent">
+    app:layout_constraintRight_toRightOf="parent"
+    app:layout_constraintTop_toTopOf="parent">
 
     <ImageView
       android:layout_width="match_parent"
@@ -141,15 +140,37 @@
       tools:ignore="ContentDescription" />
 
     <ImageView
+      android:id="@+id/selected_size_indicator"
       android:layout_width="@dimen/brush_input_width"
       android:layout_height="@dimen/brush_input_height"
       android:layout_gravity="center"
-      android:paddingEnd="@dimen/brush_size_indicator_padding_right"
       android:paddingStart="@dimen/brush_size_indicator_padding_left"
       android:paddingTop="@dimen/brush_size_indicator_padding_top"
+      android:paddingEnd="@dimen/brush_size_indicator_padding_right"
       android:scaleX="@dimen/brush_scale_small"
       android:scaleY="@dimen/brush_scale_small"
       android:src="@drawable/ic_brush_size_option" />
   </FrameLayout>
+
+  <com.capstone.apppal.view.ToolSelector
+    android:id="@+id/tool_selector"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintLeft_toLeftOf="parent" />
+
+  <com.capstone.apppal.view.ColorSelector
+    android:id="@+id/color_selector"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintLeft_toLeftOf="parent" />
+
+  <com.capstone.apppal.view.BrushSelector
+    android:id="@+id/brush_selector"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintLeft_toLeftOf="parent" />
 
 </merge>

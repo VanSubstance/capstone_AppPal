@@ -184,12 +184,6 @@ public class DrawARActivity extends BaseActivity
 
   private MenuSelector mMenuSelector;
 
-  private BrushSelector mBrushSelector;
-
-  private ToolSelector mToolSelector;
-
-  private ColorSelector mColorSelector;
-
   private View mUndoButton;
 
   private TrackingIndicator mTrackingIndicator;
@@ -272,9 +266,6 @@ public class DrawARActivity extends BaseActivity
     /**
      * 새로운 ui 테스트용 주석 처리
      */
-//    mBrushSelector = findViewById(R.id.brush_selector);
-//    mToolSelector = findViewById(R.id.tool_selector);
-//    mColorSelector = findViewById(R.id.color_selector);
 
     // Reset the zero matrix
     Matrix.setIdentityM(mZeroMatrix, 0);
@@ -476,12 +467,12 @@ public class DrawARActivity extends BaseActivity
    * addStroke adds a new stroke to the scene
    */
   private void trackStroke() {
-    mLineWidthMax = mBrushSelector.getSelectedLineWidth().getWidth();
-    mSelectedColor = mColorSelector.getSelectedColorType().getColor();
+    mLineWidthMax = mMenuSelector.getBrushSelector().getSelectedLineWidth().getWidth();
+    mSelectedColor = mMenuSelector.getColorSelector().getSelectedColorType().getColor();
     mLineShaderRenderer.setColor(mSelectedColor);
 
     Stroke stroke;
-    switch (mToolSelector.getSelectedToolType()) {
+    switch (mMenuSelector.getToolSelector().getSelectedToolType()) {
       case RECT:
         for (int i = 0; i < 4; i++) {
           stroke = new Stroke();
@@ -512,7 +503,7 @@ public class DrawARActivity extends BaseActivity
     // update firebase
     int index = mStrokes.size() - 1;
 //        mPairSessionManager.updateStroke(index, mStrokes.get(index));
-    switch (mToolSelector.getSelectedToolType()) {
+    switch (mMenuSelector.getToolSelector().getSelectedToolType()) {
       case RECT:
         for (int i = 3; i >= 0; i--) {
           mPairSessionManager.addStroke(mStrokes.get(index - i));
@@ -563,7 +554,7 @@ public class DrawARActivity extends BaseActivity
     if (index < 0)
       return;
 
-    switch (mToolSelector.getSelectedToolType()) {
+    switch (mMenuSelector.getToolSelector().getSelectedToolType()) {
       case ERASE:
         /**
          * 지우개 모드
@@ -1289,13 +1280,13 @@ public class DrawARActivity extends BaseActivity
   }
 
   private void closeViewsOutsideTapTarget(MotionEvent tap) {
-    if (isOutsideViewBounds(mBrushSelector, (int) tap.getRawX(), (int) tap.getRawY())
-      && mBrushSelector.isOpen()) {
-      mBrushSelector.close();
+    if (isOutsideViewBounds(mMenuSelector.getBrushSelector(), (int) tap.getRawX(), (int) tap.getRawY())
+      && mMenuSelector.getBrushSelector().isOpen()) {
+      mMenuSelector.getBrushSelector().close();
     }
-    if (isOutsideViewBounds(mToolSelector, (int) tap.getRawX(), (int) tap.getRawY())
-      && mToolSelector.isOpen()) {
-      mToolSelector.close();
+    if (isOutsideViewBounds(mMenuSelector.getToolSelector(), (int) tap.getRawX(), (int) tap.getRawY())
+      && mMenuSelector.getToolSelector().isOpen()) {
+      mMenuSelector.getToolSelector().close();
     }
     if (isOutsideViewBounds(mPairButtonToolTip, (int) tap.getRawX(), (int) tap.getRawY())
       && mPairButtonToolTip.getVisibility() == View.VISIBLE) {
@@ -1452,8 +1443,8 @@ public class DrawARActivity extends BaseActivity
         }
         break;
     }
-    mBrushSelector.close();
-    mToolSelector.close();
+    mMenuSelector.getBrushSelector().close();
+    mMenuSelector.getToolSelector().close();
     if (hidePairToolTip) {
       mPairButtonToolTip.hide();
       if (!mPairSessionManager.isPaired())
@@ -1888,9 +1879,9 @@ public class DrawARActivity extends BaseActivity
         wristWorldLandmark.getX(), wristWorldLandmark.getY(), wristWorldLandmark.getZ()));
   }
 
-  private static byte[] imageToByte(Image image){
+  private static byte[] imageToByte(Image image) {
     byte[] byteArray = null;
-    byteArray = NV21toJPEG(YUV420toNV21(image),image.getWidth(),image.getHeight(),100);
+    byteArray = NV21toJPEG(YUV420toNV21(image), image.getWidth(), image.getHeight(), 100);
     return byteArray;
   }
 

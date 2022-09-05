@@ -1,8 +1,8 @@
 <resources>
-    <dimen name="brush_input_plus_padding">48dp</dimen>
-    <dimen name="brush_input_width">28dp</dimen>
-    <dimen name="brush_input_height">28dp</dimen>
-    <dimen name="brush_input_frame">32dp</dimen>
+    <dimen name="brush_input_plus_padding">84dp</dimen>
+    <dimen name="brush_input_width">48dp</dimen>
+    <dimen name="brush_input_height">48dp</dimen>
+    <dimen name="brush_input_frame">60dp</dimen>
     <item name="brush_scale_large" format="float" type="dimen">.9</item>
     <item name="brush_scale_medium" format="float" type="dimen">.6</item>
     <item name="brush_scale_small" format="float" type="dimen">.4</item>
