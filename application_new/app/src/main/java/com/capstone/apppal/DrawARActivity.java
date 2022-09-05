@@ -41,6 +41,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import com.capstone.apppal.VO.CoordinateInfo;
 import com.capstone.apppal.analytics.AnalyticsEvents;
 import com.capstone.apppal.analytics.Fa;
 import com.capstone.apppal.model.Stroke;
@@ -49,6 +50,7 @@ import com.capstone.apppal.rendering.BackgroundRenderer;
 import com.capstone.apppal.rendering.LineShaderRenderer;
 import com.capstone.apppal.rendering.LineUtils;
 import com.capstone.apppal.rendering.PointCloudRenderer;
+import com.capstone.apppal.utils.GlobalState;
 import com.capstone.apppal.view.BrushSelector;
 import com.capstone.apppal.view.ClearDrawingDialog;
 import com.capstone.apppal.view.ColorSelector;
@@ -1913,6 +1915,18 @@ public class DrawARActivity extends BaseActivity
         "MediaPipe Hand wrist world coordinates (in meters with the origin at the hand's"
           + " approximate geometric center): x=%f m, y=%f m, z=%f m",
         wristWorldLandmark.getX(), wristWorldLandmark.getY(), wristWorldLandmark.getZ()));
+
+    List<LandmarkProto.Landmark> coorList = result.multiHandWorldLandmarks().get(0).getLandmarkList();
+
+    ArrayList<CoordinateInfo> temp = new ArrayList<>();
+    for (int i = 0; i < coorList.size(); i++) {
+      LandmarkProto.Landmark coor = coorList.get(i);
+      temp.add(new CoordinateInfo(coor.getX(), coor.getY(), coor.getZ(), coor.getVisibility()));
+      if (temp.size() >= 5) {
+        temp.remove(0);
+      }
+    }
+    Log.e(TAG, "logWristLandmark: 현재 스켈레톤:: " + temp.get(temp.size() - 1));
   }
 
   private static byte[] imageToByte(Image image){
