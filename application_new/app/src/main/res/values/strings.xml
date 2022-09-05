@@ -53,7 +53,6 @@
     <string name="content_description_color_red">Red</string>
     <string name="content_description_color_green">Green</string>
     <string name="content_description_color_blue">Blue</string>
-
     <!-- Permissions-->
     <string name="title_activity_permissions">Permissions Required</string>
     <string name="initial_permissions_required">Camera and audio permissions are required</string>

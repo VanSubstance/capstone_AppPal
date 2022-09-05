@@ -65,7 +65,7 @@ dependencies {
     implementation 'com.google.android.gms:play-services-nearby:15.0.1'
 
     implementation 'com.airbnb.android:lottie:2.7.0'
-
+    
     /**
      * Mediapipe용 dependency
      */
