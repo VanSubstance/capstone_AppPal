@@ -52,9 +52,9 @@ import com.capstone.apppal.rendering.PointCloudRenderer;
 import com.capstone.apppal.view.BrushSelector;
 import com.capstone.apppal.view.ClearDrawingDialog;
 import com.capstone.apppal.view.ColorSelector;
-import com.capstone.apppal.view.DebugView;
 import com.capstone.apppal.view.ErrorDialog;
 import com.capstone.apppal.view.LeaveRoomDialog;
+import com.capstone.apppal.view.MenuSelector;
 import com.capstone.apppal.view.PairButton;
 import com.capstone.apppal.view.PairButtonToolTip;
 import com.capstone.apppal.view.PairView;
@@ -162,7 +162,7 @@ public class DrawARActivity extends BaseActivity
 
   private float mLineWidthMax = 0.33f;
 
-  private Vector3f mSelectedColor = new Vector3f();
+  private Vector3f mSelectedColor = new Vector3f(0f, 0f, 0f);
 
   private float[] mLastFramePosition;
 
@@ -181,6 +181,8 @@ public class DrawARActivity extends BaseActivity
   private List<Stroke> mStrokes;
 
   private File mOutputFile;
+
+  private MenuSelector mMenuSelector;
 
   private BrushSelector mBrushSelector;
 
@@ -205,8 +207,6 @@ public class DrawARActivity extends BaseActivity
   private int mFramesNotTracked = 0;
 
   private PlaybackView mPlaybackView;
-
-  private DebugView mDebugView;
 
   private boolean mDebugEnabled = false;
 
@@ -245,13 +245,6 @@ public class DrawARActivity extends BaseActivity
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
 
-    // Debug view
-    if (BuildConfig.DEBUG) {
-      mDebugView = findViewById(R.id.debug_view);
-      mDebugView.setVisibility(View.VISIBLE);
-      mDebugEnabled = true;
-    }
-
     mAnalytics = Fa.get();
 
     mTrackingIndicator = findViewById(R.id.finding_surfaces_view);
@@ -274,9 +267,14 @@ public class DrawARActivity extends BaseActivity
     mUndoButton = findViewById(R.id.undo_button);
 
     // set up draw settting selector
-    mBrushSelector = findViewById(R.id.brush_selector);
-    mToolSelector = findViewById(R.id.tool_selector);
-    mColorSelector = findViewById(R.id.color_selector);
+    mMenuSelector = findViewById(R.id.menu_selector);
+
+    /**
+     * 새로운 ui 테스트용 주석 처리
+     */
+//    mBrushSelector = findViewById(R.id.brush_selector);
+//    mToolSelector = findViewById(R.id.tool_selector);
+//    mColorSelector = findViewById(R.id.color_selector);
 
     // Reset the zero matrix
     Matrix.setIdentityM(mZeroMatrix, 0);
@@ -1088,20 +1086,6 @@ public class DrawARActivity extends BaseActivity
         mLineShaderRenderer.upload();
       }
 
-      // Debug view
-      if (mDebugEnabled) {
-        final long deltaTime = System.currentTimeMillis() - updateStartTime;
-        this.runOnUiThread(new Runnable() {
-          @Override
-          public void run() {
-            mDebugView
-              .setRenderInfo(mLineShaderRenderer.mNumPoints, deltaTime,
-                mRenderDuration);
-          }
-        });
-
-      }
-
     } catch (Exception e) {
       Log.e(TAG, "update: ", e);
     }
@@ -1157,14 +1141,6 @@ public class DrawARActivity extends BaseActivity
             AppSettings.getFarClip());
       }
 
-      if (mDebugEnabled) {
-        mHandler.post(new Runnable() {
-          @Override
-          public void run() {
-            mDebugView.setAnchorTracking(mAnchor);
-          }
-        });
-      }
     }
 
     if (mMode == Mode.PAIR_PARTNER_DISCOVERY || mMode == Mode.PAIR_ANCHOR_RESOLVING) {
@@ -1723,9 +1699,6 @@ public class DrawARActivity extends BaseActivity
 
   @Override
   public void setRoomNumber(String roomKey) {
-    if (mDebugEnabled) {
-      mDebugView.setRoomNumber(roomKey);
-    }
   }
 
   @Override

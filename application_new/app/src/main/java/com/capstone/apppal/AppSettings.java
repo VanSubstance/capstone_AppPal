@@ -48,6 +48,22 @@ public class AppSettings {
 
   private static final int smoothingCount = 1500;
 
+  public enum MenuType {
+    TOOL(0),
+    COLOR(1),
+    THICKNESS(2);
+
+    private final int menu;
+
+    MenuType(int i) {
+      this.menu = i;
+    }
+
+    public int getMenu() {
+      return menu;
+    }
+  }
+
   public enum LineWidth {
     SMALL(0.006f),
     MEDIUM(0.011f),
@@ -80,7 +96,7 @@ public class AppSettings {
     private final Vector3f color;
 
     ColorType(float r, float g, float b) {
-      this.color = new Vector3f(r/256f, g/256f, b/256f);
+      this.color = new Vector3f(r / 256f, g / 256f, b / 256f);
     }
 
     public Vector3f getColor() {

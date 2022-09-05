@@ -40,44 +40,42 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
+        <com.capstone.apppal.view.MenuSelector
+          android:id="@+id/menu_selector"
+          android:layout_width="match_parent"
+          android:layout_height="0dp"
+          app:layout_constraintDimensionRatio="1:1.5"
+          app:layout_constraintBottom_toBottomOf="parent"
+          app:layout_constraintLeft_toLeftOf="parent"/>
+
         <!-- Finding surfaces -->
 
-        <com.capstone.apppal.view.DebugView
-            android:id="@+id/debug_view"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="5dp"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+<!--        <com.capstone.apppal.view.BrushSelector-->
+<!--            android:id="@+id/brush_selector"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_marginBottom="40dp"-->
+<!--            android:layout_marginLeft="40dp"-->
+<!--            app:layout_constraintBottom_toBottomOf="parent"-->
+<!--            app:layout_constraintLeft_toLeftOf="parent"/>-->
 
-        <com.capstone.apppal.view.BrushSelector
-            android:id="@+id/brush_selector"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="40dp"
-            android:layout_marginLeft="40dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"/>
+<!--        <com.capstone.apppal.view.ToolSelector-->
+<!--            android:id="@+id/tool_selector"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_marginBottom="40dp"-->
+<!--            android:layout_marginLeft="80dp"-->
+<!--            app:layout_constraintBottom_toBottomOf="parent"-->
+<!--            app:layout_constraintLeft_toLeftOf="parent"/>-->
 
-        <com.capstone.apppal.view.ToolSelector
-            android:id="@+id/tool_selector"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="40dp"
-            android:layout_marginLeft="80dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"/>
-
-        <com.capstone.apppal.view.ColorSelector
-            android:id="@+id/color_selector"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="40dp"
-            android:layout_marginLeft="120dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"/>
+<!--        <com.capstone.apppal.view.ColorSelector-->
+<!--            android:id="@+id/color_selector"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_marginBottom="40dp"-->
+<!--            android:layout_marginLeft="120dp"-->
+<!--            app:layout_constraintBottom_toBottomOf="parent"-->
+<!--            app:layout_constraintLeft_toLeftOf="parent"/>-->
 
         <com.capstone.apppal.view.PairButton
             android:id="@+id/button_pair"
