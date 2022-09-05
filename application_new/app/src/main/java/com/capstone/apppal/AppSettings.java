@@ -116,7 +116,6 @@ public class AppSettings {
     ToolType(int i) {
       this.type = i;
     }
-  }
 
     public int getType() {
       return type;
