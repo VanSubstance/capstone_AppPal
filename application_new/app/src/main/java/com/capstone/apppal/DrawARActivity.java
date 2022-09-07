@@ -164,6 +164,8 @@ public class DrawARActivity extends BaseActivity
 
   private AtomicReferenceArray<Vector2f> touchQueue;
 
+  private AtomicReferenceArray<Vector3f> touch3dQueue;
+
   private float mLineWidthMax = 0.33f;
 
   private Vector3f mSelectedColor = new Vector3f(0f, 0f, 0f);
@@ -235,7 +237,6 @@ public class DrawARActivity extends BaseActivity
    * 미디어파이프용 변수들
    */
 
-
   private HandTracking handTracking;
 
 
@@ -247,6 +248,7 @@ public class DrawARActivity extends BaseActivity
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
+    getWindowManager().getDefaultDisplay().getMetrics(GlobalState.displayMetrics);
 
     handTracking = new HandTracking();
 
@@ -274,16 +276,13 @@ public class DrawARActivity extends BaseActivity
     // set up draw settting selector
     mMenuSelector = findViewById(R.id.menu_selector);
 
-    /**
-     * 새로운 ui 테스트용 주석 처리
-     */
-
     // Reset the zero matrix
     Matrix.setIdentityM(mZeroMatrix, 0);
 
     mStrokes = new ArrayList<>();
     touchQueueSize = new AtomicInteger(0);
     touchQueue = new AtomicReferenceArray<>(TOUCH_QUEUE_SIZE);
+    touch3dQueue = new AtomicReferenceArray<>(TOUCH_QUEUE_SIZE);
 
     mPlaybackView = findViewById(R.id.playback);
 
@@ -546,6 +545,7 @@ public class DrawARActivity extends BaseActivity
   private void trackPoint2f(Vector2f... touchPoint) {
     Vector3f[] newPoints = new Vector3f[touchPoint.length];
     for (int i = 0; i < touchPoint.length; i++) {
+      Log.e(TAG, "trackPoint2f: 좌표:: " + touchPoint[i]);
       newPoints[i] = LineUtils
         .GetWorldCoords(touchPoint[i], mScreenWidth, mScreenHeight, projmtx, viewmtx);
     }
@@ -852,14 +852,14 @@ public class DrawARActivity extends BaseActivity
             point = LineUtils.TransformPointToPose(newPoint[i], mAnchor.getPose());
             mStrokes.get(index).add(point, false);
           } else {
-            mStrokes.get(index).add(newPoint[i],false);
+            mStrokes.get(index).add(newPoint[i], false);
 //            ArrayList<Vector3f> test_line = new ArrayList<>();
 //            for(int t =0; t<test.size(); t++)
 //            {
 //              test_line.add(new Vector3f(test.get(t).getX(),test.get(t).getY(),test.get(t).getZ()));
 //            }
 //            mStrokes.get(index).add(test_line.get(i), false);
-            Log.e(TAG, "Arcore Standard Check: " +newPoint[i]);
+//            Log.e(TAG, "Arcore Standard Check: " + newPoint[i]);
           }
         }
         mPairSessionManager.updateStroke(mStrokes.get(index));
@@ -974,9 +974,6 @@ public class DrawARActivity extends BaseActivity
 
       mFrame.getCamera().getPose().getTranslation(position, 0);
 
-      /**
-       * 카메라에서 현재 프레임 이미지 추출
-       */
       //HandTracking Part
       handTracking.getImageFrame(mFrame);
 
@@ -990,10 +987,6 @@ public class DrawARActivity extends BaseActivity
         Vector3f distance = new Vector3f(position[0], position[1], position[2]);
         distance.sub(new Vector3f(mLastFramePosition[0], mLastFramePosition[1],
           mLastFramePosition[2]));
-
-        if (distance.length() > 0.15) {
-          bTouchDown.set(false);
-        }
       }
 
       mLastFramePosition = position;
@@ -1018,8 +1011,8 @@ public class DrawARActivity extends BaseActivity
         trackPoint2f(points);
       }
 
-      // If no new points have been added, and touch is down, add last point again
-      if (numPoints == 0 && bTouchDown.get()) {
+      // If no new points have been added and add last point again
+      if (numPoints == 0 && GlobalState.isDrawable && GlobalState.currentCursor != null) {
         trackPoint2f(mLastTouch);
         mLineShaderRenderer.bNeedsUpdate.set(true);
       }
@@ -1036,7 +1029,7 @@ public class DrawARActivity extends BaseActivity
       }
 
       // Check if we are still drawing, otherwise finish line
-      if (isDrawing && !bTouchDown.get()) {
+      if (isDrawing) {
         isDrawing = false;
         if (!mStrokes.isEmpty()) {
           mStrokes.get(mStrokes.size() - 1).finishStroke();
@@ -1252,15 +1245,17 @@ public class DrawARActivity extends BaseActivity
       return false;
     }
 
+    /**
+     * 그려질 포인트 설정하는 부분
+     */
     if (mMode == Mode.TOOL) {
+
       if (action == MotionEvent.ACTION_DOWN) {
         touchQueue.set(0, new Vector2f(tap.getX(), tap.getY()));
+//        Log.e(TAG, "onTouchEvent: 현재 좌표?? " + new Vector2f(tap.getX(), tap.getY()));
         bNewTrack.set(true);
         bTouchDown.set(true);
         touchQueueSize.set(1);
-
-        bNewTrack.set(true);
-        bTouchDown.set(true);
 
         return true;
       } else if (action == MotionEvent.ACTION_MOVE) {
@@ -1268,6 +1263,7 @@ public class DrawARActivity extends BaseActivity
           int numTouches = touchQueueSize.addAndGet(1);
           if (numTouches <= TOUCH_QUEUE_SIZE) {
             touchQueue.set(numTouches - 1, new Vector2f(tap.getX(), tap.getY()));
+//            Log.e(TAG, "onTouchEvent: 현재 좌표?? " + new Vector2f(tap.getX(), tap.getY()));
           }
         }
         return true;
@@ -1388,6 +1384,18 @@ public class DrawARActivity extends BaseActivity
 
   @Override
   public void onPreDrawFrame() {
+//    if (mMode == Mode.TOOL) {
+//      if (GlobalState.isDrawable) {
+//        int numPoints = touchQueueSize.addAndGet(1);
+//        touchQueue.set(numPoints - 1, new Vector2f(GlobalState.currentCursor.getX(), GlobalState.currentCursor.getY()));
+//        touch3dQueue.set(numPoints - 1, GlobalState.currentCursor);
+//        if (!bNewTrack.get()) {
+//          bNewTrack.set(true);
+//        }
+//      } else {
+//        bNewTrack.set(false);
+//      }
+//    }
     update();
   }
 
@@ -1779,7 +1787,6 @@ public class DrawARActivity extends BaseActivity
         if (uid.equals(stroke.getFirebaseKey())) {
           mStrokes.remove(stroke);
           if (!stroke.finished) {
-            bTouchDown.set(false);
           }
           mLineShaderRenderer.bNeedsUpdate.set(true);
           break;

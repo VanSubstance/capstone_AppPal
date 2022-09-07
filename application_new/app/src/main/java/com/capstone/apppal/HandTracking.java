@@ -2,6 +2,7 @@ package com.capstone.apppal;
 
 import static android.content.ContentValues.TAG;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -9,6 +10,7 @@ import android.graphics.ImageFormat;
 import android.graphics.Rect;
 import android.graphics.YuvImage;
 import android.media.Image;
+import android.util.DisplayMetrics;
 import android.util.Log;
 
 import com.capstone.apppal.VO.CoordinateInfo;
@@ -26,6 +28,8 @@ import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.vecmath.Vector3f;
 
 public class HandTracking {
   private Hands hands;
@@ -48,12 +52,12 @@ public class HandTracking {
   public void getImageFrame(Frame mFrame) {
     try {
       cameraImage =
-          mFrame.acquireCameraImage();
+        mFrame.acquireCameraImage();
       byte[] bytes = imageToByte(cameraImage);
       Bitmap bitmapImage = BitmapFactory.decodeByteArray(bytes, 0, bytes.length, null);
       hands.send(bitmapImage);
     } catch (
-        NotYetAvailableException e) {
+      NotYetAvailableException e) {
       // NotYetAvailableException is an exception that can be expected when the camera is not ready
       // yet. The image may become available on a next frame.
       Log.e(TAG, "update: " + e);
@@ -80,12 +84,12 @@ public class HandTracking {
   private void setupStreamingModePipeline(Context mcontext) {
     // Initializes a new MediaPipe Hands solution instance in the streaming mode.
     hands =
-        new Hands(mcontext,
-            HandsOptions.builder()
-                .setStaticImageMode(true)
-                .setMaxNumHands(1)
-                .setRunOnGpu(false)
-                .build());
+      new Hands(mcontext,
+        HandsOptions.builder()
+          .setStaticImageMode(true)
+          .setMaxNumHands(1)
+          .setRunOnGpu(false)
+          .build());
     hands.setErrorListener((message, e) -> Log.e(TAG, "MediaPipe Hands error:: " + message));
 
     // Initializes a new Gl surface view with a user-defined HandsResultGlRenderer.
@@ -93,10 +97,9 @@ public class HandTracking {
      * 스켈레톤 21개 좌표 취득 부분
      */
     hands.setResultListener(
-        handsResult -> {
-//          logWristLandmark(handsResult, /*showPixelValues=*/ false);
-          handleResult(handsResult);
-        });
+      handsResult -> {
+        handleResult(handsResult);
+      });
   }
 
   private void handleResult(HandsResult result) {
@@ -104,10 +107,35 @@ public class HandTracking {
       return;
     }
     int numHands = result.multiHandLandmarks().size();
+    if (numHands == 0) {
+      GlobalState.isDrawable = false;
+      GlobalState.currentCursor = null;
+    }
     for (int i = 0; i < numHands; ++i) {
       gestureRecognitionControll += 1;
-      boolean isLeftHand = result.multiHandedness().get(i).getLabel().equals("Left");
-      Log.d(TAG, "Is is lefty?? " + result.multiHandedness().get(i).getLabel());
+
+      LandmarkProto.NormalizedLandmark pin = result.multiHandLandmarks().get(i).getLandmarkList().get(4);
+      CoordinateInfo pin4 = new CoordinateInfo(pin.getX(), pin.getY(), pin.getZ(), pin.getVisibility());
+      pin = result.multiHandLandmarks().get(i).getLandmarkList().get(8);
+      CoordinateInfo pin8 = new CoordinateInfo(pin.getX(), pin.getY(), pin.getZ(), pin.getVisibility());
+
+      Vector3f temp = new Vector3f();
+      temp.sub(pin4.getVector(), pin8.getVector());
+
+      if (temp.lengthSquared() >= GlobalState.MINIMUM_DISTANCE_FOR_DRAWING) {
+        GlobalState.isDrawable = false;
+        GlobalState.currentCursor = null;
+      } else {
+        temp.add(pin4.getVector(), pin8.getVector());
+        GlobalState.isDrawable = true;
+        GlobalState.currentCursor = new Vector3f(
+          (1.0f - (temp.getY() - 0.5f)) * (float) GlobalState.displayMetrics.widthPixels,
+          (temp.getX() / 2.0f) * (float) GlobalState.displayMetrics.heightPixels,
+          (temp.getZ()) * (float) GlobalState.displayMetrics.widthPixels);
+//        Log.e(TAG, "handleResult: :::::: " + pin4.getVector());
+//        Log.e(TAG, "handleResult: 변환 후 좌표 ::: " + GlobalState.currentCursor);
+      }
+
       ArrayList<CoordinateInfo> coordinateList = new ArrayList<>();
       for (LandmarkProto.NormalizedLandmark landmark : result.multiHandLandmarks().get(i).getLandmarkList()) {
         // Draws the landmark.
@@ -135,34 +163,34 @@ public class HandTracking {
       return;
     }
     LandmarkProto.NormalizedLandmark wristLandmark =
-        result.multiHandLandmarks().get(0).getLandmarkList().get(HandLandmark.WRIST);
+      result.multiHandLandmarks().get(0).getLandmarkList().get(HandLandmark.WRIST);
     // For Bitmaps, show the pixel values. For texture inputs, show the normalized coordinates.
     if (showPixelValues) {
       int width = result.inputBitmap().getWidth();
       int height = result.inputBitmap().getHeight();
       Log.i(
-          TAG,
-          String.format(
-              "MediaPipe Hand wrist coordinates (pixel values): x=%f, y=%f",
-              wristLandmark.getX() * width, wristLandmark.getY() * height));
+        TAG,
+        String.format(
+          "MediaPipe Hand wrist coordinates (pixel values): x=%f, y=%f",
+          wristLandmark.getX() * width, wristLandmark.getY() * height));
     } else {
       Log.i(
-          TAG,
-          String.format(
-              "MediaPipe Hand wrist normalized coordinates (value range: [0, 1]): x=%f, y=%f",
-              wristLandmark.getX(), wristLandmark.getY()));
+        TAG,
+        String.format(
+          "MediaPipe Hand wrist normalized coordinates (value range: [0, 1]): x=%f, y=%f",
+          wristLandmark.getX(), wristLandmark.getY()));
     }
     if (result.multiHandWorldLandmarks().isEmpty()) {
       return;
     }
     LandmarkProto.Landmark wristWorldLandmark =
-        result.multiHandWorldLandmarks().get(0).getLandmarkList().get(HandLandmark.WRIST);
+      result.multiHandWorldLandmarks().get(0).getLandmarkList().get(HandLandmark.WRIST);
     Log.i(
-        TAG,
-        String.format(
-            "MediaPipe Hand wrist world coordinates (in meters with the origin at the hand's"
-                + " approximate geometric center): x=%f m, y=%f m, z=%f m",
-            wristWorldLandmark.getX(), wristWorldLandmark.getY(), wristWorldLandmark.getZ()));
+      TAG,
+      String.format(
+        "MediaPipe Hand wrist world coordinates (in meters with the origin at the hand's"
+          + " approximate geometric center): x=%f m, y=%f m, z=%f m",
+        wristWorldLandmark.getX(), wristWorldLandmark.getY(), wristWorldLandmark.getZ()));
 
     List<LandmarkProto.Landmark> coorList = result.multiHandWorldLandmarks().get(0).getLandmarkList();
     // Land Mark
