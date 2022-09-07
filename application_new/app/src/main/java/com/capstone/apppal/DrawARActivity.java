@@ -248,6 +248,8 @@ public class DrawARActivity extends BaseActivity
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
 
+    handTracking = new HandTracking();
+
     mAnalytics = Fa.get();
 
     mTrackingIndicator = findViewById(R.id.finding_surfaces_view);
