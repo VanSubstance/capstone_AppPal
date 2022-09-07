@@ -15,6 +15,7 @@ import android.util.Log;
 
 import com.capstone.apppal.VO.CoordinateInfo;
 import com.capstone.apppal.network.GestureRecognitionSocket;
+import com.capstone.apppal.utils.CommonFunctions;
 import com.capstone.apppal.utils.GlobalState;
 import com.google.ar.core.Frame;
 import com.google.ar.core.exceptions.NotYetAvailableException;
@@ -118,6 +119,10 @@ public class HandTracking {
       CoordinateInfo pin4 = new CoordinateInfo(pin.getX(), pin.getY(), pin.getZ(), pin.getVisibility());
       pin = result.multiHandLandmarks().get(i).getLandmarkList().get(8);
       CoordinateInfo pin8 = new CoordinateInfo(pin.getX(), pin.getY(), pin.getZ(), pin.getVisibility());
+      pin = result.multiHandLandmarks().get(i).getLandmarkList().get(2);
+      CoordinateInfo pin2 = new CoordinateInfo(pin.getX(), pin.getY(), pin.getZ(), pin.getVisibility());
+      pin = result.multiHandLandmarks().get(i).getLandmarkList().get(5);
+      CoordinateInfo pin5 = new CoordinateInfo(pin.getX(), pin.getY(), pin.getZ(), pin.getVisibility());
 
       Vector3f temp = new Vector3f();
       temp.sub(pin4.getVector(), pin8.getVector());
@@ -127,16 +132,18 @@ public class HandTracking {
         GlobalState.currentCursor.clear();
       } else {
         temp.add(pin4.getVector(), pin8.getVector());
-        GlobalState.isDrawable = true;
-        GlobalState.currentCursor.add(new Vector3f(
-          (1.0f - (temp.getY() - 0.5f)) * (float) GlobalState.displayMetrics.widthPixels,
-          (temp.getX() / 2.0f) * (float) GlobalState.displayMetrics.heightPixels,
-          (temp.getZ()) * (float) GlobalState.displayMetrics.widthPixels));
-        if (GlobalState.currentCursor.size() >= 3) {
-          GlobalState.currentCursor.remove(0);
+
+        Vector3f pin4_8 = new Vector3f(temp.getX() / 2.0f, temp.getY() / 2.0f, temp.getZ() / 2.0f);
+        if (CommonFunctions.isTriangleAnglesOk(pin4_8, pin2.getVector(), pin5.getVector())) {
+          GlobalState.isDrawable = true;
+          GlobalState.currentCursor.add(new Vector3f(
+            (1.0f - (temp.getY() - 0.5f)) * (float) GlobalState.displayMetrics.widthPixels,
+            (temp.getX() / 2.0f) * (float) GlobalState.displayMetrics.heightPixels,
+            (temp.getZ()) * (float) GlobalState.displayMetrics.widthPixels));
+          if (GlobalState.currentCursor.size() >= 3) {
+            GlobalState.currentCursor.remove(0);
+          }
         }
-//        Log.e(TAG, "handleResult: :::::: " + pin4.getVector());
-//        Log.e(TAG, "handleResult: 변환 후 좌표 ::: " + GlobalState.currentCursor);
       }
 
       ArrayList<CoordinateInfo> coordinateList = new ArrayList<>();
