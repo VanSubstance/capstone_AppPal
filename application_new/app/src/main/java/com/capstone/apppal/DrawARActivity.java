@@ -166,7 +166,7 @@ public class DrawARActivity extends BaseActivity
 
   private AtomicReferenceArray<Vector3f> touch3dQueue;
 
-  private float mLineWidthMax = 0.33f;
+  private float mLineWidthMax = 0.03f;
 
   private Vector3f mSelectedColor = new Vector3f(0f, 0f, 0f);
 
@@ -175,8 +175,6 @@ public class DrawARActivity extends BaseActivity
   private Boolean isDrawing = false;
 
   private AtomicBoolean bHasTracked = new AtomicBoolean(false);
-
-  private AtomicBoolean bTouchDown = new AtomicBoolean(false);
 
   private AtomicBoolean bClearDrawing = new AtomicBoolean(false);
 
@@ -545,7 +543,6 @@ public class DrawARActivity extends BaseActivity
   private void trackPoint2f(Vector2f... touchPoint) {
     Vector3f[] newPoints = new Vector3f[touchPoint.length];
     for (int i = 0; i < touchPoint.length; i++) {
-      Log.e(TAG, "trackPoint2f: 좌표:: " + touchPoint[i]);
       newPoints[i] = LineUtils
         .GetWorldCoords(touchPoint[i], mScreenWidth, mScreenHeight, projmtx, viewmtx);
     }
@@ -1006,6 +1003,7 @@ public class DrawARActivity extends BaseActivity
         Vector2f[] points = new Vector2f[numPoints];
         for (int i = 0; i < numPoints; i++) {
           points[i] = touchQueue.get(i);
+//          Log.e(TAG, "update: 있긴 한가?? " + points[i]);
           mLastTouch = new Vector2f(points[i].x, points[i].y);
         }
         trackPoint2f(points);
@@ -1239,41 +1237,8 @@ public class DrawARActivity extends BaseActivity
     // do not accept touch events through the playback view
     // or when we are not tracking
     if (mPlaybackView.isOpen() || !mTrackingIndicator.isTracking()) {
-      if (bTouchDown.get()) {
-        bTouchDown.set(false);
-      }
       return false;
     }
-
-    /**
-     * 그려질 포인트 설정하는 부분
-     */
-    if (mMode == Mode.TOOL) {
-
-      if (action == MotionEvent.ACTION_DOWN) {
-        touchQueue.set(0, new Vector2f(tap.getX(), tap.getY()));
-//        Log.e(TAG, "onTouchEvent: 현재 좌표?? " + new Vector2f(tap.getX(), tap.getY()));
-        bNewTrack.set(true);
-        bTouchDown.set(true);
-        touchQueueSize.set(1);
-
-        return true;
-      } else if (action == MotionEvent.ACTION_MOVE) {
-        if (bTouchDown.get()) {
-          int numTouches = touchQueueSize.addAndGet(1);
-          if (numTouches <= TOUCH_QUEUE_SIZE) {
-            touchQueue.set(numTouches - 1, new Vector2f(tap.getX(), tap.getY()));
-//            Log.e(TAG, "onTouchEvent: 현재 좌표?? " + new Vector2f(tap.getX(), tap.getY()));
-          }
-        }
-        return true;
-      } else if (action == MotionEvent.ACTION_UP
-        || tap.getAction() == MotionEvent.ACTION_CANCEL) {
-        bTouchDown.set(false);
-        return true;
-      }
-    }
-
     return false;
   }
 
@@ -1384,18 +1349,19 @@ public class DrawARActivity extends BaseActivity
 
   @Override
   public void onPreDrawFrame() {
-//    if (mMode == Mode.TOOL) {
-//      if (GlobalState.isDrawable) {
-//        int numPoints = touchQueueSize.addAndGet(1);
-//        touchQueue.set(numPoints - 1, new Vector2f(GlobalState.currentCursor.getX(), GlobalState.currentCursor.getY()));
-//        touch3dQueue.set(numPoints - 1, GlobalState.currentCursor);
-//        if (!bNewTrack.get()) {
-//          bNewTrack.set(true);
-//        }
-//      } else {
-//        bNewTrack.set(false);
-//      }
-//    }
+    if (mMode == Mode.TOOL) {
+      if (GlobalState.currentCursor.size() == 1) {
+        touchQueue.set(0, new Vector2f(GlobalState.currentCursor.get(0).getX(), GlobalState.currentCursor.get(0).getY()));
+        bNewTrack.set(true);
+        touchQueueSize.set(1);
+
+      } else if (GlobalState.currentCursor.size() > 1) {
+        int numTouches = touchQueueSize.addAndGet(1);
+        if (numTouches <= TOUCH_QUEUE_SIZE) {
+          touchQueue.set(numTouches - 1, new Vector2f(GlobalState.currentCursor.get(1).getX(), GlobalState.currentCursor.get(1).getY()));
+        }
+      }
+    }
     update();
   }
 

@@ -109,7 +109,7 @@ public class HandTracking {
     int numHands = result.multiHandLandmarks().size();
     if (numHands == 0) {
       GlobalState.isDrawable = false;
-      GlobalState.currentCursor = null;
+      GlobalState.currentCursor.clear();
     }
     for (int i = 0; i < numHands; ++i) {
       gestureRecognitionControll += 1;
@@ -124,14 +124,17 @@ public class HandTracking {
 
       if (temp.lengthSquared() >= GlobalState.MINIMUM_DISTANCE_FOR_DRAWING) {
         GlobalState.isDrawable = false;
-        GlobalState.currentCursor = null;
+        GlobalState.currentCursor.clear();
       } else {
         temp.add(pin4.getVector(), pin8.getVector());
         GlobalState.isDrawable = true;
-        GlobalState.currentCursor = new Vector3f(
+        GlobalState.currentCursor.add(new Vector3f(
           (1.0f - (temp.getY() - 0.5f)) * (float) GlobalState.displayMetrics.widthPixels,
           (temp.getX() / 2.0f) * (float) GlobalState.displayMetrics.heightPixels,
-          (temp.getZ()) * (float) GlobalState.displayMetrics.widthPixels);
+          (temp.getZ()) * (float) GlobalState.displayMetrics.widthPixels));
+        if (GlobalState.currentCursor.size() >= 3) {
+          GlobalState.currentCursor.remove(0);
+        }
 //        Log.e(TAG, "handleResult: :::::: " + pin4.getVector());
 //        Log.e(TAG, "handleResult: 변환 후 좌표 ::: " + GlobalState.currentCursor);
       }

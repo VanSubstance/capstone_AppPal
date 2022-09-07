@@ -21,8 +21,8 @@ public class GlobalState {
   public static ArrayList<GestureType> listGesture = new ArrayList<>();
 
   public static boolean isDrawable = false;
-  public final static float MINIMUM_DISTANCE_FOR_DRAWING = 0.002f;
+  public final static float MINIMUM_DISTANCE_FOR_DRAWING = 0.004f;
   public static GestureType currentGesture;
-  public static Vector3f currentCursor = new Vector3f();
+  public static ArrayList<Vector3f> currentCursor = new ArrayList<>();
   public static DisplayMetrics displayMetrics = new DisplayMetrics();
 }
