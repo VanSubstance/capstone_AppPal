@@ -6,7 +6,7 @@ import ast
 # Location of model::
 #   it is the path in perspective of location of executing this python file
 model = load_model('models/v.1.0/model.h5')
-actions = ['pen', 'mask', 'hold']
+actions = ['ONE', 'TWO', 'THREE','FOUR','FIVE','ZERO']
 seq_length = 3
 
 # coorListList structure::
