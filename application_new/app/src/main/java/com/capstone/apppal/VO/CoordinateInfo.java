@@ -8,7 +8,13 @@ public class CoordinateInfo implements Serializable {
   private Vector3f point;
   private float visibility;
 
+  public CoordinateInfo() {
+    this.point = new Vector3f();
+    this.visibility = 0.0f;
+  }
+
   public CoordinateInfo(float x, float y, float z, float visibility) {
+    super();
     this.point = new Vector3f(x, y, z);
     this.visibility = visibility;
   }
@@ -43,6 +49,10 @@ public class CoordinateInfo implements Serializable {
 
   public void setZ(float z) {
     point.setZ(z);
+  }
+
+  public Vector3f getVector() {
+    return this.point;
   }
 
   public String toString() {
