@@ -3,6 +3,7 @@ from _thread import *
 import struct
 import json
 import ast
+import time
 
 from gestureRecognizer import recognize
 
@@ -20,7 +21,6 @@ server_socket.listen()
 
 def threaded(client_socket, addr):
   print('>> Connected by :', addr[0], ':', addr[1])
-
   while True:
     try:
       data = client_socket.recv(2048)
@@ -30,7 +30,7 @@ def threaded(client_socket, addr):
         break
 
       decoded = data.decode()
-      # print(decoded)
+      #print(decoded)
       jsonData = json.loads(decoded)
       executeFunction(client_socket, jsonData)
 
@@ -46,21 +46,25 @@ def threaded(client_socket, addr):
 
 
 def executeFunction(client_socket, jsonData):
-  function = jsonData['function']
-  data = jsonData['data']
-  del jsonData
-  if function == 'check':
-    print('Checking data:: ', data)
-  elif function == 'gesture':
-    data = ast.literal_eval(data)
-    gesture = recognize(data)
-    print('Gesture recognition:: ', gesture)
-    res = {
-      'function': 'gesture',
-      'data' : gesture,
-    }
-    client_socket.send(json.dumps(res).encode())
-  
+  try:
+    function = jsonData['function']
+    data = jsonData['data']
+    del jsonData
+    if function == 'check':
+      print('Checking data:: ', data)
+    elif function == 'gesture':
+      
+      data = ast.literal_eval(data)
+      gesture = recognize(data)
+      print('Gesture recognition:: ', gesture)
+      res = {
+        'function': 'gesture',
+        'data' : gesture,
+        }
+      client_socket.send(json.dumps(res).encode())
+  except:
+      time.sleep(2)
+      start_new_thread(threaded, (client_socket, addr))
 
 try:
   while True:
@@ -73,6 +77,7 @@ try:
         
 except Exception as e :
   print ('에러는? : ',e)
-
+  time.sleep(2)
+  start_new_thread(threaded, (client_socket, addr))
 finally:
     server_socket.close()
