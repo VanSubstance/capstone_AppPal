@@ -35,15 +35,20 @@ public class SocketReceiveHandler {
                 switch (resData.get("function").toString()) {
                     case "gesture":
                         switch (resData.get("data").toString()) {
-                            case "pen":
-                                stackGesture(GestureType.PEN);
+                            case "ONE":
+                                stackGesture(GestureType.ONE);
                                 break;
-                            case "hold":
-                                stackGesture(GestureType.HOLD);
+                            case "TWO":
+                                stackGesture(GestureType.TWO);
                                 break;
-                            case "mask":
-                                stackGesture(GestureType.MASK);
+                            case "THREE":
+                                stackGesture(GestureType.THREE);
                                 break;
+                            case "FOUR":
+                                stackGesture(GestureType.FOUR);
+                                break;
+                            case "ZERO":
+                                stackGesture(GestureType.ZERO);
                         }
                         break;
                     default:
