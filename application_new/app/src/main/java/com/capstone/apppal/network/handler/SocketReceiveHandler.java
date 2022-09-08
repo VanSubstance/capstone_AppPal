@@ -68,7 +68,7 @@ public class SocketReceiveHandler {
       if (Collections.frequency(GlobalState.listGesture, nowGesture) >= 5) {
         GlobalState.currentGesture = nowGesture;
         GlobalState.listGesture.clear();
-        Log.e("제스쳐 결정", "결정된 제스쳐:: " + GlobalState.currentGesture);
+//        Log.e("제스쳐 결정", "결정된 제스쳐:: " + GlobalState.currentGesture);
       }
     }
   }

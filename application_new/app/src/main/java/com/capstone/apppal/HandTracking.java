@@ -123,6 +123,8 @@ public class HandTracking {
       CoordinateInfo pin2 = new CoordinateInfo(pin.getX(), pin.getY(), pin.getZ(), pin.getVisibility());
       pin = result.multiHandLandmarks().get(i).getLandmarkList().get(5);
       CoordinateInfo pin5 = new CoordinateInfo(pin.getX(), pin.getY(), pin.getZ(), pin.getVisibility());
+      pin = result.multiHandLandmarks().get(i).getLandmarkList().get(0);
+      CoordinateInfo pin0 = new CoordinateInfo(pin.getX(), pin.getY(), pin.getZ(), pin.getVisibility());
 
       Vector3f temp = new Vector3f();
       temp.sub(pin4.getVector(), pin8.getVector());
@@ -134,12 +136,13 @@ public class HandTracking {
         temp.add(pin4.getVector(), pin8.getVector());
 
         Vector3f pin4_8 = new Vector3f(temp.getX() / 2.0f, temp.getY() / 2.0f, temp.getZ() / 2.0f);
+        float disY = Math.abs(pin0.getY() - pin8.getY());
         if (CommonFunctions.isTriangleAnglesOk(pin4_8, pin2.getVector(), pin5.getVector())) {
           GlobalState.isDrawable = true;
           GlobalState.currentCursor.add(new Vector3f(
             (1.0f - (temp.getY() - 0.5f)) * (float) GlobalState.displayMetrics.widthPixels,
             (temp.getX() / 2.0f) * (float) GlobalState.displayMetrics.heightPixels,
-            (temp.getZ()) * (float) GlobalState.displayMetrics.widthPixels));
+            ((float) GlobalState.displayMetrics.heightPixels * (3.0f - (4.0f * disY)))));
           if (GlobalState.currentCursor.size() >= 3) {
             GlobalState.currentCursor.remove(0);
           }

@@ -154,11 +154,14 @@ public class DrawARActivity extends BaseActivity
 
   private float[] mZeroMatrix = new float[16];
 
+  private Pose mPose;
+
   private float mScreenWidth = 0;
 
   private float mScreenHeight = 0;
 
   private Vector2f mLastTouch;
+  private Vector3f mLast3dTouch;
 
   private AtomicInteger touchQueueSize;
 
@@ -546,7 +549,18 @@ public class DrawARActivity extends BaseActivity
       newPoints[i] = LineUtils
         .GetWorldCoords(touchPoint[i], mScreenWidth, mScreenHeight, projmtx, viewmtx);
     }
+    Log.e(TAG, "trackPoint2f: 2d 기반 좌표 변화 결과:: " + newPoints[0]);
     trackPoint3f(newPoints);
+  }
+
+  private void trackPointScreen3f(Vector3f... trackPoint) {
+    Vector3f[] newPoints = new Vector3f[trackPoint.length];
+    for (int i = 0; i < trackPoint.length; i++) {
+      newPoints[i] = LineUtils
+        .TransformPointToPose(trackPoint[i], mPose);
+    }
+    Log.e(TAG, "trackPoint3f: 3d 기반 좌표 변화 결과:: " + newPoints[0]);
+//    trackPoint3f(newPoints);
   }
 
   /**
@@ -561,6 +575,7 @@ public class DrawARActivity extends BaseActivity
 
     if (index < 0)
       return;
+//    Log.e(TAG, "trackPoint3f: 포인트 포인트:ㅖ: " + newPoint[newPoint.length - 1]);
 
     switch (mMenuSelector.getToolSelector().getSelectedToolType()) {
       case ERASE:
@@ -967,6 +982,11 @@ public class DrawARActivity extends BaseActivity
         AppSettings.getFarClip());
       mFrame.getCamera().getViewMatrix(viewmtx, 0);
 
+      /**
+       * Pose 추출하기
+       */
+      mPose = mFrame.getCamera().getPose();
+
       float[] position = new float[3];
 
       mFrame.getCamera().getPose().getTranslation(position, 0);
@@ -1001,17 +1021,30 @@ public class DrawARActivity extends BaseActivity
         }
 
         Vector2f[] points = new Vector2f[numPoints];
+        Vector3f[] points3d = new Vector3f[numPoints];
         for (int i = 0; i < numPoints; i++) {
           points[i] = touchQueue.get(i);
-//          Log.e(TAG, "update: 있긴 한가?? " + points[i]);
+          points3d[i] = touch3dQueue.get(i);
           mLastTouch = new Vector2f(points[i].x, points[i].y);
+          mLast3dTouch = new Vector3f(points3d[i].x, points3d[i].y, points3d[i].z);
         }
-        trackPoint2f(points);
+
+        if (GlobalState.IS_BASED_3D) {
+          trackPointScreen3f(points3d);
+        } else {
+          trackPoint2f(points);
+          trackPointScreen3f(points3d);
+        }
       }
 
       // If no new points have been added and add last point again
       if (numPoints == 0 && GlobalState.isDrawable && GlobalState.currentCursor != null) {
-        trackPoint2f(mLastTouch);
+        if (GlobalState.IS_BASED_3D) {
+          trackPointScreen3f(mLast3dTouch);
+        } else {
+          trackPoint2f(mLastTouch);
+          trackPointScreen3f(mLast3dTouch);
+        }
         mLineShaderRenderer.bNeedsUpdate.set(true);
       }
 
@@ -1165,52 +1198,6 @@ public class DrawARActivity extends BaseActivity
       AnalyticsEvents.VALUE_TRUE);
   }
 
-
-  private boolean stopRecording() {
-    boolean stoppedSuccessfully;
-    try {
-      stoppedSuccessfully = mSurfaceView.stopRecording();
-    } catch (RuntimeException e) {
-      stoppedSuccessfully = false;
-      Fa.get().exception(e, "Error stopping recording");
-    }
-    if (stoppedSuccessfully) {
-      openPlayback(mOutputFile);
-      Log.v(TAG, "Recording Stopped");
-    } else {
-      // reset everything to try again
-      onPlaybackClosed();
-      ErrorDialog.newInstance(R.string.stop_recording_failed, false).show(this);
-    }
-
-    enableView(mPairButton);
-
-    return stoppedSuccessfully;
-  }
-
-
-  private boolean startRecording() {
-    boolean startSuccessful = mSurfaceView.startRecording();
-
-    if (startSuccessful) {
-      disableView(mPairButton);
-      Log.v(TAG, "Recording Started");
-    } else {
-      Toast.makeText(this, R.string.start_recording_failed, Toast.LENGTH_SHORT).show();
-      prepareForRecording();
-    }
-    return startSuccessful;
-  }
-
-
-  private void openPlayback(File file) {
-    mPlaybackView.open(file);
-    hideView(mDrawUiContainer);
-    mPairButtonToolTip.hide();
-    hideView(mTrackingIndicator);
-  }
-
-
   /**
    * onClickClear handle showing an AlertDialog to clear the drawing
    */
@@ -1352,6 +1339,7 @@ public class DrawARActivity extends BaseActivity
     if (mMode == Mode.TOOL) {
       if (GlobalState.currentCursor.size() == 1) {
         touchQueue.set(0, new Vector2f(GlobalState.currentCursor.get(0).getX(), GlobalState.currentCursor.get(0).getY()));
+        touch3dQueue.set(0, GlobalState.currentCursor.get(0));
         bNewTrack.set(true);
         touchQueueSize.set(1);
 
@@ -1359,6 +1347,7 @@ public class DrawARActivity extends BaseActivity
         int numTouches = touchQueueSize.addAndGet(1);
         if (numTouches <= TOUCH_QUEUE_SIZE) {
           touchQueue.set(numTouches - 1, new Vector2f(GlobalState.currentCursor.get(1).getX(), GlobalState.currentCursor.get(1).getY()));
+          touch3dQueue.set(numTouches - 1, GlobalState.currentCursor.get(1));
         }
       }
     }
