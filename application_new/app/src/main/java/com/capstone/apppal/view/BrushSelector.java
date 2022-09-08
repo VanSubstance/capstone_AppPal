@@ -44,7 +44,7 @@ public class BrushSelector extends ConstraintLayout implements View.OnClickListe
   private static final int LARGE_BRUSH = 2;
 
   private static final Pair<Integer, AppSettings.LineWidth> defaultBrush = new Pair<>(MEDIUM_BRUSH,
-    AppSettings.LineWidth.MEDIUM);
+    AppSettings.LineWidth.SMALL);
 
   private View mBackground;
 
