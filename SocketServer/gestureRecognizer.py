@@ -5,9 +5,9 @@ import ast
 # Load model
 # Location of model::
 #   it is the path in perspective of location of executing this python file
-model = load_model('models/v.1.0/model.h5')
-actions = ['pen', 'mask', 'hold']
-seq_length = 3
+model = load_model('models/model.h5')
+actions = ['ONE', 'TWO', 'THREE','FOUR','FIVE','ZERO']
+seq_length = 5
 
 # coorListList structure::
 #   ArrayList<{
@@ -39,9 +39,8 @@ def recognize(coorList):
   angle = np.degrees(angle) # Convert radian to degree
 
   d = np.concatenate([joint.flatten(), angle])
-  dummy.append(d)
-  dummy.append(d)
-  dummy.append(d)
+  for i in range(seq_length):
+    dummy.append(d)
 
   input_data = np.expand_dims(np.array(dummy, dtype=np.float32), axis=0)
 
