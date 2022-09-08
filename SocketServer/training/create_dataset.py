@@ -4,7 +4,7 @@ import numpy as np
 import time, os
 
 actions = ['ONE', 'TWO', 'THREE','FOUR','FIVE','ZERO']
-seq_length = 15
+seq_length = 5
 secs_for_action = 30
 
 # MediaPipe hands model
