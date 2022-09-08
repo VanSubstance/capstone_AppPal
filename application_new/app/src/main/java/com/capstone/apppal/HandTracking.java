@@ -139,10 +139,16 @@ public class HandTracking {
         float disY = Math.abs(pin0.getY() - pin8.getY());
         if (CommonFunctions.isTriangleAnglesOk(pin4_8, pin2.getVector(), pin5.getVector())) {
           GlobalState.isDrawable = true;
+
+          float x = (1.0f - (temp.getY() - 0.5f)) * (float) GlobalState.displayMetrics.widthPixels;
+          float y = (temp.getX() / 2.0f) * (float) GlobalState.displayMetrics.heightPixels;
+          float z = ((float) GlobalState.displayMetrics.heightPixels * (0.5f - (1.0f * disY)));
+//          x = x * (1 + ((((float) GlobalState.displayMetrics.widthPixels) - x) / (float) GlobalState.displayMetrics.widthPixels));
+//          y = y * (1 + ((((float) GlobalState.displayMetrics.heightPixels) - y) / (float) GlobalState.displayMetrics.heightPixels));
           GlobalState.currentCursor.add(new Vector3f(
-            (1.0f - (temp.getY() - 0.5f)) * (float) GlobalState.displayMetrics.widthPixels,
-            (temp.getX() / 2.0f) * (float) GlobalState.displayMetrics.heightPixels,
-            ((float) GlobalState.displayMetrics.heightPixels * (3.0f - (4.0f * disY)))));
+            x,
+            y,
+            z));
           if (GlobalState.currentCursor.size() >= 3) {
             GlobalState.currentCursor.remove(0);
           }

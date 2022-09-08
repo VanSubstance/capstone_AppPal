@@ -152,22 +152,19 @@ public class DrawARActivity extends BaseActivity
 
   private float[] viewmtx = new float[16];
 
-  private float[] mZeroMatrix = new float[16];
+  private float[] viewPos = new float[3];
 
-  private Pose mPose;
+  private float[] mZeroMatrix = new float[16];
 
   private float mScreenWidth = 0;
 
   private float mScreenHeight = 0;
 
-  private Vector2f mLastTouch;
-  private Vector3f mLast3dTouch;
+  private Vector3f mLastTouch;
 
   private AtomicInteger touchQueueSize;
 
-  private AtomicReferenceArray<Vector2f> touchQueue;
-
-  private AtomicReferenceArray<Vector3f> touch3dQueue;
+  private AtomicReferenceArray<Vector3f> touchQueue;
 
   private float mLineWidthMax = 0.03f;
 
@@ -283,7 +280,6 @@ public class DrawARActivity extends BaseActivity
     mStrokes = new ArrayList<>();
     touchQueueSize = new AtomicInteger(0);
     touchQueue = new AtomicReferenceArray<>(TOUCH_QUEUE_SIZE);
-    touch3dQueue = new AtomicReferenceArray<>(TOUCH_QUEUE_SIZE);
 
     mPlaybackView = findViewById(R.id.playback);
 
@@ -539,15 +535,15 @@ public class DrawARActivity extends BaseActivity
   }
 
   /**
-   * trackPoint2f adds a point to the current stroke
+   * trackPointFromScreeen adds a point to the current stroke
    *
    * @param touchPoint a 2D point in screen space and is projected into 3D world space
    */
-  private void trackPoint2f(Vector2f... touchPoint) {
+  private void trackPointFromScreeen(Vector3f... touchPoint) {
     Vector3f[] newPoints = new Vector3f[touchPoint.length];
     for (int i = 0; i < touchPoint.length; i++) {
       newPoints[i] = LineUtils
-        .GetWorldCoords(touchPoint[i], mScreenWidth, mScreenHeight, projmtx, viewmtx);
+        .GetWorldCoords(touchPoint[i], mScreenWidth, mScreenHeight, projmtx, viewmtx, viewPos);
     }
     trackPoint3f(newPoints);
   }
@@ -971,10 +967,8 @@ public class DrawARActivity extends BaseActivity
         AppSettings.getFarClip());
       mFrame.getCamera().getViewMatrix(viewmtx, 0);
 
-      /**
-       * Pose 추출하기
-       */
-      mPose = mFrame.getCamera().getPose();
+      Pose temp = mFrame.getCamera().getPose();
+      viewPos = new float[]{temp.tx(), temp.ty(), temp.tz()};
 
       float[] position = new float[3];
 
@@ -1009,20 +1003,17 @@ public class DrawARActivity extends BaseActivity
           trackStroke();
         }
 
-        Vector2f[] points = new Vector2f[numPoints];
-        Vector3f[] points3d = new Vector3f[numPoints];
+        Vector3f[] points = new Vector3f[numPoints];
         for (int i = 0; i < numPoints; i++) {
           points[i] = touchQueue.get(i);
-          points3d[i] = touch3dQueue.get(i);
-          mLastTouch = new Vector2f(points[i].x, points[i].y);
-          mLast3dTouch = new Vector3f(points3d[i].x, points3d[i].y, points3d[i].z);
+          mLastTouch = new Vector3f(points[i].x, points[i].y, points[i].z);
         }
-        trackPoint2f(points);
+        trackPointFromScreeen(points);
       }
 
       // If no new points have been added and add last point again
       if (numPoints == 0 && GlobalState.isDrawable && GlobalState.currentCursor != null) {
-        trackPoint2f(mLastTouch);
+        trackPointFromScreeen(mLastTouch);
         mLineShaderRenderer.bNeedsUpdate.set(true);
       }
 
@@ -1316,16 +1307,14 @@ public class DrawARActivity extends BaseActivity
   public void onPreDrawFrame() {
     if (mMode == Mode.TOOL) {
       if (GlobalState.currentCursor.size() == 1) {
-        touchQueue.set(0, new Vector2f(GlobalState.currentCursor.get(0).getX(), GlobalState.currentCursor.get(0).getY()));
-        touch3dQueue.set(0, GlobalState.currentCursor.get(0));
+        touchQueue.set(0, GlobalState.currentCursor.get(0));
         bNewTrack.set(true);
         touchQueueSize.set(1);
 
       } else if (GlobalState.currentCursor.size() > 1) {
         int numTouches = touchQueueSize.addAndGet(1);
         if (numTouches <= TOUCH_QUEUE_SIZE) {
-          touchQueue.set(numTouches - 1, new Vector2f(GlobalState.currentCursor.get(1).getX(), GlobalState.currentCursor.get(1).getY()));
-          touch3dQueue.set(numTouches - 1, GlobalState.currentCursor.get(1));
+          touchQueue.set(numTouches - 1, GlobalState.currentCursor.get(1));
         }
       }
     }
