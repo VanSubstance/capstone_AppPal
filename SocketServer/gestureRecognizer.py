@@ -42,7 +42,7 @@ def recognize(coorList):
   for i in range(seq_length):
     dummy.append(d)
 
-  input_data = np.expand_dims(np.array(dummy[-seq_length:], dtype=np.float32), axis=0)
+  input_data = np.expand_dims(np.array(dummy, dtype=np.float32), axis=0)
 
   y_pred = model.predict(input_data).squeeze()
 
