@@ -5,9 +5,9 @@ import ast
 # Load model
 # Location of model::
 #   it is the path in perspective of location of executing this python file
-model = load_model('models/v.1.0/model.h5')
+model = load_model('models/model.h5')
 actions = ['ONE', 'TWO', 'THREE','FOUR','FIVE','ZERO']
-seq_length = 3
+seq_length = 15
 
 # coorListList structure::
 #   ArrayList<{
