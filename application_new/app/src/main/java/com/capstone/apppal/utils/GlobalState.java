@@ -26,6 +26,4 @@ public class GlobalState {
   public static GestureType currentGesture;
   public static ArrayList<Vector3f> currentCursor = new ArrayList<>();
   public static DisplayMetrics displayMetrics = new DisplayMetrics();
-
-  public final static boolean IS_BASED_3D = false;
 }

@@ -15,6 +15,7 @@
 package com.capstone.apppal.rendering;
 
 import android.opengl.Matrix;
+import android.util.Log;
 
 import com.capstone.apppal.AppSettings;
 import com.capstone.apppal.model.Ray;
@@ -57,12 +58,52 @@ public class LineUtils {
         return new Ray(origin, direction);
     }
 
+    private static Ray screenPoint3dToRay(Vector3f point, Vector3f viewportSize, float[] viewProjMtx) {
+        point.y = viewportSize.y - point.y;
+        float x = point.x * 2.0F / viewportSize.x - 1.0F;
+        float y = point.y * 2.0F / viewportSize.y - 1.0F;
+        float z = point.z * 2.0F / viewportSize.z - 1.0F;
+        float[] farScreenPoint = new float[]{x, y, 1.0F, 1.0F};
+        float[] nearScreenPoint = new float[]{x, y, -1.0F, 1.0F};
+        float[] nearPlanePoint = new float[4];
+        float[] farPlanePoint = new float[4];
+
+        float[] screenPoint = new float[]{x, y, z, 1.0F};
+        float[] planePoint = new float[4];
+
+        float[] invertedProjectionMatrix = new float[16];
+        Matrix.setIdentityM(invertedProjectionMatrix, 0);
+        Matrix.invertM(invertedProjectionMatrix, 0, viewProjMtx, 0);
+        Matrix.multiplyMV(nearPlanePoint, 0, invertedProjectionMatrix, 0, nearScreenPoint, 0);
+        Matrix.multiplyMV(farPlanePoint, 0, invertedProjectionMatrix, 0, farScreenPoint, 0);
+
+        Matrix.multiplyMV(planePoint, 0, invertedProjectionMatrix, 0, screenPoint, 0);
+
+        Vector3f direction = new Vector3f(farPlanePoint[0] / farPlanePoint[3],
+          farPlanePoint[1] / farPlanePoint[3], farPlanePoint[2] / farPlanePoint[3]);
+        Vector3f origin = new Vector3f(new Vector3f(nearPlanePoint[0] / nearPlanePoint[3],
+          nearPlanePoint[1] / nearPlanePoint[3], nearPlanePoint[2] / nearPlanePoint[3]));
+
+        Vector3f origin3 = new Vector3f(new Vector3f(nearPlanePoint[0] / nearPlanePoint[3],
+          nearPlanePoint[1] / nearPlanePoint[3], nearPlanePoint[2] / nearPlanePoint[3]));
+
+        Log.e("", "screenPoint3dToRay: direction??" + direction);
+        Log.e("", "screenPoint3dToRay: origin??" + origin);
+        Log.e("", "screenPoint3dToRay: origin3??" + origin3);
+
+        direction.sub(origin);
+        direction.normalize();
+        return new Ray(origin, direction);
+    }
+
     private static Ray projectRay(Vector2f touchPoint, float screenWidth, float screenHeight,
                                   float[] projectionMatrix, float[] viewMatrix) {
         float[] viewProjMtx = new float[16];
         Matrix.multiplyMM(viewProjMtx, 0, projectionMatrix, 0, viewMatrix, 0);
-        return screenPointToRay(touchPoint, new Vector2f(screenWidth, screenHeight),
-                viewProjMtx);
+//        screenPoint3dToRay(touchPoint, new Vector3f(screenWidth, screenHeight, screenHeight),
+//          viewProjMtx);
+        return screenPointToRay(new Vector2f(touchPoint.getX(), touchPoint.getY()), new Vector2f(screenWidth, screenHeight),
+          viewProjMtx);
     }
 
     public static boolean distanceCheck(Vector3f newPoint, Vector3f lastPoint) {

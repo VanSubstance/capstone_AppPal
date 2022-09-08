@@ -549,18 +549,7 @@ public class DrawARActivity extends BaseActivity
       newPoints[i] = LineUtils
         .GetWorldCoords(touchPoint[i], mScreenWidth, mScreenHeight, projmtx, viewmtx);
     }
-    Log.e(TAG, "trackPoint2f: 2d 기반 좌표 변화 결과:: " + newPoints[0]);
     trackPoint3f(newPoints);
-  }
-
-  private void trackPointScreen3f(Vector3f... trackPoint) {
-    Vector3f[] newPoints = new Vector3f[trackPoint.length];
-    for (int i = 0; i < trackPoint.length; i++) {
-      newPoints[i] = LineUtils
-        .TransformPointToPose(trackPoint[i], mPose);
-    }
-    Log.e(TAG, "trackPoint3f: 3d 기반 좌표 변화 결과:: " + newPoints[0]);
-//    trackPoint3f(newPoints);
   }
 
   /**
@@ -1028,23 +1017,12 @@ public class DrawARActivity extends BaseActivity
           mLastTouch = new Vector2f(points[i].x, points[i].y);
           mLast3dTouch = new Vector3f(points3d[i].x, points3d[i].y, points3d[i].z);
         }
-
-        if (GlobalState.IS_BASED_3D) {
-          trackPointScreen3f(points3d);
-        } else {
-          trackPoint2f(points);
-          trackPointScreen3f(points3d);
-        }
+        trackPoint2f(points);
       }
 
       // If no new points have been added and add last point again
       if (numPoints == 0 && GlobalState.isDrawable && GlobalState.currentCursor != null) {
-        if (GlobalState.IS_BASED_3D) {
-          trackPointScreen3f(mLast3dTouch);
-        } else {
-          trackPoint2f(mLastTouch);
-          trackPointScreen3f(mLast3dTouch);
-        }
+        trackPoint2f(mLastTouch);
         mLineShaderRenderer.bNeedsUpdate.set(true);
       }
 
