@@ -136,15 +136,16 @@ public class HandTracking {
         temp.add(pin4.getVector(), pin8.getVector());
 
         Vector3f pin4_8 = new Vector3f(temp.getX() / 2.0f, temp.getY() / 2.0f, temp.getZ() / 2.0f);
-        float disY = Math.abs(pin0.getY() - pin8.getY());
+        float disY = (float) Math.sqrt(
+          ((pin0.getY() - pin8.getY()) * (pin0.getY() - pin8.getY())) +
+            (pin0.getX() - pin8.getX()) * (pin0.getX() - pin8.getX()));
         if (CommonFunctions.isTriangleAnglesOk(pin4_8, pin2.getVector(), pin5.getVector())) {
           GlobalState.isDrawable = true;
 
           float x = (1.0f - (temp.getY() - 0.5f)) * (float) GlobalState.displayMetrics.widthPixels;
           float y = (temp.getX() / 2.0f) * (float) GlobalState.displayMetrics.heightPixels;
-          float z = ((float) GlobalState.displayMetrics.heightPixels * (0.5f - (1.0f * disY)));
-//          x = x * (1 + ((((float) GlobalState.displayMetrics.widthPixels) - x) / (float) GlobalState.displayMetrics.widthPixels));
-//          y = y * (1 + ((((float) GlobalState.displayMetrics.heightPixels) - y) / (float) GlobalState.displayMetrics.heightPixels));
+          float z = ((float) GlobalState.displayMetrics.heightPixels * -1 / 0.475f * (disY - 0.6f));
+//          Log.e(TAG, "handleResult: disYdisY:: " + disY);
           GlobalState.currentCursor.add(new Vector3f(
             x,
             y,
