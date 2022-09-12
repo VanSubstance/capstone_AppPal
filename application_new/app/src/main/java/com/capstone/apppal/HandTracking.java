@@ -14,6 +14,7 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 
 import com.capstone.apppal.VO.CoordinateInfo;
+import com.capstone.apppal.VO.FunctionType;
 import com.capstone.apppal.network.GestureRecognitionSocket;
 import com.capstone.apppal.utils.CommonFunctions;
 import com.capstone.apppal.utils.GlobalState;
@@ -129,7 +130,8 @@ public class HandTracking {
       Vector3f temp = new Vector3f();
       temp.sub(pin4.getVector(), pin8.getVector());
 
-      if (temp.lengthSquared() >= GlobalState.MINIMUM_DISTANCE_FOR_DRAWING) {
+      Log.e("기능 결정", "현재 기능 :: " + GlobalState.currentFunction);
+      if (temp.lengthSquared() >= GlobalState.MINIMUM_DISTANCE_FOR_DRAWING || GlobalState.currentFunction != FunctionType.DRAWING) {
         GlobalState.isDrawable = false;
         GlobalState.currentCursor.clear();
       } else {
