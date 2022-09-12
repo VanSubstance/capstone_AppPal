@@ -218,6 +218,35 @@ public class ToolSelector extends ConstraintLayout implements View.OnClickListen
     toggleToolSelectorVisibility();
   }
 
+  public void onClick(int viewId) {
+
+    AppSettings.ToolType toolType = null;
+    switch (viewId) {
+      case R.id.tool_button:
+        toggleToolSelectorVisibility();
+        return;
+      case R.id.tool_selection_pen:
+        toolType = AppSettings.ToolType.NORMAL_PEN;
+        break;
+      case R.id.tool_selection_line:
+        toolType = AppSettings.ToolType.STRAIGHT_LINE;
+        break;
+      case R.id.tool_selection_cube:
+        toolType = AppSettings.ToolType.CUBE;
+        break;
+      case R.id.tool_selection_rect:
+        toolType = AppSettings.ToolType.RECT;
+        break;
+      case R.id.tool_selection_erase:
+        toolType = AppSettings.ToolType.ERASE;
+        break;
+    }
+
+    onToolSelected(toolType);
+
+    toggleToolSelectorVisibility();
+  }
+
   @Override
   public boolean performClick() {
     toggleToolSelectorVisibility();

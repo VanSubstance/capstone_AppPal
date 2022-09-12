@@ -220,6 +220,35 @@ public class ColorSelector extends ConstraintLayout implements View.OnClickListe
     toggleColorSelectorVisibility();
   }
 
+  public void onClick(int viewId) {
+
+    AppSettings.ColorType colorType = null;
+    switch (viewId) {
+      case R.id.color_button:
+        toggleColorSelectorVisibility();
+        return;
+      case R.id.color_selection_white:
+        colorType = AppSettings.ColorType.WHITE;
+        break;
+      case R.id.color_selection_black:
+        colorType = AppSettings.ColorType.BLACK;
+        break;
+      case R.id.color_selection_red:
+        colorType = AppSettings.ColorType.RED;
+        break;
+      case R.id.color_selection_green:
+        colorType = AppSettings.ColorType.GREEN;
+        break;
+      case R.id.color_selection_blue:
+        colorType = AppSettings.ColorType.BLUE;
+        break;
+    }
+
+    onColorSelected(colorType);
+
+    toggleColorSelectorVisibility();
+  }
+
   @Override
   public boolean performClick() {
     toggleColorSelectorVisibility();

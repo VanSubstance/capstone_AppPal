@@ -160,9 +160,30 @@ public class BrushSelector extends ConstraintLayout implements View.OnClickListe
 
   @Override
   public void onClick(View view) {
-
     AppSettings.LineWidth lineWidth = null;
     switch (view.getId()) {
+      case R.id.brush_button:
+        toggleBrushSelectorVisibility();
+        return;
+      case R.id.brush_selection_small:
+        lineWidth = AppSettings.LineWidth.SMALL;
+        break;
+      case R.id.brush_selection_medium:
+        lineWidth = AppSettings.LineWidth.MEDIUM;
+        break;
+      case R.id.brush_selection_large:
+        lineWidth = AppSettings.LineWidth.LARGE;
+        break;
+    }
+
+    onBrushSizeSelected(lineWidth);
+
+    toggleBrushSelectorVisibility();
+  }
+
+  public void onClick(int viewId) {
+    AppSettings.LineWidth lineWidth = null;
+    switch (viewId) {
       case R.id.brush_button:
         toggleBrushSelectorVisibility();
         return;
