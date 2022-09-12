@@ -21,12 +21,13 @@ import android.util.Log;
 import android.util.Pair;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.ImageView;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.capstone.apppal.AppSettings;
 import com.capstone.apppal.R;
+import com.capstone.apppal.VO.FunctionType;
+import com.capstone.apppal.utils.GlobalState;
 
 /**
  * Created by Kat on 11/13/17.
@@ -34,6 +35,7 @@ import com.capstone.apppal.R;
  */
 
 public class MenuSelector extends ConstraintLayout implements View.OnClickListener {
+  private static FunctionType prevFunction = FunctionType.DRAWING;
 
   private static final String TAG = "ToolSelector";
 
@@ -169,6 +171,7 @@ public class MenuSelector extends ConstraintLayout implements View.OnClickListen
 
     onMenuSelected(defaultMenu.second);
     closeChildren(null);
+
   }
 
   @Override
@@ -176,6 +179,30 @@ public class MenuSelector extends ConstraintLayout implements View.OnClickListen
 
     AppSettings.MenuType menuType = null;
     switch (view.getId()) {
+      case R.id.menu_button:
+      case R.id.main_background_pie:
+        toggleMenuSelectorVisibility();
+        return;
+      case R.id.tool_button:
+        menuType = AppSettings.MenuType.TOOL;
+        break;
+      case R.id.color_button:
+        menuType = AppSettings.MenuType.COLOR;
+        break;
+      case R.id.brush_button:
+        menuType = AppSettings.MenuType.THICKNESS;
+        break;
+    }
+
+    onMenuSelected(menuType);
+
+    toggleMenuSelectorVisibility();
+  }
+
+  public void onClick(int viewId) {
+
+    AppSettings.MenuType menuType = null;
+    switch (viewId) {
       case R.id.menu_button:
       case R.id.main_background_pie:
         toggleMenuSelectorVisibility();
@@ -322,7 +349,6 @@ public class MenuSelector extends ConstraintLayout implements View.OnClickListen
   }
 
   public void closeChildren(AppSettings.MenuType exception) {
-    Log.e(TAG, "closeChildren: 열거:: " + exception);
     if (exception == null) {
       close();
       mToolSelector.close();

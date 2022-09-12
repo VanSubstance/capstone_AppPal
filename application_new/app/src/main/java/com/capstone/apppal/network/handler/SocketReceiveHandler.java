@@ -2,6 +2,8 @@ package com.capstone.apppal.network.handler;
 
 import android.util.Log;
 
+import com.capstone.apppal.DrawARActivity;
+import com.capstone.apppal.R;
 import com.capstone.apppal.VO.FunctionType;
 import com.capstone.apppal.VO.GestureType;
 import com.capstone.apppal.utils.GlobalState;
@@ -13,7 +15,6 @@ import java.io.IOException;
 import java.util.Collections;
 
 public class SocketReceiveHandler {
-  private static boolean isDecidingMenuStage = false;
 
   public SocketReceiveHandler() {
     receiveHandler();
@@ -73,7 +74,9 @@ public class SocketReceiveHandler {
           case DRAWING:
             switch (nowGesture) {
               case FIVE:
+                // 메뉴 열기
                 GlobalState.currentFunction = FunctionType.MENU;
+                DrawARActivity.mMenuSelector.onClick(R.id.menu_button);
                 break;
               default:
                 break;
@@ -82,7 +85,9 @@ public class SocketReceiveHandler {
           case MENU:
             switch (nowGesture) {
               case ZERO:
+                // 아무 변화 없이 메뉴 닫기
                 GlobalState.currentFunction = FunctionType.DRAWING;
+                DrawARActivity.mMenuSelector.closeChildren(null);
                 break;
               default:
                 break;
