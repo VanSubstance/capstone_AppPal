@@ -21,19 +21,22 @@ import android.util.Log;
 import android.util.Pair;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.ImageView;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.capstone.apppal.AppSettings;
 import com.capstone.apppal.R;
+import com.capstone.apppal.VO.FunctionType;
+import com.capstone.apppal.VO.GestureType;
+import com.capstone.apppal.utils.GlobalState;
 
 /**
  * Created by Kat on 11/13/17.
  * Custom view for selecting brush size
  */
 
-public class MenuSelector extends ConstraintLayout implements View.OnClickListener {
+public class MenuSelector extends ConstraintLayout {
+  private static FunctionType prevFunction = FunctionType.DRAWING;
 
   private static final String TAG = "ToolSelector";
 
@@ -45,8 +48,6 @@ public class MenuSelector extends ConstraintLayout implements View.OnClickListen
     AppSettings.MenuType.TOOL);
 
   private View mBackground;
-
-  private View mMenuButton;
 
   private View mToolButton,
     mColorButton,
@@ -66,6 +67,7 @@ public class MenuSelector extends ConstraintLayout implements View.OnClickListen
   private ToolSelector mToolSelector;
   private ColorSelector mColorSelector;
   private BrushSelector mBrushSelector;
+  public SelectedOption mSelectedOption;
 
   public MenuSelector(Context context) {
     super(context);
@@ -84,77 +86,17 @@ public class MenuSelector extends ConstraintLayout implements View.OnClickListen
 
   private void init() {
     inflate(getContext(), R.layout.view_main_selector, this);
+    mSelectedOption = findViewById(R.id.selected_option);
 
     mBackground = findViewById(R.id.main_background_pie);
-    mBackground.setOnClickListener(this);
-
-    mMenuButton = findViewById(R.id.menu_button);
-    mMenuButton.setOnClickListener(this);
 
     mToolButton = findViewById(R.id.tool_button);
     mColorButton = findViewById(R.id.color_button);
     mThicknessButton = findViewById(R.id.brush_button);
 
-    mToolButton.setOnClickListener(this);
-    mColorButton.setOnClickListener(this);
-    mThicknessButton.setOnClickListener(this);
-
     mToolSelector = findViewById(R.id.tool_selector);
     mColorSelector = findViewById(R.id.color_selector);
     mBrushSelector = findViewById(R.id.brush_selector);
-
-    mMenuButton.setOnTouchListener(new OnTouchListener() {
-      @Override
-      public boolean onTouch(View v, MotionEvent event) {
-        if (event.getAction() == MotionEvent.ACTION_DOWN) {
-          performClick();
-        } else if (event.getAction() == MotionEvent.ACTION_MOVE && mIsOpen) {
-          //get the point where we let go
-          float yloc = event.getRawY();
-
-          AppSettings.MenuType menuType = null;
-
-          //determine which button was released over
-          if (mToolButtonLoc[1] < yloc && yloc < (mToolButtonLoc[1] + mToolButton
-            .getHeight())) {
-            //prevent calling an update when not needed
-            if (mSelectedMenu != TOOL) {
-              menuType = AppSettings.MenuType.TOOL;
-              onMenuSelected(menuType);
-            }
-          } else if (mColorButtonLoc[1] < yloc && yloc < (mColorButtonLoc[1] + mColorButton
-            .getHeight())) {
-            //prevent calling an update when not needed
-            if (mSelectedMenu != COLOR) {
-              menuType = AppSettings.MenuType.COLOR;
-              onMenuSelected(menuType);
-            }
-          } else if (mThicknessButtonLoc[1] < yloc && yloc < (mThicknessButtonLoc[1] + mThicknessButton
-            .getHeight())) {
-            //prevent calling an update when not needed
-            if (mSelectedMenu != THICKNESS) {
-              menuType = AppSettings.MenuType.THICKNESS;
-              onMenuSelected(menuType);
-            }
-          }
-
-        } else if (event.getAction() == MotionEvent.ACTION_UP) {
-          //toggle if over a button
-          float yloc = event.getRawY();
-          if (mToolButtonLoc[1] < yloc && yloc < (mToolButtonLoc[1] + mToolButton
-            .getHeight())) {
-            toggleMenuSelectorVisibility();
-          } else if (mColorButtonLoc[1] < yloc && yloc < (mColorButtonLoc[1] + mColorButton
-            .getHeight())) {
-            toggleMenuSelectorVisibility();
-          } else if (mThicknessButtonLoc[1] < yloc && yloc < (mThicknessButtonLoc[1] + mThicknessButton
-            .getHeight())) {
-            toggleMenuSelectorVisibility();
-          }
-        }
-        return true;
-      }
-    });
 
     this.post(new Runnable() {
       @Override
@@ -169,30 +111,67 @@ public class MenuSelector extends ConstraintLayout implements View.OnClickListen
 
     onMenuSelected(defaultMenu.second);
     closeChildren(null);
+
   }
 
-  @Override
-  public void onClick(View view) {
-
+  public void handleMenu(GestureType nowGesture) {
     AppSettings.MenuType menuType = null;
-    switch (view.getId()) {
-      case R.id.menu_button:
-      case R.id.main_background_pie:
-        toggleMenuSelectorVisibility();
-        return;
-      case R.id.tool_button:
-        menuType = AppSettings.MenuType.TOOL;
-        break;
-      case R.id.color_button:
-        menuType = AppSettings.MenuType.COLOR;
-        break;
-      case R.id.brush_button:
-        menuType = AppSettings.MenuType.THICKNESS;
-        break;
+    if (nowGesture == GestureType.ZERO) {
+      GlobalState.currentFunction = FunctionType.DRAWING;
+      closeChildren(null);
+      return;
     }
-
+    switch (GlobalState.currentFunction) {
+      case DRAWING:
+        switch (nowGesture) {
+          case ONE:
+          case TWO:
+          case THREE:
+          case FOUR:
+            return;
+          case FIVE:
+            GlobalState.currentFunction = FunctionType.MAIN_MENU;
+            toggleMenuSelectorVisibility();
+            return;
+        }
+        break;
+      case MAIN_MENU:
+        switch (nowGesture) {
+          case ONE:
+            GlobalState.currentFunction = FunctionType.THICKNESS_MENU;
+            menuType = AppSettings.MenuType.THICKNESS;
+            break;
+          case TWO:
+            GlobalState.currentFunction = FunctionType.COLOR_MENU;
+            menuType = AppSettings.MenuType.COLOR;
+            break;
+          case THREE:
+            GlobalState.currentFunction = FunctionType.TOOL_MENU;
+            menuType = AppSettings.MenuType.TOOL;
+            break;
+          case FOUR:
+            break;
+          case FIVE:
+            break;
+        }
+        break;
+      case TOOL_MENU:
+        GlobalState.currentFunction = FunctionType.DRAWING;
+        mToolSelector.handleMenu(nowGesture);
+        mSelectedOption.setSelection(mToolSelector.getSelectedToolType());
+        return;
+      case COLOR_MENU:
+        GlobalState.currentFunction = FunctionType.DRAWING;
+        mColorSelector.handleMenu(nowGesture);
+        mSelectedOption.setSelection(mColorSelector.getSelectedColorType());
+        return;
+      case THICKNESS_MENU:
+        GlobalState.currentFunction = FunctionType.DRAWING;
+        mBrushSelector.handleMenu(nowGesture);
+        mSelectedOption.setSelection(mBrushSelector.getSelectedLineWidth());
+        return;
+    }
     onMenuSelected(menuType);
-
     toggleMenuSelectorVisibility();
   }
 
@@ -211,15 +190,12 @@ public class MenuSelector extends ConstraintLayout implements View.OnClickListen
     switch (menuType) {
       default:
       case TOOL:
-//        mSelectedMenuIndicator.setImageResource(R.drawable.ic_clear);
         mSelectedMenu = TOOL;
         break;
       case COLOR:
-//        mSelectedMenuIndicator.setImageResource(R.drawable.ic_selection_straight_line);
         mSelectedMenu = COLOR;
         break;
       case THICKNESS:
-//        mSelectedMenuIndicator.setImageResource(R.drawable.ic_selection_cube);
         mSelectedMenu = THICKNESS;
         break;
     }
@@ -300,7 +276,6 @@ public class MenuSelector extends ConstraintLayout implements View.OnClickListen
       mColorButton.setEnabled(true);
       mToolButton.setEnabled(true);
 
-      mMenuButton.setAccessibilityTraversalBefore(R.id.brush_button);
       mThicknessButton.setAccessibilityTraversalBefore(R.id.color_button);
       mColorButton.setAccessibilityTraversalBefore(R.id.tool_button);
     }
@@ -322,7 +297,6 @@ public class MenuSelector extends ConstraintLayout implements View.OnClickListen
   }
 
   public void closeChildren(AppSettings.MenuType exception) {
-    Log.e(TAG, "closeChildren: 열거:: " + exception);
     if (exception == null) {
       close();
       mToolSelector.close();

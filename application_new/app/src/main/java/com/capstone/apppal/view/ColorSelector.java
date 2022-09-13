@@ -27,13 +27,14 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.capstone.apppal.AppSettings;
 import com.capstone.apppal.R;
+import com.capstone.apppal.VO.GestureType;
 
 /**
  * Created by Kat on 11/13/17.
  * Custom view for selecting brush size
  */
 
-public class ColorSelector extends ConstraintLayout implements View.OnClickListener {
+public class ColorSelector extends ConstraintLayout {
 
   private static final String TAG = "ColorSelector";
 
@@ -44,15 +45,15 @@ public class ColorSelector extends ConstraintLayout implements View.OnClickListe
   private static final int BLUE = 3;
 
   private static final Pair<Integer, AppSettings.ColorType> defaultTool = new Pair<>(WHITE,
-      AppSettings.ColorType.WHITE);
+    AppSettings.ColorType.WHITE);
 
   private View mBackground;
 
   private View mWhiteButton,
-      mBlackButton,
-      mRedButton,
-      mGreenButton,
-      mBlueButton;
+    mBlackButton,
+    mRedButton,
+    mGreenButton,
+    mBlueButton;
 
   private int mSelectedColor = defaultTool.first;
 
@@ -86,19 +87,12 @@ public class ColorSelector extends ConstraintLayout implements View.OnClickListe
     inflate(getContext(), R.layout.view_color_selector, this);
 
     mBackground = findViewById(R.id.color_background_pie);
-    mBackground.setOnClickListener(this);
 
     mWhiteButton = findViewById(R.id.color_selection_white);
     mBlackButton = findViewById(R.id.color_selection_black);
     mRedButton = findViewById(R.id.color_selection_red);
     mGreenButton = findViewById(R.id.color_selection_green);
     mBlueButton = findViewById(R.id.color_selection_blue);
-
-    mWhiteButton.setOnClickListener(this);
-    mBlackButton.setOnClickListener(this);
-    mRedButton.setOnClickListener(this);
-    mGreenButton.setOnClickListener(this);
-    mBlueButton.setOnClickListener(this);
 
     mBackground.setOnTouchListener(new OnTouchListener() {
       @Override
@@ -113,35 +107,35 @@ public class ColorSelector extends ConstraintLayout implements View.OnClickListe
 
           //determine which button was released over
           if (mWhiteButtonLoc[1] < yloc && yloc < (mWhiteButtonLoc[1] + mWhiteButton
-              .getHeight())) {
+            .getHeight())) {
             //prevent calling an update when not needed
             if (mSelectedColor != WHITE) {
               colorType = AppSettings.ColorType.WHITE;
               onColorSelected(colorType);
             }
           } else if (mBlackButtonLoc[1] < yloc && yloc < (mBlackButtonLoc[1] + mBlackButton
-              .getHeight())) {
+            .getHeight())) {
             //prevent calling an update when not needed
             if (mSelectedColor != BLACK) {
               colorType = AppSettings.ColorType.BLACK;
               onColorSelected(colorType);
             }
           } else if (mRedButtonLoc[1] < yloc && yloc < (mRedButtonLoc[1] + mRedButton
-              .getHeight())) {
+            .getHeight())) {
             //prevent calling an update when not needed
             if (mSelectedColor != RED) {
               colorType = AppSettings.ColorType.RED;
               onColorSelected(colorType);
             }
           } else if (mGreenButtonLoc[1] < yloc && yloc < (mGreenButtonLoc[1] + mGreenButton
-              .getHeight())) {
+            .getHeight())) {
             //prevent calling an update when not needed
             if (mSelectedColor != GREEN) {
               colorType = AppSettings.ColorType.GREEN;
               onColorSelected(colorType);
             }
           } else if (mBlueButtonLoc[1] < yloc && yloc < (mBlueButtonLoc[1] + mBlueButton
-              .getHeight())) {
+            .getHeight())) {
             //prevent calling an update when not needed
             if (mSelectedColor != BLUE) {
               colorType = AppSettings.ColorType.BLUE;
@@ -153,19 +147,19 @@ public class ColorSelector extends ConstraintLayout implements View.OnClickListe
           //toggle if over a button
           float yloc = event.getRawY();
           if (mWhiteButtonLoc[1] < yloc && yloc < (mWhiteButtonLoc[1] + mWhiteButton
-              .getHeight())) {
+            .getHeight())) {
             toggleColorSelectorVisibility();
           } else if (mBlackButtonLoc[1] < yloc && yloc < (mBlackButtonLoc[1] + mBlackButton
-              .getHeight())) {
+            .getHeight())) {
             toggleColorSelectorVisibility();
           } else if (mRedButtonLoc[1] < yloc && yloc < (mRedButtonLoc[1] + mRedButton
-              .getHeight())) {
+            .getHeight())) {
             toggleColorSelectorVisibility();
           } else if (mGreenButtonLoc[1] < yloc && yloc < (mGreenButtonLoc[1] + mGreenButton
-              .getHeight())) {
+            .getHeight())) {
             toggleColorSelectorVisibility();
           } else if (mBlueButtonLoc[1] < yloc && yloc < (mBlueButtonLoc[1]
-              + mBlueButton.getHeight())) {
+            + mBlueButton.getHeight())) {
             toggleColorSelectorVisibility();
           }
         }
@@ -190,33 +184,28 @@ public class ColorSelector extends ConstraintLayout implements View.OnClickListe
     toggleColorSelectorVisibility();
   }
 
-  @Override
-  public void onClick(View view) {
-
+  public void handleMenu(GestureType nowGesture) {
     AppSettings.ColorType colorType = null;
-    switch (view.getId()) {
-      case R.id.color_button:
-        toggleColorSelectorVisibility();
-        return;
-      case R.id.color_selection_white:
-        colorType = AppSettings.ColorType.WHITE;
-        break;
-      case R.id.color_selection_black:
-        colorType = AppSettings.ColorType.BLACK;
-        break;
-      case R.id.color_selection_red:
-        colorType = AppSettings.ColorType.RED;
-        break;
-      case R.id.color_selection_green:
-        colorType = AppSettings.ColorType.GREEN;
-        break;
-      case R.id.color_selection_blue:
+    switch (nowGesture) {
+      case ONE:
         colorType = AppSettings.ColorType.BLUE;
         break;
+      case TWO:
+        colorType = AppSettings.ColorType.GREEN;
+        break;
+      case THREE:
+        colorType = AppSettings.ColorType.RED;
+        break;
+      case FOUR:
+        colorType = AppSettings.ColorType.BLACK;
+        break;
+      case FIVE:
+        colorType = AppSettings.ColorType.WHITE;
+        break;
+      default:
+        break;
     }
-
     onColorSelected(colorType);
-
     toggleColorSelectorVisibility();
   }
 
@@ -234,24 +223,19 @@ public class ColorSelector extends ConstraintLayout implements View.OnClickListe
 
     switch (colorType) {
       case BLACK:
-//        mSelectedColorIndicator.setImageResource(R.drawable.ic_color_black);
         mSelectedColor = BLACK;
         break;
       case RED:
-//        mSelectedColorIndicator.setImageResource(R.drawable.ic_color_red);
         mSelectedColor = RED;
         break;
       case GREEN:
-//        mSelectedColorIndicator.setImageResource(R.drawable.ic_color_green);
         mSelectedColor = GREEN;
         break;
       case BLUE:
-//        mSelectedColorIndicator.setImageResource(R.drawable.ic_color_blue);
         mSelectedColor = BLUE;
         break;
       default:
       case WHITE:
-//        mSelectedColorIndicator.setImageResource(R.drawable.ic_brush_size_option);
         mSelectedColor = WHITE;
         break;
     }

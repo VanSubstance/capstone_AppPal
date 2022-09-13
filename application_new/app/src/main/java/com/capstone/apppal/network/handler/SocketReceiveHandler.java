@@ -1,7 +1,6 @@
 package com.capstone.apppal.network.handler;
 
-import android.util.Log;
-
+import com.capstone.apppal.DrawARActivity;
 import com.capstone.apppal.VO.GestureType;
 import com.capstone.apppal.utils.GlobalState;
 
@@ -12,7 +11,6 @@ import java.io.IOException;
 import java.util.Collections;
 
 public class SocketReceiveHandler {
-  private static boolean isDecidingMenuStage = false;
 
   public SocketReceiveHandler() {
     receiveHandler();
@@ -31,7 +29,7 @@ public class SocketReceiveHandler {
         sb.append((char) 125);
         res = sb.toString();
         JSONObject resData = new JSONObject(res);
-        Log.e("데이터", ":: 소켓 -> 앱 :: " + resData);
+//        Log.e("데이터", ":: 소켓 -> 앱 :: " + resData);
         switch (resData.get("function").toString()) {
           case "gesture":
             switch (resData.get("data").toString()) {
@@ -46,6 +44,9 @@ public class SocketReceiveHandler {
                 break;
               case "FOUR":
                 stackGesture(GestureType.FOUR);
+                break;
+              case "FIVE":
+                stackGesture(GestureType.FIVE);
                 break;
               case "ZERO":
                 stackGesture(GestureType.ZERO);
@@ -62,19 +63,17 @@ public class SocketReceiveHandler {
 
   private static void stackGesture(GestureType nowGesture) {
     GlobalState.listGesture.add(nowGesture);
-    if (GlobalState.listGesture.size() > 6) {
+    if (GlobalState.listGesture.size() > GlobalState.GESTURE_HISTORY_SIZE) {
       GlobalState.listGesture.remove(0);
-//            if (isDecidingMenuStage) {
-//                isDecidingMenuStage = ModeGestureHandler.detectGesture();
-//            } else {
-//                if (Collections.frequency(GlobalState.listGesture, GlobalState.MENU_GESTURE) >= 7) {
-//                    isDecidingMenuStage = true;
-//                }
-//            }
-      if (Collections.frequency(GlobalState.listGesture, nowGesture) >= 5) {
-        GlobalState.currentGesture = nowGesture;
+      GlobalState.gestureDetectionRate =
+        Collections.frequency(GlobalState.listGesture, nowGesture) * 100
+          / GlobalState.GESTURE_DECISION_SIZE;
+      DrawARActivity.gestureProgressBar.setProgress(GlobalState.gestureDetectionRate);
+      if (Collections.frequency(GlobalState.listGesture, nowGesture) >= GlobalState.GESTURE_DECISION_SIZE) {
+        DrawARActivity.mMenuSelector.handleMenu(nowGesture);
         GlobalState.listGesture.clear();
-//        Log.e("제스쳐 결정", "결정된 제스쳐:: " + GlobalState.currentGesture);
+        GlobalState.gestureDetectionRate = 0;
+//        Log.e("기능 결정", "현재 기능 :: " + GlobalState.currentFunction);
       }
     }
   }
