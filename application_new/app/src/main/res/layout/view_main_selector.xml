@@ -22,38 +22,6 @@
   </FrameLayout>
 
   <FrameLayout
-    android:id="@+id/menu_button"
-    android:layout_width="@dimen/brush_input_plus_padding"
-    android:layout_height="@dimen/brush_input_plus_padding"
-    android:layout_marginBottom="120dp"
-    android:background="@drawable/ripple_bg_borderless_oval"
-    android:clickable="true"
-    android:contentDescription="@string/content_description_select_menu"
-    android:padding="@dimen/padding"
-    app:layout_constraintBottom_toBottomOf="parent"
-    app:layout_constraintLeft_toLeftOf="parent">
-
-    <ImageView
-      android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      android:layout_gravity="center"
-      android:src="@drawable/brush_option_bg"
-      tools:ignore="ContentDescription" />
-
-    <ImageView
-      android:id="@+id/selected_menu_indicator"
-      android:layout_width="@dimen/brush_input_width"
-      android:layout_height="@dimen/brush_input_height"
-      android:layout_gravity="center"
-      android:paddingStart="@dimen/brush_size_indicator_padding_left"
-      android:paddingTop="@dimen/brush_size_indicator_padding_top"
-      android:paddingEnd="@dimen/brush_size_indicator_padding_right"
-      android:scaleX="@dimen/brush_scale_large"
-      android:scaleY="@dimen/brush_scale_large"
-      android:src="@drawable/ic_brush_size_option" />
-  </FrameLayout>
-
-  <FrameLayout
     android:id="@+id/tool_button"
     android:layout_width="@dimen/brush_input_plus_padding"
     android:layout_height="@dimen/brush_input_plus_padding"

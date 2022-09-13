@@ -27,6 +27,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.capstone.apppal.AppSettings;
 import com.capstone.apppal.R;
+import com.capstone.apppal.VO.GestureType;
 
 /**
  * Created by Kat on 11/13/17.
@@ -220,32 +221,28 @@ public class ColorSelector extends ConstraintLayout implements View.OnClickListe
     toggleColorSelectorVisibility();
   }
 
-  public void onClick(int viewId) {
-
+  public void handleMenu(GestureType nowGesture) {
     AppSettings.ColorType colorType = null;
-    switch (viewId) {
-      case R.id.color_button:
-        toggleColorSelectorVisibility();
-        return;
-      case R.id.color_selection_white:
-        colorType = AppSettings.ColorType.WHITE;
-        break;
-      case R.id.color_selection_black:
-        colorType = AppSettings.ColorType.BLACK;
-        break;
-      case R.id.color_selection_red:
-        colorType = AppSettings.ColorType.RED;
-        break;
-      case R.id.color_selection_green:
-        colorType = AppSettings.ColorType.GREEN;
-        break;
-      case R.id.color_selection_blue:
+    switch (nowGesture) {
+      case ONE:
         colorType = AppSettings.ColorType.BLUE;
         break;
+      case TWO:
+        colorType = AppSettings.ColorType.GREEN;
+        break;
+      case THREE:
+        colorType = AppSettings.ColorType.RED;
+        break;
+      case FOUR:
+        colorType = AppSettings.ColorType.BLACK;
+        break;
+      case FIVE:
+        colorType = AppSettings.ColorType.WHITE;
+        break;
+      default:
+        break;
     }
-
     onColorSelected(colorType);
-
     toggleColorSelectorVisibility();
   }
 

@@ -166,8 +166,6 @@ public class DrawARActivity extends BaseActivity
 
   private File mOutputFile;
 
-  public static MenuSelector mMenuSelector;
-
   private View mUndoButton;
 
   private TrackingIndicator mTrackingIndicator;
@@ -209,6 +207,11 @@ public class DrawARActivity extends BaseActivity
    */
 
   private HandTracking handTracking;
+
+  /**
+   * 메뉴 관리자
+   */
+  public static MenuSelector mMenuSelector;
 
 
   /**

@@ -27,6 +27,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.capstone.apppal.AppSettings;
 import com.capstone.apppal.R;
+import com.capstone.apppal.VO.GestureType;
 
 /**
  * Created by Kat on 11/13/17.
@@ -181,25 +182,22 @@ public class BrushSelector extends ConstraintLayout implements View.OnClickListe
     toggleBrushSelectorVisibility();
   }
 
-  public void onClick(int viewId) {
+  public void handleMenu(GestureType nowGesture) {
     AppSettings.LineWidth lineWidth = null;
-    switch (viewId) {
-      case R.id.brush_button:
-        toggleBrushSelectorVisibility();
-        return;
-      case R.id.brush_selection_small:
+    switch (nowGesture) {
+      case ONE:
         lineWidth = AppSettings.LineWidth.SMALL;
         break;
-      case R.id.brush_selection_medium:
+      case TWO:
         lineWidth = AppSettings.LineWidth.MEDIUM;
         break;
-      case R.id.brush_selection_large:
+      case THREE:
         lineWidth = AppSettings.LineWidth.LARGE;
         break;
+      default:
+        break;
     }
-
     onBrushSizeSelected(lineWidth);
-
     toggleBrushSelectorVisibility();
   }
 

@@ -25,7 +25,9 @@ import android.widget.ImageView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.capstone.apppal.AppSettings;
+import com.capstone.apppal.DrawARActivity;
 import com.capstone.apppal.R;
+import com.capstone.apppal.VO.GestureType;
 
 /**
  * Created by Kat on 11/13/17.
@@ -218,32 +220,28 @@ public class ToolSelector extends ConstraintLayout implements View.OnClickListen
     toggleToolSelectorVisibility();
   }
 
-  public void onClick(int viewId) {
-
+  public void handleMenu(GestureType nowGesture) {
     AppSettings.ToolType toolType = null;
-    switch (viewId) {
-      case R.id.tool_button:
-        toggleToolSelectorVisibility();
-        return;
-      case R.id.tool_selection_pen:
-        toolType = AppSettings.ToolType.NORMAL_PEN;
-        break;
-      case R.id.tool_selection_line:
-        toolType = AppSettings.ToolType.STRAIGHT_LINE;
-        break;
-      case R.id.tool_selection_cube:
-        toolType = AppSettings.ToolType.CUBE;
-        break;
-      case R.id.tool_selection_rect:
-        toolType = AppSettings.ToolType.RECT;
-        break;
-      case R.id.tool_selection_erase:
+    switch (nowGesture) {
+      case ONE:
         toolType = AppSettings.ToolType.ERASE;
         break;
+      case TWO:
+        toolType = AppSettings.ToolType.RECT;
+        break;
+      case THREE:
+        toolType = AppSettings.ToolType.CUBE;
+        break;
+      case FOUR:
+        toolType = AppSettings.ToolType.STRAIGHT_LINE;
+        break;
+      case FIVE:
+        toolType = AppSettings.ToolType.NORMAL_PEN;
+        break;
+      default:
+        break;
     }
-
     onToolSelected(toolType);
-
     toggleToolSelectorVisibility();
   }
 
