@@ -29,6 +29,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -213,6 +214,8 @@ public class DrawARActivity extends BaseActivity
    */
   public static MenuSelector mMenuSelector;
 
+  public static ProgressBar gestureProgressBar;
+
 
   /**
    * Setup the app when main activity is created
@@ -232,6 +235,8 @@ public class DrawARActivity extends BaseActivity
 
     mSurfaceView = findViewById(R.id.surfaceview);
     mSurfaceView.setRendererCallbacks(this);
+
+    gestureProgressBar = findViewById(R.id.gesture_progress_bar);
 
     mClearDrawingButton = findViewById(R.id.menu_item_clear);
     mClearDrawingButton.setOnClickListener(this);
