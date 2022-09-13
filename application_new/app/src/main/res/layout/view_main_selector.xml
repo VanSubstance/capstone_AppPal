@@ -141,4 +141,13 @@
     app:layout_constraintBottom_toBottomOf="parent"
     app:layout_constraintLeft_toLeftOf="parent" />
 
+  <com.capstone.apppal.view.SelectedOption
+    android:id="@+id/selected_option"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginLeft="20dp"
+    android:layout_marginBottom="40dp"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintLeft_toLeftOf="parent" />
+
 </merge>

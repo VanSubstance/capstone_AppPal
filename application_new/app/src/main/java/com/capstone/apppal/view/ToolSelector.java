@@ -219,27 +219,21 @@ public class ToolSelector extends ConstraintLayout {
    */
   private void onToolSelected(AppSettings.ToolType toolType) {
     mSelectedToolType = toolType;
-
     switch (toolType) {
       case ERASE:
-//        mSelectedToolIndicator.setImageResource(R.drawable.ic_clear);
         mSelectedTool = ERASE;
         break;
       case STRAIGHT_LINE:
-//        mSelectedToolIndicator.setImageResource(R.drawable.ic_selection_straight_line);
         mSelectedTool = STRAIGHT_LINE;
         break;
       case CUBE:
-//        mSelectedToolIndicator.setImageResource(R.drawable.ic_selection_cube);
         mSelectedTool = CUBE;
         break;
       case RECT:
-//        mSelectedToolIndicator.setImageResource(R.drawable.ic_selection_rect);
         mSelectedTool = RECT;
         break;
       default:
       case NORMAL_PEN:
-//        mSelectedToolIndicator.setImageResource(R.drawable.ic_brush_size_option);
         mSelectedTool = NORMAL_PEN;
         break;
     }

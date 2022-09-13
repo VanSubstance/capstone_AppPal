@@ -67,6 +67,7 @@ public class MenuSelector extends ConstraintLayout {
   private ToolSelector mToolSelector;
   private ColorSelector mColorSelector;
   private BrushSelector mBrushSelector;
+  public SelectedOption mSelectedOption;
 
   public MenuSelector(Context context) {
     super(context);
@@ -85,6 +86,7 @@ public class MenuSelector extends ConstraintLayout {
 
   private void init() {
     inflate(getContext(), R.layout.view_main_selector, this);
+    mSelectedOption = findViewById(R.id.selected_option);
 
     mBackground = findViewById(R.id.main_background_pie);
 
@@ -156,14 +158,17 @@ public class MenuSelector extends ConstraintLayout {
       case TOOL_MENU:
         GlobalState.currentFunction = FunctionType.DRAWING;
         mToolSelector.handleMenu(nowGesture);
+        mSelectedOption.setSelection(mToolSelector.getSelectedToolType());
         return;
       case COLOR_MENU:
         GlobalState.currentFunction = FunctionType.DRAWING;
         mColorSelector.handleMenu(nowGesture);
+        mSelectedOption.setSelection(mColorSelector.getSelectedColorType());
         return;
       case THICKNESS_MENU:
         GlobalState.currentFunction = FunctionType.DRAWING;
         mBrushSelector.handleMenu(nowGesture);
+        mSelectedOption.setSelection(mBrushSelector.getSelectedLineWidth());
         return;
     }
     onMenuSelected(menuType);
@@ -185,15 +190,12 @@ public class MenuSelector extends ConstraintLayout {
     switch (menuType) {
       default:
       case TOOL:
-//        mSelectedMenuIndicator.setImageResource(R.drawable.ic_clear);
         mSelectedMenu = TOOL;
         break;
       case COLOR:
-//        mSelectedMenuIndicator.setImageResource(R.drawable.ic_selection_straight_line);
         mSelectedMenu = COLOR;
         break;
       case THICKNESS:
-//        mSelectedMenuIndicator.setImageResource(R.drawable.ic_selection_cube);
         mSelectedMenu = THICKNESS;
         break;
     }

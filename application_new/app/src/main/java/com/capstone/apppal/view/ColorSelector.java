@@ -45,15 +45,15 @@ public class ColorSelector extends ConstraintLayout {
   private static final int BLUE = 3;
 
   private static final Pair<Integer, AppSettings.ColorType> defaultTool = new Pair<>(WHITE,
-      AppSettings.ColorType.WHITE);
+    AppSettings.ColorType.WHITE);
 
   private View mBackground;
 
   private View mWhiteButton,
-      mBlackButton,
-      mRedButton,
-      mGreenButton,
-      mBlueButton;
+    mBlackButton,
+    mRedButton,
+    mGreenButton,
+    mBlueButton;
 
   private int mSelectedColor = defaultTool.first;
 
@@ -107,35 +107,35 @@ public class ColorSelector extends ConstraintLayout {
 
           //determine which button was released over
           if (mWhiteButtonLoc[1] < yloc && yloc < (mWhiteButtonLoc[1] + mWhiteButton
-              .getHeight())) {
+            .getHeight())) {
             //prevent calling an update when not needed
             if (mSelectedColor != WHITE) {
               colorType = AppSettings.ColorType.WHITE;
               onColorSelected(colorType);
             }
           } else if (mBlackButtonLoc[1] < yloc && yloc < (mBlackButtonLoc[1] + mBlackButton
-              .getHeight())) {
+            .getHeight())) {
             //prevent calling an update when not needed
             if (mSelectedColor != BLACK) {
               colorType = AppSettings.ColorType.BLACK;
               onColorSelected(colorType);
             }
           } else if (mRedButtonLoc[1] < yloc && yloc < (mRedButtonLoc[1] + mRedButton
-              .getHeight())) {
+            .getHeight())) {
             //prevent calling an update when not needed
             if (mSelectedColor != RED) {
               colorType = AppSettings.ColorType.RED;
               onColorSelected(colorType);
             }
           } else if (mGreenButtonLoc[1] < yloc && yloc < (mGreenButtonLoc[1] + mGreenButton
-              .getHeight())) {
+            .getHeight())) {
             //prevent calling an update when not needed
             if (mSelectedColor != GREEN) {
               colorType = AppSettings.ColorType.GREEN;
               onColorSelected(colorType);
             }
           } else if (mBlueButtonLoc[1] < yloc && yloc < (mBlueButtonLoc[1] + mBlueButton
-              .getHeight())) {
+            .getHeight())) {
             //prevent calling an update when not needed
             if (mSelectedColor != BLUE) {
               colorType = AppSettings.ColorType.BLUE;
@@ -147,19 +147,19 @@ public class ColorSelector extends ConstraintLayout {
           //toggle if over a button
           float yloc = event.getRawY();
           if (mWhiteButtonLoc[1] < yloc && yloc < (mWhiteButtonLoc[1] + mWhiteButton
-              .getHeight())) {
+            .getHeight())) {
             toggleColorSelectorVisibility();
           } else if (mBlackButtonLoc[1] < yloc && yloc < (mBlackButtonLoc[1] + mBlackButton
-              .getHeight())) {
+            .getHeight())) {
             toggleColorSelectorVisibility();
           } else if (mRedButtonLoc[1] < yloc && yloc < (mRedButtonLoc[1] + mRedButton
-              .getHeight())) {
+            .getHeight())) {
             toggleColorSelectorVisibility();
           } else if (mGreenButtonLoc[1] < yloc && yloc < (mGreenButtonLoc[1] + mGreenButton
-              .getHeight())) {
+            .getHeight())) {
             toggleColorSelectorVisibility();
           } else if (mBlueButtonLoc[1] < yloc && yloc < (mBlueButtonLoc[1]
-              + mBlueButton.getHeight())) {
+            + mBlueButton.getHeight())) {
             toggleColorSelectorVisibility();
           }
         }
@@ -223,24 +223,19 @@ public class ColorSelector extends ConstraintLayout {
 
     switch (colorType) {
       case BLACK:
-//        mSelectedColorIndicator.setImageResource(R.drawable.ic_color_black);
         mSelectedColor = BLACK;
         break;
       case RED:
-//        mSelectedColorIndicator.setImageResource(R.drawable.ic_color_red);
         mSelectedColor = RED;
         break;
       case GREEN:
-//        mSelectedColorIndicator.setImageResource(R.drawable.ic_color_green);
         mSelectedColor = GREEN;
         break;
       case BLUE:
-//        mSelectedColorIndicator.setImageResource(R.drawable.ic_color_blue);
         mSelectedColor = BLUE;
         break;
       default:
       case WHITE:
-//        mSelectedColorIndicator.setImageResource(R.drawable.ic_brush_size_option);
         mSelectedColor = WHITE;
         break;
     }
