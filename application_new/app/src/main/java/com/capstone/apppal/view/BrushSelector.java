@@ -34,7 +34,7 @@ import com.capstone.apppal.VO.GestureType;
  * Custom view for selecting brush size
  */
 
-public class BrushSelector extends ConstraintLayout implements View.OnClickListener {
+public class BrushSelector extends ConstraintLayout {
 
   private static final String TAG = "BrushSelector";
 
@@ -83,15 +83,10 @@ public class BrushSelector extends ConstraintLayout implements View.OnClickListe
     inflate(getContext(), R.layout.view_brush_selector, this);
 
     mBackground = findViewById(R.id.brush_background_pie);
-    mBackground.setOnClickListener(this);
 
     mSmallButton = findViewById(R.id.brush_selection_small);
     mMediumButton = findViewById(R.id.brush_selection_medium);
     mLargeButton = findViewById(R.id.brush_selection_large);
-
-    mSmallButton.setOnClickListener(this);
-    mMediumButton.setOnClickListener(this);
-    mLargeButton.setOnClickListener(this);
 
     mBackground.setOnTouchListener(new OnTouchListener() {
       @Override
@@ -156,29 +151,6 @@ public class BrushSelector extends ConstraintLayout implements View.OnClickListe
     });
 
     onBrushSizeSelected(defaultBrush.second);
-    toggleBrushSelectorVisibility();
-  }
-
-  @Override
-  public void onClick(View view) {
-    AppSettings.LineWidth lineWidth = null;
-    switch (view.getId()) {
-      case R.id.brush_button:
-        toggleBrushSelectorVisibility();
-        return;
-      case R.id.brush_selection_small:
-        lineWidth = AppSettings.LineWidth.SMALL;
-        break;
-      case R.id.brush_selection_medium:
-        lineWidth = AppSettings.LineWidth.MEDIUM;
-        break;
-      case R.id.brush_selection_large:
-        lineWidth = AppSettings.LineWidth.LARGE;
-        break;
-    }
-
-    onBrushSizeSelected(lineWidth);
-
     toggleBrushSelectorVisibility();
   }
 

@@ -35,7 +35,7 @@ import com.capstone.apppal.utils.GlobalState;
  * Custom view for selecting brush size
  */
 
-public class MenuSelector extends ConstraintLayout implements View.OnClickListener {
+public class MenuSelector extends ConstraintLayout {
   private static FunctionType prevFunction = FunctionType.DRAWING;
 
   private static final String TAG = "ToolSelector";
@@ -87,15 +87,10 @@ public class MenuSelector extends ConstraintLayout implements View.OnClickListen
     inflate(getContext(), R.layout.view_main_selector, this);
 
     mBackground = findViewById(R.id.main_background_pie);
-    mBackground.setOnClickListener(this);
 
     mToolButton = findViewById(R.id.tool_button);
     mColorButton = findViewById(R.id.color_button);
     mThicknessButton = findViewById(R.id.brush_button);
-
-    mToolButton.setOnClickListener(this);
-    mColorButton.setOnClickListener(this);
-    mThicknessButton.setOnClickListener(this);
 
     mToolSelector = findViewById(R.id.tool_selector);
     mColorSelector = findViewById(R.id.color_selector);
@@ -115,30 +110,6 @@ public class MenuSelector extends ConstraintLayout implements View.OnClickListen
     onMenuSelected(defaultMenu.second);
     closeChildren(null);
 
-  }
-
-  @Override
-  public void onClick(View view) {
-
-    AppSettings.MenuType menuType = null;
-    switch (view.getId()) {
-      case R.id.main_background_pie:
-        toggleMenuSelectorVisibility();
-        return;
-      case R.id.tool_button:
-        menuType = AppSettings.MenuType.TOOL;
-        break;
-      case R.id.color_button:
-        menuType = AppSettings.MenuType.COLOR;
-        break;
-      case R.id.brush_button:
-        menuType = AppSettings.MenuType.THICKNESS;
-        break;
-    }
-
-    onMenuSelected(menuType);
-
-    toggleMenuSelectorVisibility();
   }
 
   public void handleMenu(GestureType nowGesture) {
@@ -196,30 +167,6 @@ public class MenuSelector extends ConstraintLayout implements View.OnClickListen
         return;
     }
     onMenuSelected(menuType);
-    toggleMenuSelectorVisibility();
-  }
-
-  public void onClick(int viewId) {
-
-    AppSettings.MenuType menuType = null;
-    switch (viewId) {
-      case 0:
-      case R.id.main_background_pie:
-        toggleMenuSelectorVisibility();
-        return;
-      case R.id.tool_button:
-        menuType = AppSettings.MenuType.TOOL;
-        break;
-      case R.id.color_button:
-        menuType = AppSettings.MenuType.COLOR;
-        break;
-      case R.id.brush_button:
-        menuType = AppSettings.MenuType.THICKNESS;
-        break;
-    }
-
-    onMenuSelected(menuType);
-
     toggleMenuSelectorVisibility();
   }
 

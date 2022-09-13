@@ -34,7 +34,7 @@ import com.capstone.apppal.VO.GestureType;
  * Custom view for selecting brush size
  */
 
-public class ToolSelector extends ConstraintLayout implements View.OnClickListener {
+public class ToolSelector extends ConstraintLayout {
 
   private static final String TAG = "ToolSelector";
 
@@ -87,19 +87,12 @@ public class ToolSelector extends ConstraintLayout implements View.OnClickListen
     inflate(getContext(), R.layout.view_tool_selector, this);
 
     mBackground = findViewById(R.id.tool_background_pie);
-    mBackground.setOnClickListener(this);
 
     mNormalPenButton = findViewById(R.id.tool_selection_pen);
     mStraightLineButton = findViewById(R.id.tool_selection_line);
     mCubeButton = findViewById(R.id.tool_selection_cube);
     mRectButton = findViewById(R.id.tool_selection_rect);
     mEraseButton = findViewById(R.id.tool_selection_erase);
-
-    mNormalPenButton.setOnClickListener(this);
-    mStraightLineButton.setOnClickListener(this);
-    mCubeButton.setOnClickListener(this);
-    mRectButton.setOnClickListener(this);
-    mEraseButton.setOnClickListener(this);
 
     mBackground.setOnTouchListener(new OnTouchListener() {
       @Override
@@ -187,36 +180,6 @@ public class ToolSelector extends ConstraintLayout implements View.OnClickListen
     });
 
     onToolSelected(defaultTool.second);
-    toggleToolSelectorVisibility();
-  }
-
-  @Override
-  public void onClick(View view) {
-
-    AppSettings.ToolType toolType = null;
-    switch (view.getId()) {
-      case R.id.tool_button:
-        toggleToolSelectorVisibility();
-        return;
-      case R.id.tool_selection_pen:
-        toolType = AppSettings.ToolType.NORMAL_PEN;
-        break;
-      case R.id.tool_selection_line:
-        toolType = AppSettings.ToolType.STRAIGHT_LINE;
-        break;
-      case R.id.tool_selection_cube:
-        toolType = AppSettings.ToolType.CUBE;
-        break;
-      case R.id.tool_selection_rect:
-        toolType = AppSettings.ToolType.RECT;
-        break;
-      case R.id.tool_selection_erase:
-        toolType = AppSettings.ToolType.ERASE;
-        break;
-    }
-
-    onToolSelected(toolType);
-
     toggleToolSelectorVisibility();
   }
 

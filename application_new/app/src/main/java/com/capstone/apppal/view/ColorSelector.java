@@ -34,7 +34,7 @@ import com.capstone.apppal.VO.GestureType;
  * Custom view for selecting brush size
  */
 
-public class ColorSelector extends ConstraintLayout implements View.OnClickListener {
+public class ColorSelector extends ConstraintLayout {
 
   private static final String TAG = "ColorSelector";
 
@@ -87,19 +87,12 @@ public class ColorSelector extends ConstraintLayout implements View.OnClickListe
     inflate(getContext(), R.layout.view_color_selector, this);
 
     mBackground = findViewById(R.id.color_background_pie);
-    mBackground.setOnClickListener(this);
 
     mWhiteButton = findViewById(R.id.color_selection_white);
     mBlackButton = findViewById(R.id.color_selection_black);
     mRedButton = findViewById(R.id.color_selection_red);
     mGreenButton = findViewById(R.id.color_selection_green);
     mBlueButton = findViewById(R.id.color_selection_blue);
-
-    mWhiteButton.setOnClickListener(this);
-    mBlackButton.setOnClickListener(this);
-    mRedButton.setOnClickListener(this);
-    mGreenButton.setOnClickListener(this);
-    mBlueButton.setOnClickListener(this);
 
     mBackground.setOnTouchListener(new OnTouchListener() {
       @Override
@@ -188,36 +181,6 @@ public class ColorSelector extends ConstraintLayout implements View.OnClickListe
     });
 
     onColorSelected(defaultTool.second);
-    toggleColorSelectorVisibility();
-  }
-
-  @Override
-  public void onClick(View view) {
-
-    AppSettings.ColorType colorType = null;
-    switch (view.getId()) {
-      case R.id.color_button:
-        toggleColorSelectorVisibility();
-        return;
-      case R.id.color_selection_white:
-        colorType = AppSettings.ColorType.WHITE;
-        break;
-      case R.id.color_selection_black:
-        colorType = AppSettings.ColorType.BLACK;
-        break;
-      case R.id.color_selection_red:
-        colorType = AppSettings.ColorType.RED;
-        break;
-      case R.id.color_selection_green:
-        colorType = AppSettings.ColorType.GREEN;
-        break;
-      case R.id.color_selection_blue:
-        colorType = AppSettings.ColorType.BLUE;
-        break;
-    }
-
-    onColorSelected(colorType);
-
     toggleColorSelectorVisibility();
   }
 
