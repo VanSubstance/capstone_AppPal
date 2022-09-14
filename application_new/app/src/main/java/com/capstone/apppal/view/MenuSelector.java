@@ -187,17 +187,19 @@ public class MenuSelector extends ConstraintLayout {
    */
   private void onMenuSelected(AppSettings.MenuType menuType) {
     mSelectedMenuType = menuType;
-    switch (menuType) {
-      default:
-      case TOOL:
-        mSelectedMenu = TOOL;
-        break;
-      case COLOR:
-        mSelectedMenu = COLOR;
-        break;
-      case THICKNESS:
-        mSelectedMenu = THICKNESS;
-        break;
+    if (menuType != null) {
+      switch (menuType) {
+        default:
+        case TOOL:
+          mSelectedMenu = TOOL;
+          break;
+        case COLOR:
+          mSelectedMenu = COLOR;
+          break;
+        case THICKNESS:
+          mSelectedMenu = THICKNESS;
+          break;
+      }
     }
 
     closeChildren(menuType);
