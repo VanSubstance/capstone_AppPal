@@ -216,6 +216,12 @@ public class DrawARActivity extends BaseActivity
 
   public static ProgressBar gestureProgressBar;
 
+  /**
+   * 도형 그릴 때를 대비한 현재 획 최초 포인트(스크린 기준) 보관용
+   */
+
+  private Vector3f startPoint = null;
+
 
   /**
    * Setup the app when main activity is created
@@ -522,9 +528,38 @@ public class DrawARActivity extends BaseActivity
    */
   private void trackPointFromScreeen(Vector3f... touchPoint) {
     Vector3f[] newPoints = new Vector3f[touchPoint.length];
-    for (int i = 0; i < touchPoint.length; i++) {
-      newPoints[i] = LineUtils
-        .GetWorldCoords(touchPoint[i], mScreenWidth, mScreenHeight, projmtx, viewmtx, viewPos);
+    Vector3f endPoint = touchPoint[touchPoint.length - 1];
+//    Log.e(TAG, "trackPointFromScreeen: endPointendPoint::: " + endPoint);
+//    Log.e(TAG, "trackPointFromScreeen: startPointstartPoint::: " + startPoint);
+    float xs = startPoint.getX();
+    float ys = startPoint.getY();
+    float zs = startPoint.getZ();
+    float xe = endPoint.getX();
+    float ye = endPoint.getY();
+    float ze = endPoint.getZ();
+
+    switch (mMenuSelector.getToolSelector().getSelectedToolType()) {
+      case CUBE:
+        newPoints = new Vector3f[8];
+        newPoints[0] = startPoint;
+        newPoints[1] = new Vector3f(xe, ys, zs);
+        newPoints[2] = new Vector3f(xe, ye, zs);
+        newPoints[3] = new Vector3f(xs, ye, zs);
+        newPoints[4] = new Vector3f(xs, ys, ze);
+        newPoints[5] = new Vector3f(xe, ys, ze);
+        newPoints[6] = endPoint;
+        newPoints[7] = new Vector3f(xs, ye, ze);
+        for (int i = 0; i < newPoints.length; i++) {
+          newPoints[i] = LineUtils
+            .GetWorldCoords(newPoints[i], mScreenWidth, mScreenHeight, projmtx, viewmtx, viewPos);
+        }
+        break;
+      default:
+        for (int i = 0; i < newPoints.length; i++) {
+          newPoints[i] = LineUtils
+            .GetWorldCoords(touchPoint[i], mScreenWidth, mScreenHeight, projmtx, viewmtx, viewPos);
+        }
+        break;
     }
     trackPoint3f(newPoints);
   }
@@ -541,7 +576,6 @@ public class DrawARActivity extends BaseActivity
 
     if (index < 0)
       return;
-//    Log.e(TAG, "trackPoint3f: 포인트 포인트:ㅖ: " + newPoint[newPoint.length - 1]);
 
     switch (mMenuSelector.getToolSelector().getSelectedToolType()) {
       case ERASE:
@@ -752,34 +786,18 @@ public class DrawARActivity extends BaseActivity
                 drawStraightLine(index - i, point);
               }
             } else {
-              Vector3f startCoor = mStrokes.get(index - 11).get(0);
-              float xs = startCoor.getX();
-              float ys = startCoor.getY();
-              float zs = startCoor.getZ();
-              float xe = point.getX();
-              float ye = point.getY();
-              float ze = point.getZ();
-              ArrayList<Vector3f> coorList = new ArrayList<>();
-              coorList.add(new Vector3f(xs, ys, zs));
-              coorList.add(new Vector3f(xe, ys, zs));
-              coorList.add(new Vector3f(xe, ye, zs));
-              coorList.add(new Vector3f(xs, ye, zs));
-              coorList.add(new Vector3f(xs, ys, ze));
-              coorList.add(new Vector3f(xe, ys, ze));
-              coorList.add(new Vector3f(xe, ye, ze));
-              coorList.add(new Vector3f(xs, ye, ze));
-              drawStraightLine(index - 11, coorList.get(1));
-              drawStraightLine(index - 10, coorList.get(1), coorList.get(2));
-              drawStraightLine(index - 9, coorList.get(2), coorList.get(3));
-              drawStraightLine(index - 8, coorList.get(3));
-              drawStraightLine(index - 7, coorList.get(4));
-              drawStraightLine(index - 6, coorList.get(1), coorList.get(5));
-              drawStraightLine(index - 5, coorList.get(2), coorList.get(6));
-              drawStraightLine(index - 4, coorList.get(3), coorList.get(7));
-              drawStraightLine(index - 3, coorList.get(4), coorList.get(5));
-              drawStraightLine(index - 2, coorList.get(5), coorList.get(6));
-              drawStraightLine(index - 1, coorList.get(6), coorList.get(7));
-              drawStraightLine(index - 0, coorList.get(7), coorList.get(4));
+              drawStraightLine(index - 11, newPoint[1]);
+              drawStraightLine(index - 10, newPoint[1], newPoint[2]);
+              drawStraightLine(index - 9, newPoint[2], newPoint[3]);
+              drawStraightLine(index - 8, newPoint[3]);
+              drawStraightLine(index - 7, newPoint[4]);
+              drawStraightLine(index - 6, newPoint[1], newPoint[5]);
+              drawStraightLine(index - 5, newPoint[2], newPoint[6]);
+              drawStraightLine(index - 4, newPoint[3], newPoint[7]);
+              drawStraightLine(index - 3, newPoint[4], newPoint[5]);
+              drawStraightLine(index - 2, newPoint[5], newPoint[6]);
+              drawStraightLine(index - 1, newPoint[6], newPoint[7]);
+              drawStraightLine(index - 0, newPoint[7], newPoint[4]);
             }
           } else {
             if (mStrokes.get(index - 11).size() == 0) {
@@ -787,34 +805,18 @@ public class DrawARActivity extends BaseActivity
                 drawStraightLine(index - i, targetPoint);
               }
             } else {
-              Vector3f startCoor = mStrokes.get(index - 11).get(0);
-              float xs = startCoor.getX();
-              float ys = startCoor.getY();
-              float zs = startCoor.getZ();
-              float xe = targetPoint.getX();
-              float ye = targetPoint.getY();
-              float ze = targetPoint.getZ();
-              ArrayList<Vector3f> coorList = new ArrayList<>();
-              coorList.add(new Vector3f(xs, ys, zs));
-              coorList.add(new Vector3f(xe, ys, zs));
-              coorList.add(new Vector3f(xe, ye, zs));
-              coorList.add(new Vector3f(xs, ye, zs));
-              coorList.add(new Vector3f(xs, ys, ze));
-              coorList.add(new Vector3f(xe, ys, ze));
-              coorList.add(new Vector3f(xe, ye, ze));
-              coorList.add(new Vector3f(xs, ye, ze));
-              drawStraightLine(index - 11, coorList.get(1));
-              drawStraightLine(index - 10, coorList.get(1), coorList.get(2));
-              drawStraightLine(index - 9, coorList.get(2), coorList.get(3));
-              drawStraightLine(index - 8, coorList.get(3));
-              drawStraightLine(index - 7, coorList.get(4));
-              drawStraightLine(index - 6, coorList.get(1), coorList.get(5));
-              drawStraightLine(index - 5, coorList.get(2), coorList.get(6));
-              drawStraightLine(index - 4, coorList.get(3), coorList.get(7));
-              drawStraightLine(index - 3, coorList.get(4), coorList.get(5));
-              drawStraightLine(index - 2, coorList.get(5), coorList.get(6));
-              drawStraightLine(index - 1, coorList.get(6), coorList.get(7));
-              drawStraightLine(index - 0, coorList.get(7), coorList.get(4));
+              drawStraightLine(index - 11, newPoint[1]);
+              drawStraightLine(index - 10, newPoint[1], newPoint[2]);
+              drawStraightLine(index - 9, newPoint[2], newPoint[3]);
+              drawStraightLine(index - 8, newPoint[3]);
+              drawStraightLine(index - 7, newPoint[4]);
+              drawStraightLine(index - 6, newPoint[1], newPoint[5]);
+              drawStraightLine(index - 5, newPoint[2], newPoint[6]);
+              drawStraightLine(index - 4, newPoint[3], newPoint[7]);
+              drawStraightLine(index - 3, newPoint[4], newPoint[5]);
+              drawStraightLine(index - 2, newPoint[5], newPoint[6]);
+              drawStraightLine(index - 1, newPoint[6], newPoint[7]);
+              drawStraightLine(index - 0, newPoint[7], newPoint[4]);
             }
           }
         }
@@ -988,12 +990,18 @@ public class DrawARActivity extends BaseActivity
         for (int i = 0; i < numPoints; i++) {
           points[i] = touchQueue.get(i);
           mLastTouch = new Vector3f(points[i].x, points[i].y, points[i].z);
+          if (startPoint == null) {
+            startPoint = mLastTouch;
+          }
         }
         trackPointFromScreeen(points);
       }
 
       // If no new points have been added and add last point again
       if (numPoints == 0 && GlobalState.isDrawable && GlobalState.currentCursor != null) {
+        if (startPoint == null) {
+          startPoint = mLastTouch;
+        }
         trackPointFromScreeen(mLastTouch);
         mLineShaderRenderer.bNeedsUpdate.set(true);
       }
@@ -1001,6 +1009,8 @@ public class DrawARActivity extends BaseActivity
       if (numPoints > 0) {
         touchQueueSize.set(0);
         mLineShaderRenderer.bNeedsUpdate.set(true);
+      } else {
+        startPoint = null;
       }
 
       if (bClearDrawing.get()) {

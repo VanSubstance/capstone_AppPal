@@ -19,6 +19,7 @@ import android.util.Log;
 
 import com.capstone.apppal.AppSettings;
 import com.capstone.apppal.model.Ray;
+import com.capstone.apppal.utils.GlobalState;
 import com.google.ar.core.Pose;
 
 import javax.vecmath.Vector2f;
@@ -65,8 +66,6 @@ public class LineUtils {
       projectionMatrix,
       viewMatrixForCalc
     );
-//    Ray touchRay = projectRay(new Vector2f(touchPoint.getX(), touchPoint.getY()), screenWidth, screenHeight, projectionMatrix,
-//      viewMatrixForCalc);
     touchRay.direction.scale(AppSettings.getStrokeDrawDistance());
     touchRay.origin.add(touchRay.direction);
     return touchRay.origin;
