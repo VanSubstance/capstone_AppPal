@@ -56,6 +56,7 @@ def executeFunction(client_socket, jsonData):
       
       data = ast.literal_eval(data)
       gesture = recognize(data)
+      print('Gesture recognition:: ', gesture)
       res = {
         'function': 'gesture',
         'data' : gesture,
