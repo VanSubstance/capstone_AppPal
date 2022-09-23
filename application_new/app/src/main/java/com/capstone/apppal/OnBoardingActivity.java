@@ -43,7 +43,6 @@ public class OnBoardingActivity extends AppCompatActivity {
     setContentView(R.layout.activity_onboarding);
 
     loginFragment = new LoginFragment();
-    listFragment = new ListFragment();
 
     if (savedInstanceState == null) {
       fragmentManager = getSupportFragmentManager();
@@ -51,7 +50,14 @@ public class OnBoardingActivity extends AppCompatActivity {
     }
   }
 
-  public void goToListFragment() {
+  public void goToListFragment(int optionMode) {
+    listFragment = new ListFragment(optionMode);
     fragmentManager.beginTransaction().replace(R.id.fragment_frame, listFragment).commit();
+  }
+
+  public void enterDrawingRoom() {
+    Intent drawingIntent = new Intent(this, DrawARActivity.class);
+    startActivity(drawingIntent);
+    finish();
   }
 }

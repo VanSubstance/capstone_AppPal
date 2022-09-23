@@ -82,7 +82,7 @@ public class LoginFragment extends Fragment {
       public void onClick(View view) {
         // 여기에서 작업하면 될듯
 //        signIn();
-        ((OnBoardingActivity) getActivity()).goToListFragment();
+        ((OnBoardingActivity) getActivity()).goToListFragment(ListFragment.CREATE_OPTION_MODE);
       }
     });
 
@@ -137,9 +137,7 @@ public class LoginFragment extends Fragment {
 
   private void updateUI(FirebaseUser user) { //update ui code here
     if (user != null) {
-      Intent drawingIntent = new Intent(getContext(), DrawARActivity.class);
-      startActivity(drawingIntent);
-//      finish();
+      ((OnBoardingActivity) getActivity()).enterDrawingRoom();
     }
   }
 }

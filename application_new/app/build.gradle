@@ -45,8 +45,6 @@ android {
         main {
             res.srcDirs =
                     [
-                            'src/main/res/layout/pages/components',
-                            'src/main/res/layout/pages',
                             'src/main/res/layout',
                             'src/main/res'
                     ]
