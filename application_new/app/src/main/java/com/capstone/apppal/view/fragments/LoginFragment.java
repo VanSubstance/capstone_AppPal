@@ -2,9 +2,13 @@ package com.capstone.apppal.view.fragments;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -29,13 +33,37 @@ import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 public class LoginFragment extends Fragment {
+  private final static String TAG = "LoginFragment";
   private FirebaseAuth mAuth = null;
   private GoogleSignInClient mGoogleSignInClient;
   private static final int RC_SIGN_IN = 9001;
   private SignInButton signInButton;
   private FirebaseDatabase database;
   private DatabaseReference databaseReference;
+  private ProgressBar mLoginProgressBar;
+
+  private final static int LOADING_INIT = 0;
+  private final static int LOADING_DONE = 1;
+
+  /**
+   * 구글로 로그인 실행중에 로딩 컴포넌트를 on/off 해줄 핸들러
+   */
+  private Handler loadingHandler = new Handler() {
+    public void handleMessage(Message message) {
+      if (message.arg1 == LOADING_INIT) {
+        signInButton.setVisibility(View.GONE);
+        mLoginProgressBar.setVisibility(View.VISIBLE);
+      } else {
+//        signInButton.setVisibility(View.VISIBLE);
+//        mLoginProgressBar.setVisibility(View.GONE);
+        ((OnBoardingActivity) getActivity()).goToListFragment(ListFragment.CREATE_OPTION_MODE);
+      }
+    }
+  };
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
@@ -63,6 +91,7 @@ public class LoginFragment extends Fragment {
   private void init(View rootView) {
     signInButton = rootView.findViewById(R.id.login_button);
     mAuth = FirebaseAuth.getInstance();
+    mLoginProgressBar = rootView.findViewById(R.id.progress_main);
 
     // 다음에 로그인할때 자동으로 로그인 되는 코드
 //    if (mAuth.getCurrentUser() != null) {
@@ -81,16 +110,37 @@ public class LoginFragment extends Fragment {
       @Override
       public void onClick(View view) {
         // 여기에서 작업하면 될듯
-//        signIn();
-        ((OnBoardingActivity) getActivity()).goToListFragment(ListFragment.CREATE_OPTION_MODE);
+        signIn();
       }
     });
 
   }
 
   private void signIn() {
-    Intent signInIntent = mGoogleSignInClient.getSignInIntent();
-    startActivityForResult(signInIntent, RC_SIGN_IN);
+    Message message = loadingHandler.obtainMessage();
+    message.arg1 = LOADING_INIT;
+    loadingHandler.sendMessage(message);
+    Thread loadingThread = new Thread(new Runnable() {
+      @Override
+      public void run() {
+        int time = 0;
+        while (time != 1) {
+          try {
+            time += 1;
+            Thread.sleep(1000);
+          } catch (InterruptedException e) {
+            e.printStackTrace();
+          }
+        }
+        Message message = loadingHandler.obtainMessage();
+        message.arg1 = LOADING_DONE;
+        loadingHandler.sendMessage(message);
+      }
+    });
+    loadingThread.start();
+
+//    Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+//    startActivityForResult(signInIntent, RC_SIGN_IN);
   }
 
   @Override
