@@ -2,6 +2,7 @@ package com.capstone.apppal;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -58,6 +59,6 @@ public class OnBoardingActivity extends AppCompatActivity {
   public void enterDrawingRoom() {
     Intent drawingIntent = new Intent(this, DrawARActivity.class);
     startActivity(drawingIntent);
-    finish();
+//    finish();
   }
 }

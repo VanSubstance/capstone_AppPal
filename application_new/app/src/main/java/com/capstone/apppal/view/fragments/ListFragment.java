@@ -5,6 +5,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -13,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.capstone.apppal.OnBoardingActivity;
 import com.capstone.apppal.R;
 import com.capstone.apppal.utils.GlobalState;
+import com.capstone.apppal.view.dialog.ConfirmDialog;
 import com.capstone.apppal.view.item.RecyclerViewAdapter;
 
 import java.util.HashMap;
@@ -88,7 +90,31 @@ public class ListFragment extends Fragment {
         mDataSet[0].put("func", new View.OnClickListener() {
           @Override
           public void onClick(View view) {
-            ((OnBoardingActivity) getActivity()).enterDrawingRoom();
+            ConfirmDialog confirmDialog = new ConfirmDialog(getContext(), new ConfirmDialog.DataTransfer() {
+              @Override
+              public ConfirmDialog.Data getData() {
+                ConfirmDialog.Data data = new ConfirmDialog.Data();
+                data.setTextMain("새로운 그림방으로 입장하시겠습니까?");
+                data.setTextMainButton("네");
+                data.setTextSubButton("아니오");
+                return data;
+              }
+
+              @Override
+              public void onMainButtonClick() {
+                ((OnBoardingActivity) getActivity()).enterDrawingRoom();
+              }
+
+              @Override
+              public void onSubButtonClick() {
+
+              }
+
+            });
+            confirmDialog.setCanceledOnTouchOutside(true);
+            confirmDialog.setCancelable(true);
+            confirmDialog.getWindow().setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT);
+            confirmDialog.show();
           }
         });
         mDataSet[1] = new HashMap<>();

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.capstone.apppal.view;
+package com.capstone.apppal.view.dialog;
 
 import android.app.Activity;
 import android.app.DialogFragment;

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.capstone.apppal.view;
+package com.capstone.apppal.view.dialog;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -24,33 +24,60 @@ import android.view.WindowManager;
 import com.capstone.apppal.R;
 
 /**
- * Created by Kat on 4/3/18.
+ * Created by Kat on 12/4/17.
+ * Dialog brought up when user selects clear drawing
  */
 
-public class LeaveRoomDialog extends BaseDialog {
+public class ClearDrawingDialog extends BaseDialog {
 
     private Listener mListener;
 
-    public static LeaveRoomDialog newInstance() {
-        return new LeaveRoomDialog();
+    private static final String ARG_PAIRED_SESSION = "pairedSession";
+
+    public static ClearDrawingDialog newInstance(boolean paired) {
+        ClearDrawingDialog dialog = new ClearDrawingDialog();
+
+        // Supply num input as an argument.
+        Bundle args = new Bundle();
+        args.putBoolean(ARG_PAIRED_SESSION, paired);
+        dialog.setArguments(args);
+
+        return dialog;
     }
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext()).setMessage(R.string.pair_disconnect);
+        int titleRes = -1;
+        int messageRes = R.string.clear_confirmation_message;
+
+        boolean pairedSession = getArguments().getBoolean(ARG_PAIRED_SESSION);
+        if (pairedSession) {
+            titleRes = R.string.clear_confirmation_title_paired;
+            messageRes = R.string.clear_confirmation_message_paired;
+        }
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext())
+                .setMessage(messageRes);
+
+        if (titleRes > -1) builder.setTitle(titleRes);
 
         // Set up the buttons
-        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(R.string.clear, new DialogInterface.OnClickListener() {
             @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
+            public void onClick(DialogInterface dialog, int which) {
                 if (mListener != null) {
-                    mListener.onExitRoomSelected();
+                    mListener.onClearDrawingConfirmed();
                 }
+                dialog.dismiss();
             }
         });
-
-        builder.setNeutralButton(R.string.cancel, null);
+        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
 
         AlertDialog dialog = builder.show();
 
@@ -85,6 +112,6 @@ public class LeaveRoomDialog extends BaseDialog {
 
     public interface Listener {
 
-        void onExitRoomSelected();
+        void onClearDrawingConfirmed();
     }
 }
