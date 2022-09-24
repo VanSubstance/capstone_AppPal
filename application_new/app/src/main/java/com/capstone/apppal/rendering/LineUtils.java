@@ -38,7 +38,7 @@ public class LineUtils {
 
     float disCam = (float) Math.sqrt((viewPos[0] * viewPos[0]) + (viewPos[1] * viewPos[1]) + (viewPos[2] * viewPos[2]));
     float extendRate = (zToMove + disCam) / disCam;
-    
+
     // 각 축 좌표만큼 view matrix 평행 이동할 비율 계산
     float r = viewMatrixForCalc[2];
     float u = viewMatrixForCalc[6];
@@ -56,10 +56,11 @@ public class LineUtils {
     viewMatrixForCalc[14] = viewMatrixForCalc[14] * (1.0f + zToAdd);
 
     Matrix.invertM(viewMatrixForCalc, 0, viewMatrixForCalc, 0);
+
     float xToMultiple = touchPoint.getX() - (0.5f * screenWidth);
-    xToMultiple *= extendRate;
     float yToMultiple = touchPoint.getY() - (0.5f * screenHeight);
-    yToMultiple *= extendRate;
+//    xToMultiple *= extendRate;
+//    yToMultiple *= extendRate;
 
 //    Log.e(TAG, "GetWorldCoords: 원래 x, y:: " + touchPoint.getX() + ", " + touchPoint.getY());
 //    Log.e(TAG, "GetWorldCoords: 보정 x, y:: " + ((0.5f * screenWidth) + xToMultiple) + ", " + ((0.5f * screenHeight) + yToMultiple));

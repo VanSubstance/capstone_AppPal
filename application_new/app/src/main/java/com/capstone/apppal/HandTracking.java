@@ -179,54 +179,6 @@ public class HandTracking {
     }
   }
 
-  private void logWristLandmark(HandsResult result, boolean showPixelValues) {
-    if (result.multiHandLandmarks().isEmpty()) {
-      return;
-    }
-    LandmarkProto.NormalizedLandmark wristLandmark =
-      result.multiHandLandmarks().get(0).getLandmarkList().get(HandLandmark.WRIST);
-    // For Bitmaps, show the pixel values. For texture inputs, show the normalized coordinates.
-    if (showPixelValues) {
-      int width = result.inputBitmap().getWidth();
-      int height = result.inputBitmap().getHeight();
-      Log.i(
-        TAG,
-        String.format(
-          "MediaPipe Hand wrist coordinates (pixel values): x=%f, y=%f",
-          wristLandmark.getX() * width, wristLandmark.getY() * height));
-    } else {
-      Log.i(
-        TAG,
-        String.format(
-          "MediaPipe Hand wrist normalized coordinates (value range: [0, 1]): x=%f, y=%f",
-          wristLandmark.getX(), wristLandmark.getY()));
-    }
-    if (result.multiHandWorldLandmarks().isEmpty()) {
-      return;
-    }
-    LandmarkProto.Landmark wristWorldLandmark =
-      result.multiHandWorldLandmarks().get(0).getLandmarkList().get(HandLandmark.WRIST);
-    Log.i(
-      TAG,
-      String.format(
-        "MediaPipe Hand wrist world coordinates (in meters with the origin at the hand's"
-          + " approximate geometric center): x=%f m, y=%f m, z=%f m",
-        wristWorldLandmark.getX(), wristWorldLandmark.getY(), wristWorldLandmark.getZ()));
-
-    List<LandmarkProto.Landmark> coorList = result.multiHandWorldLandmarks().get(0).getLandmarkList();
-    // Land Mark
-    ArrayList<CoordinateInfo> temp = new ArrayList<>();
-    Log.i(TAG, " length coorlist :" + coorList.size());
-    for (int i = 0; i < coorList.size(); i++) {
-      LandmarkProto.Landmark coor = coorList.get(i);
-      temp.add(new CoordinateInfo(coor.getX(), coor.getY(), coor.getZ(), coor.getVisibility()));
-    }
-    GlobalState.gestureTrackings.add(temp);
-    if (GlobalState.gestureTrackings.size() >= 5)
-      GlobalState.gestureTrackings.remove(0);
-//    Log.e(TAG, "logWristLandmark: 현재 스켈레톤:: " + GlobalState.gestureTrackings.get(GlobalState.gestureTrackings.size() - 1));
-  }
-
   private static byte[] imageToByte(Image image) {
     byte[] byteArray = null;
     byteArray = NV21toJPEG(YUV420toNV21(image), image.getWidth(), image.getHeight(), 100);

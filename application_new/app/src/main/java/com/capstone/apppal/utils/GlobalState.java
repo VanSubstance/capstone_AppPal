@@ -30,4 +30,6 @@ public class GlobalState {
   public static FunctionType currentFunction = FunctionType.DRAWING;
   public static ArrayList<Vector3f> currentCursor = new ArrayList<>();
   public static DisplayMetrics displayMetrics = new DisplayMetrics();
+
+  public static int MAXIMUM_COUNT_FOR_LIST = 60;
 }
