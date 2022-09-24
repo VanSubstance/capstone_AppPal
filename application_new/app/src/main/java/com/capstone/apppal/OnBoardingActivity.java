@@ -42,7 +42,6 @@ public class OnBoardingActivity extends AppCompatActivity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_onboarding);
-
     loginFragment = new LoginFragment();
 
     if (savedInstanceState == null) {
@@ -52,8 +51,14 @@ public class OnBoardingActivity extends AppCompatActivity {
   }
 
   public void goToListFragment(int optionMode) {
-    listFragment = new ListFragment(optionMode);
-    fragmentManager.beginTransaction().replace(R.id.fragment_frame, listFragment).commit();
+    // 로그인 직후일 경우
+    if (optionMode == ListFragment.CREATE_OPTION_MODE) {
+      listFragment = new ListFragment(optionMode);
+      fragmentManager.beginTransaction().replace(R.id.fragment_frame, listFragment).commit();
+    } else {
+      listFragment = new ListFragment(optionMode);
+      fragmentManager.beginTransaction().replace(R.id.fragment_frame, listFragment).addToBackStack("list::" + optionMode).commit();
+    }
   }
 
   public void enterDrawingRoom() {

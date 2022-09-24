@@ -15,6 +15,7 @@ import com.capstone.apppal.OnBoardingActivity;
 import com.capstone.apppal.R;
 import com.capstone.apppal.utils.GlobalState;
 import com.capstone.apppal.view.dialog.ConfirmDialog;
+import com.capstone.apppal.view.dialog.InputDialog;
 import com.capstone.apppal.view.item.RecyclerViewAdapter;
 
 import java.util.HashMap;
@@ -147,7 +148,60 @@ public class ListFragment extends Fragment {
         mDataSet[1].put("func", new View.OnClickListener() {
           @Override
           public void onClick(View view) {
-            Log.e("TAG", "onClick: 방 코드 불러오기 클릭!!");
+            InputDialog roomCodeDialog = new InputDialog(getContext(), new InputDialog.DataTransfer() {
+              @Override
+              public InputDialog.Data getData() {
+                InputDialog.Data data = new InputDialog.Data();
+                data.setTextMain("입장하고자 하시는 \n그림방 코드를 입력해주세요!");
+                data.setTextEdit("초기설정값");
+                data.setMaxLength(6);
+                data.setTextMainButton("확인");
+                data.setTextSubButton("취소");
+                return data;
+              }
+
+              @Override
+              public void onMainButtonClick(String inputText) {
+                Log.e("TAG", "onMainButtonClick: 확인:: 방 코드:: " + inputText);
+                InputDialog passwordDialog = new InputDialog(getContext(), new InputDialog.DataTransfer() {
+                  @Override
+                  public InputDialog.Data getData() {
+                    InputDialog.Data data = new InputDialog.Data();
+                    data.setIsEncrypted(true);
+                    data.setTextMain("그림방의 비밀번호를 입력해주세요!");
+                    data.setMaxLength(16);
+                    data.setTextMainButton("확인");
+                    data.setTextSubButton("취소");
+                    return data;
+                  }
+
+                  @Override
+                  public void onMainButtonClick(String inputText) {
+                    Log.e("TAG", "onMainButtonClick: 확인:: 비밀번호:: " + inputText);
+                  }
+
+                  @Override
+                  public void onSubButtonClick(String inputText) {
+                    Log.e("TAG", "onMainButtonClick: 취소");
+                  }
+
+                });
+                passwordDialog.setCanceledOnTouchOutside(true);
+                passwordDialog.setCancelable(true);
+                passwordDialog.getWindow().setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT);
+                passwordDialog.show();
+              }
+
+              @Override
+              public void onSubButtonClick(String inputText) {
+                Log.e("TAG", "onMainButtonClick: 취소");
+              }
+
+            });
+            roomCodeDialog.setCanceledOnTouchOutside(true);
+            roomCodeDialog.setCancelable(true);
+            roomCodeDialog.getWindow().setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT);
+            roomCodeDialog.show();
           }
         });
         break;
