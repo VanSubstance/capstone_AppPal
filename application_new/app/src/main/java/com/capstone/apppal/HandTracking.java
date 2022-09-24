@@ -14,6 +14,7 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 
 import com.capstone.apppal.VO.CoordinateInfo;
+import com.capstone.apppal.VO.FunctionType;
 import com.capstone.apppal.network.GestureRecognitionSocket;
 import com.capstone.apppal.utils.CommonFunctions;
 import com.capstone.apppal.utils.GlobalState;
@@ -129,22 +130,23 @@ public class HandTracking {
       Vector3f temp = new Vector3f();
       temp.sub(pin4.getVector(), pin8.getVector());
 
-      if (temp.lengthSquared() >= GlobalState.MINIMUM_DISTANCE_FOR_DRAWING) {
+      if (temp.lengthSquared() >= GlobalState.MINIMUM_DISTANCE_FOR_DRAWING || GlobalState.currentFunction != FunctionType.DRAWING) {
         GlobalState.isDrawable = false;
         GlobalState.currentCursor.clear();
       } else {
         temp.add(pin4.getVector(), pin8.getVector());
 
         Vector3f pin4_8 = new Vector3f(temp.getX() / 2.0f, temp.getY() / 2.0f, temp.getZ() / 2.0f);
-        float disY = Math.abs(pin0.getY() - pin8.getY());
+        float disY = (float) Math.sqrt(
+          ((pin0.getY() - pin8.getY()) * (pin0.getY() - pin8.getY())) +
+            (pin0.getX() - pin8.getX()) * (pin0.getX() - pin8.getX()));
         if (CommonFunctions.isTriangleAnglesOk(pin4_8, pin2.getVector(), pin5.getVector())) {
           GlobalState.isDrawable = true;
 
           float x = (1.0f - (temp.getY() - 0.5f)) * (float) GlobalState.displayMetrics.widthPixels;
           float y = (temp.getX() / 2.0f) * (float) GlobalState.displayMetrics.heightPixels;
-          float z = ((float) GlobalState.displayMetrics.heightPixels * (0.5f - (1.0f * disY)));
-//          x = x * (1 + ((((float) GlobalState.displayMetrics.widthPixels) - x) / (float) GlobalState.displayMetrics.widthPixels));
-//          y = y * (1 + ((((float) GlobalState.displayMetrics.heightPixels) - y) / (float) GlobalState.displayMetrics.heightPixels));
+          float z = ((float) GlobalState.displayMetrics.heightPixels * -1 / 0.475f * (disY - 0.6f));
+//          Log.e(TAG, "handleResult: disYdisY:: " + disY);
           GlobalState.currentCursor.add(new Vector3f(
             x,
             y,
@@ -175,54 +177,6 @@ public class HandTracking {
     if (hands != null) {
       hands.close();
     }
-  }
-
-  private void logWristLandmark(HandsResult result, boolean showPixelValues) {
-    if (result.multiHandLandmarks().isEmpty()) {
-      return;
-    }
-    LandmarkProto.NormalizedLandmark wristLandmark =
-      result.multiHandLandmarks().get(0).getLandmarkList().get(HandLandmark.WRIST);
-    // For Bitmaps, show the pixel values. For texture inputs, show the normalized coordinates.
-    if (showPixelValues) {
-      int width = result.inputBitmap().getWidth();
-      int height = result.inputBitmap().getHeight();
-      Log.i(
-        TAG,
-        String.format(
-          "MediaPipe Hand wrist coordinates (pixel values): x=%f, y=%f",
-          wristLandmark.getX() * width, wristLandmark.getY() * height));
-    } else {
-      Log.i(
-        TAG,
-        String.format(
-          "MediaPipe Hand wrist normalized coordinates (value range: [0, 1]): x=%f, y=%f",
-          wristLandmark.getX(), wristLandmark.getY()));
-    }
-    if (result.multiHandWorldLandmarks().isEmpty()) {
-      return;
-    }
-    LandmarkProto.Landmark wristWorldLandmark =
-      result.multiHandWorldLandmarks().get(0).getLandmarkList().get(HandLandmark.WRIST);
-    Log.i(
-      TAG,
-      String.format(
-        "MediaPipe Hand wrist world coordinates (in meters with the origin at the hand's"
-          + " approximate geometric center): x=%f m, y=%f m, z=%f m",
-        wristWorldLandmark.getX(), wristWorldLandmark.getY(), wristWorldLandmark.getZ()));
-
-    List<LandmarkProto.Landmark> coorList = result.multiHandWorldLandmarks().get(0).getLandmarkList();
-    // Land Mark
-    ArrayList<CoordinateInfo> temp = new ArrayList<>();
-    Log.i(TAG, " length coorlist :" + coorList.size());
-    for (int i = 0; i < coorList.size(); i++) {
-      LandmarkProto.Landmark coor = coorList.get(i);
-      temp.add(new CoordinateInfo(coor.getX(), coor.getY(), coor.getZ(), coor.getVisibility()));
-    }
-    GlobalState.gestureTrackings.add(temp);
-    if (GlobalState.gestureTrackings.size() >= 5)
-      GlobalState.gestureTrackings.remove(0);
-//    Log.e(TAG, "logWristLandmark: 현재 스켈레톤:: " + GlobalState.gestureTrackings.get(GlobalState.gestureTrackings.size() - 1));
   }
 
   private static byte[] imageToByte(Image image) {

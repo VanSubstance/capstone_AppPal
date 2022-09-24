@@ -70,7 +70,7 @@ public class LineShaderRenderer {
   private int mProjectionUniform = 0;
   private int mModelViewUniform = 0;
   private int mResolutionUniform = 0;
-//  private int mColorUniform = 0;
+  //  private int mColorUniform = 0;
   private int mNearUniform = 0;
   private int mFarUniform = 0;
   private int mDrawingDistUniform = 0;
@@ -164,9 +164,9 @@ public class LineShaderRenderer {
      */
 
     int vertexShader = ShaderUtil.loadGLShader(TAG, context,
-        GLES20.GL_VERTEX_SHADER, R.raw.line_vert);
+      GLES20.GL_VERTEX_SHADER, R.raw.line_vert);
     int fragmentShader = ShaderUtil.loadGLShader(TAG, context,
-        GLES20.GL_FRAGMENT_SHADER, R.raw.line_frag);
+      GLES20.GL_FRAGMENT_SHADER, R.raw.line_frag);
 
 
     mProgramName = GLES20.glCreateProgram();
@@ -221,14 +221,14 @@ public class LineShaderRenderer {
 
     // Read the line texture.
     Bitmap endCapTextureBitmap =
-        BitmapFactory.decodeStream(context.getAssets().open("linecap.png"));
+      BitmapFactory.decodeStream(context.getAssets().open("linecap.png"));
 
 //        GLES20.glActiveTexture(GLES20.GL_TEXTURE1);
 //        GLES20.glGenTextures(textures.length, textures, 0);
     GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textures[0]);
 
     GLES20.glTexParameteri(
-        GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR_MIPMAP_LINEAR);
+      GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR_MIPMAP_LINEAR);
     GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
     GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, endCapTextureBitmap, 0);
     GLES20.glGenerateMipmap(GLES20.GL_TEXTURE_2D);
@@ -487,21 +487,21 @@ public class LineShaderRenderer {
     GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, mVboSize, null, GLES20.GL_DYNAMIC_DRAW);
 
     GLES20.glBufferSubData(GLES20.GL_ARRAY_BUFFER, mPositionAddress, mNumBytes * 3 * BYTES_PER_FLOAT,
-        current);
+      current);
     GLES20.glBufferSubData(GLES20.GL_ARRAY_BUFFER, mNextAddress, mNumBytes * 3 * BYTES_PER_FLOAT,
-        next);
+      next);
     GLES20.glBufferSubData(GLES20.GL_ARRAY_BUFFER, mPreviousAddress, mNumBytes * 3 * BYTES_PER_FLOAT,
-        previous);
+      previous);
     GLES20.glBufferSubData(GLES20.GL_ARRAY_BUFFER, mColorAddress, mNumBytes * 3 * BYTES_PER_FLOAT,
-        color);
+      color);
     GLES20.glBufferSubData(GLES20.GL_ARRAY_BUFFER, mSideAddress, mNumBytes * BYTES_PER_FLOAT,
-        side);
+      side);
     GLES20.glBufferSubData(GLES20.GL_ARRAY_BUFFER, mWidthAddress, mNumBytes * BYTES_PER_FLOAT,
-        width);
+      width);
     GLES20.glBufferSubData(GLES20.GL_ARRAY_BUFFER, mLengthAddress, mNumBytes * BYTES_PER_FLOAT,
-        lengths);
+      lengths);
     GLES20.glBufferSubData(GLES20.GL_ARRAY_BUFFER, mEndCapsAddress, mNumBytes * BYTES_PER_FLOAT,
-        endCaps);
+      endCaps);
 
 
     GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
@@ -526,7 +526,7 @@ public class LineShaderRenderer {
     GLES20.glUseProgram(mProgramName);
 
 
-    GLES20.glDisable(GLES20.GL_DEPTH_TEST);
+//    GLES20.glDisable(GLES20.GL_DEPTH_TEST);
 
     // Blending setup
     GLES20.glEnable(GLES20.GL_BLEND);
@@ -547,29 +547,27 @@ public class LineShaderRenderer {
 //
     GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, mVbo);
     GLES20.glVertexAttribPointer(
-        mPositionAttribute, FLOATS_PER_POINT, GLES20.GL_FLOAT, false, BYTES_PER_POINT, mPositionAddress);
+      mPositionAttribute, FLOATS_PER_POINT, GLES20.GL_FLOAT, false, BYTES_PER_POINT, mPositionAddress);
     GLES20.glVertexAttribPointer(
-        mPreviousAttribute, FLOATS_PER_POINT, GLES20.GL_FLOAT, false, BYTES_PER_POINT, mPreviousAddress);
+      mPreviousAttribute, FLOATS_PER_POINT, GLES20.GL_FLOAT, false, BYTES_PER_POINT, mPreviousAddress);
     GLES20.glVertexAttribPointer(
-        mNextAttribute, FLOATS_PER_POINT, GLES20.GL_FLOAT, false, BYTES_PER_POINT, mNextAddress);
+      mNextAttribute, FLOATS_PER_POINT, GLES20.GL_FLOAT, false, BYTES_PER_POINT, mNextAddress);
     GLES20.glVertexAttribPointer(
-        mColorAttribute, FLOATS_PER_POINT, GLES20.GL_FLOAT, false, BYTES_PER_POINT, mColorAddress);
+      mColorAttribute, FLOATS_PER_POINT, GLES20.GL_FLOAT, false, BYTES_PER_POINT, mColorAddress);
     GLES20.glVertexAttribPointer(
-        mSideAttribute, 1, GLES20.GL_FLOAT, false, BYTES_PER_FLOAT, mSideAddress);
+      mSideAttribute, 1, GLES20.GL_FLOAT, false, BYTES_PER_FLOAT, mSideAddress);
     GLES20.glVertexAttribPointer(
-        mWidthAttribute, 1, GLES20.GL_FLOAT, false, BYTES_PER_FLOAT, mWidthAddress);
+      mWidthAttribute, 1, GLES20.GL_FLOAT, false, BYTES_PER_FLOAT, mWidthAddress);
     GLES20.glVertexAttribPointer(
-        mLengthsAttribute, 1, GLES20.GL_FLOAT, false, BYTES_PER_FLOAT, mLengthAddress);
+      mLengthsAttribute, 1, GLES20.GL_FLOAT, false, BYTES_PER_FLOAT, mLengthAddress);
     GLES20.glVertexAttribPointer(
-        mEndCapsAttribute, 1, GLES20.GL_FLOAT, false, BYTES_PER_FLOAT, mEndCapsAddress);
+      mEndCapsAttribute, 1, GLES20.GL_FLOAT, false, BYTES_PER_FLOAT, mEndCapsAddress);
 //
 
     GLES20.glUniformMatrix4fv(
-        mModelViewUniform, 1, false, mModelViewMatrix, 0);
+      mModelViewUniform, 1, false, mModelViewMatrix, 0);
     GLES20.glUniformMatrix4fv(
-        mProjectionUniform, 1, false, cameraPerspective, 0);
-
-//    Log.e(TAG, "draw: 언제 불러와지는거지 ㅎ;" + mColor);
+      mProjectionUniform, 1, false, cameraPerspective, 0);
 
     GLES20.glUniform2f(mResolutionUniform, screenWidth, screenHeight);
 //    GLES20.glUniform3f(mColorUniform, mColor.x, mColor.y, mColor.z);
@@ -608,7 +606,7 @@ public class LineShaderRenderer {
 //        GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
 
     GLES20.glDisable(GLES20.GL_BLEND);
-    GLES20.glEnable(GLES20.GL_DEPTH_TEST);
+//    GLES20.glEnable(GLES20.GL_DEPTH_TEST);
 
   }
 

@@ -14,6 +14,8 @@
 
 package com.capstone.apppal.rendering;
 
+import static android.content.ContentValues.TAG;
+
 import android.opengl.Matrix;
 import android.util.Log;
 
@@ -34,22 +36,46 @@ public class LineUtils {
     Matrix.invertM(viewMatrixForCalc, 0, viewMatrix, 0);
     float zToMove = touchPoint.getZ() * 0.0002646f;
 
-//    Log.e("TAG", "GetWorldCoords: 이동할 z 거리:: (픽셀) " + touchPoint.getZ());
-//    Log.e("TAG", "GetWorldCoords: 이동할 z 거리:: (미터) " + z);
+    float disCam = (float) Math.sqrt((viewPos[0] * viewPos[0]) + (viewPos[1] * viewPos[1]) + (viewPos[2] * viewPos[2]));
+    float extendRate = (zToMove + disCam) / disCam;
 
-    // z 좌표만큼 view matrix 평행 이동
+    // 각 축 좌표만큼 view matrix 평행 이동할 비율 계산
     float r = viewMatrixForCalc[2];
     float u = viewMatrixForCalc[6];
     float l = -viewMatrixForCalc[10];
-    float k = (float) (zToMove / Math.sqrt((r * r) + (u * u) + (l * l)));
-    viewMatrixForCalc[12] = viewMatrixForCalc[12] / viewPos[0] * ((k * r) + viewPos[0]);
-    viewMatrixForCalc[13] = viewMatrixForCalc[13] / viewPos[1] * ((k * u) + viewPos[1]);
-    viewMatrixForCalc[14] = viewMatrixForCalc[14] / viewPos[2] * ((k * l) + viewPos[2]);
+    float disOrigin = (float) Math.sqrt((r * r) + (u * u) + (l * l));
+    // k: z축 평행 확장 비율
+    float k = zToMove / disOrigin;
+    // 각 축 별 더할 값 계산
+    float xToAdd = (k * r) / viewPos[0];
+    float yToAdd = (k * u) / viewPos[1];
+    float zToAdd = (k * l) / viewPos[2];
+
+    viewMatrixForCalc[12] = viewMatrixForCalc[12] * (1.0f + xToAdd);
+    viewMatrixForCalc[13] = viewMatrixForCalc[13] * (1.0f + yToAdd);
+    viewMatrixForCalc[14] = viewMatrixForCalc[14] * (1.0f + zToAdd);
+
     Matrix.invertM(viewMatrixForCalc, 0, viewMatrixForCalc, 0);
 
+    float xToMultiple = touchPoint.getX() - (0.5f * screenWidth);
+    float yToMultiple = touchPoint.getY() - (0.5f * screenHeight);
+//    xToMultiple *= extendRate;
+//    yToMultiple *= extendRate;
 
-    Ray touchRay = projectRay(new Vector2f(touchPoint.getX(), touchPoint.getY()), screenWidth, screenHeight, projectionMatrix,
-      viewMatrixForCalc);
+//    Log.e(TAG, "GetWorldCoords: 원래 x, y:: " + touchPoint.getX() + ", " + touchPoint.getY());
+//    Log.e(TAG, "GetWorldCoords: 보정 x, y:: " + ((0.5f * screenWidth) + xToMultiple) + ", " + ((0.5f * screenHeight) + yToMultiple));
+
+    Ray touchRay = projectRay(
+      new Vector2f(
+        (0.5f * screenWidth) + xToMultiple,
+        (0.5f * screenHeight) + yToMultiple),
+      screenWidth,
+      screenHeight,
+      projectionMatrix,
+      viewMatrixForCalc
+    );
+//    Ray touchRay = projectRay(new Vector2f(touchPoint.getX(), touchPoint.getY()), screenWidth, screenHeight, projectionMatrix,
+//      viewMatrixForCalc);
     touchRay.direction.scale(AppSettings.getStrokeDrawDistance());
     touchRay.origin.add(touchRay.direction);
     return touchRay.origin;

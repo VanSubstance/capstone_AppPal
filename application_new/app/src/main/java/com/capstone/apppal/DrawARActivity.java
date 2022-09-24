@@ -19,30 +19,22 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.ImageFormat;
 import android.graphics.Rect;
-import android.graphics.YuvImage;
 import android.icu.util.Calendar;
-import android.media.Image;
-import android.nfc.Tag;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
-import com.capstone.apppal.VO.CoordinateInfo;
 import com.capstone.apppal.VO.TestCase;
 import com.capstone.apppal.analytics.AnalyticsEvents;
 import com.capstone.apppal.analytics.Fa;
@@ -53,17 +45,14 @@ import com.capstone.apppal.rendering.LineShaderRenderer;
 import com.capstone.apppal.rendering.LineUtils;
 import com.capstone.apppal.rendering.PointCloudRenderer;
 import com.capstone.apppal.utils.GlobalState;
-import com.capstone.apppal.view.BrushSelector;
-import com.capstone.apppal.view.ClearDrawingDialog;
-import com.capstone.apppal.view.ColorSelector;
-import com.capstone.apppal.view.ErrorDialog;
-import com.capstone.apppal.view.LeaveRoomDialog;
+import com.capstone.apppal.view.dialog.ClearDrawingDialog;
+import com.capstone.apppal.view.dialog.ErrorDialog;
+import com.capstone.apppal.view.dialog.LeaveRoomDialog;
 import com.capstone.apppal.view.MenuSelector;
 import com.capstone.apppal.view.PairButton;
 import com.capstone.apppal.view.PairButtonToolTip;
 import com.capstone.apppal.view.PairView;
 import com.capstone.apppal.view.PlaybackView;
-import com.capstone.apppal.view.ToolSelector;
 import com.capstone.apppal.view.TrackingIndicator;
 import com.google.ar.core.Anchor;
 import com.google.ar.core.ArCoreApk;
@@ -75,18 +64,10 @@ import com.google.ar.core.Session;
 import com.google.ar.core.TrackingState;
 import com.google.ar.core.exceptions.CameraNotAvailableException;
 import com.google.ar.core.exceptions.NotTrackingException;
-import com.google.ar.core.exceptions.NotYetAvailableException;
-import com.google.mediapipe.formats.proto.LandmarkProto;
-import com.google.mediapipe.solutions.hands.HandLandmark;
-import com.google.mediapipe.solutions.hands.Hands;
-import com.google.mediapipe.solutions.hands.HandsOptions;
-import com.google.mediapipe.solutions.hands.HandsResult;
 import com.uncorkedstudios.android.view.recordablesurfaceview.RecordableSurfaceView;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -96,7 +77,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 
-import javax.vecmath.Vector2f;
 import javax.vecmath.Vector3f;
 
 
@@ -128,7 +108,6 @@ public class DrawARActivity extends BaseActivity
 
   private View mDrawUiContainer;
 
-  // Set to true ensures requestInstall() triggers installation if necessary.
   private boolean mUserRequestedARCoreInstall = true;
 
   private RecordableSurfaceView mSurfaceView;
@@ -138,7 +117,6 @@ public class DrawARActivity extends BaseActivity
   private BackgroundRenderer mBackgroundRenderer = new BackgroundRenderer();
 
   private LineShaderRenderer mLineShaderRenderer = new LineShaderRenderer();
-//    private DebugMeshShaderRenderer mLineShaderRenderer = new DebugMeshShaderRenderer();
 
   private final PointCloudRenderer pointCloud = new PointCloudRenderer();
 
@@ -189,15 +167,11 @@ public class DrawARActivity extends BaseActivity
 
   private File mOutputFile;
 
-  private MenuSelector mMenuSelector;
-
   private View mUndoButton;
 
   private TrackingIndicator mTrackingIndicator;
 
   private View mClearDrawingButton;
-
-  private Handler mHandler = new Handler(Looper.getMainLooper());
 
   /*
    * Track number frames where we lose ARCore tracking. If we lose tracking for less than
@@ -208,8 +182,6 @@ public class DrawARActivity extends BaseActivity
   private int mFramesNotTracked = 0;
 
   private PlaybackView mPlaybackView;
-
-  private boolean mDebugEnabled = false;
 
   private long mRenderDuration;
 
@@ -237,6 +209,13 @@ public class DrawARActivity extends BaseActivity
 
   private HandTracking handTracking;
 
+  /**
+   * 메뉴 관리자
+   */
+  public static MenuSelector mMenuSelector;
+
+  public static ProgressBar gestureProgressBar;
+
 
   /**
    * Setup the app when main activity is created
@@ -256,6 +235,8 @@ public class DrawARActivity extends BaseActivity
 
     mSurfaceView = findViewById(R.id.surfaceview);
     mSurfaceView.setRendererCallbacks(this);
+
+    gestureProgressBar = findViewById(R.id.gesture_progress_bar);
 
     mClearDrawingButton = findViewById(R.id.menu_item_clear);
     mClearDrawingButton.setOnClickListener(this);

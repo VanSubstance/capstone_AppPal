@@ -27,13 +27,14 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.capstone.apppal.AppSettings;
 import com.capstone.apppal.R;
+import com.capstone.apppal.VO.GestureType;
 
 /**
  * Created by Kat on 11/13/17.
  * Custom view for selecting brush size
  */
 
-public class BrushSelector extends ConstraintLayout implements View.OnClickListener {
+public class BrushSelector extends ConstraintLayout {
 
   private static final String TAG = "BrushSelector";
 
@@ -82,15 +83,10 @@ public class BrushSelector extends ConstraintLayout implements View.OnClickListe
     inflate(getContext(), R.layout.view_brush_selector, this);
 
     mBackground = findViewById(R.id.brush_background_pie);
-    mBackground.setOnClickListener(this);
 
     mSmallButton = findViewById(R.id.brush_selection_small);
     mMediumButton = findViewById(R.id.brush_selection_medium);
     mLargeButton = findViewById(R.id.brush_selection_large);
-
-    mSmallButton.setOnClickListener(this);
-    mMediumButton.setOnClickListener(this);
-    mLargeButton.setOnClickListener(this);
 
     mBackground.setOnTouchListener(new OnTouchListener() {
       @Override
@@ -158,27 +154,22 @@ public class BrushSelector extends ConstraintLayout implements View.OnClickListe
     toggleBrushSelectorVisibility();
   }
 
-  @Override
-  public void onClick(View view) {
-
+  public void handleMenu(GestureType nowGesture) {
     AppSettings.LineWidth lineWidth = null;
-    switch (view.getId()) {
-      case R.id.brush_button:
-        toggleBrushSelectorVisibility();
-        return;
-      case R.id.brush_selection_small:
+    switch (nowGesture) {
+      case ONE:
         lineWidth = AppSettings.LineWidth.SMALL;
         break;
-      case R.id.brush_selection_medium:
+      case TWO:
         lineWidth = AppSettings.LineWidth.MEDIUM;
         break;
-      case R.id.brush_selection_large:
+      case THREE:
         lineWidth = AppSettings.LineWidth.LARGE;
         break;
+      default:
+        break;
     }
-
     onBrushSizeSelected(lineWidth);
-
     toggleBrushSelectorVisibility();
   }
 

@@ -25,14 +25,16 @@ import android.widget.ImageView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.capstone.apppal.AppSettings;
+import com.capstone.apppal.DrawARActivity;
 import com.capstone.apppal.R;
+import com.capstone.apppal.VO.GestureType;
 
 /**
  * Created by Kat on 11/13/17.
  * Custom view for selecting brush size
  */
 
-public class ToolSelector extends ConstraintLayout implements View.OnClickListener {
+public class ToolSelector extends ConstraintLayout {
 
   private static final String TAG = "ToolSelector";
 
@@ -85,19 +87,12 @@ public class ToolSelector extends ConstraintLayout implements View.OnClickListen
     inflate(getContext(), R.layout.view_tool_selector, this);
 
     mBackground = findViewById(R.id.tool_background_pie);
-    mBackground.setOnClickListener(this);
 
     mNormalPenButton = findViewById(R.id.tool_selection_pen);
     mStraightLineButton = findViewById(R.id.tool_selection_line);
     mCubeButton = findViewById(R.id.tool_selection_cube);
     mRectButton = findViewById(R.id.tool_selection_rect);
     mEraseButton = findViewById(R.id.tool_selection_erase);
-
-    mNormalPenButton.setOnClickListener(this);
-    mStraightLineButton.setOnClickListener(this);
-    mCubeButton.setOnClickListener(this);
-    mRectButton.setOnClickListener(this);
-    mEraseButton.setOnClickListener(this);
 
     mBackground.setOnTouchListener(new OnTouchListener() {
       @Override
@@ -188,33 +183,28 @@ public class ToolSelector extends ConstraintLayout implements View.OnClickListen
     toggleToolSelectorVisibility();
   }
 
-  @Override
-  public void onClick(View view) {
-
+  public void handleMenu(GestureType nowGesture) {
     AppSettings.ToolType toolType = null;
-    switch (view.getId()) {
-      case R.id.tool_button:
-        toggleToolSelectorVisibility();
-        return;
-      case R.id.tool_selection_pen:
-        toolType = AppSettings.ToolType.NORMAL_PEN;
-        break;
-      case R.id.tool_selection_line:
-        toolType = AppSettings.ToolType.STRAIGHT_LINE;
-        break;
-      case R.id.tool_selection_cube:
-        toolType = AppSettings.ToolType.CUBE;
-        break;
-      case R.id.tool_selection_rect:
-        toolType = AppSettings.ToolType.RECT;
-        break;
-      case R.id.tool_selection_erase:
+    switch (nowGesture) {
+      case ONE:
         toolType = AppSettings.ToolType.ERASE;
         break;
+      case TWO:
+        toolType = AppSettings.ToolType.RECT;
+        break;
+      case THREE:
+        toolType = AppSettings.ToolType.CUBE;
+        break;
+      case FOUR:
+        toolType = AppSettings.ToolType.STRAIGHT_LINE;
+        break;
+      case FIVE:
+        toolType = AppSettings.ToolType.NORMAL_PEN;
+        break;
+      default:
+        break;
     }
-
     onToolSelected(toolType);
-
     toggleToolSelectorVisibility();
   }
 
@@ -229,27 +219,21 @@ public class ToolSelector extends ConstraintLayout implements View.OnClickListen
    */
   private void onToolSelected(AppSettings.ToolType toolType) {
     mSelectedToolType = toolType;
-
     switch (toolType) {
       case ERASE:
-//        mSelectedToolIndicator.setImageResource(R.drawable.ic_clear);
         mSelectedTool = ERASE;
         break;
       case STRAIGHT_LINE:
-//        mSelectedToolIndicator.setImageResource(R.drawable.ic_selection_straight_line);
         mSelectedTool = STRAIGHT_LINE;
         break;
       case CUBE:
-//        mSelectedToolIndicator.setImageResource(R.drawable.ic_selection_cube);
         mSelectedTool = CUBE;
         break;
       case RECT:
-//        mSelectedToolIndicator.setImageResource(R.drawable.ic_selection_rect);
         mSelectedTool = RECT;
         break;
       default:
       case NORMAL_PEN:
-//        mSelectedToolIndicator.setImageResource(R.drawable.ic_brush_size_option);
         mSelectedTool = NORMAL_PEN;
         break;
     }
