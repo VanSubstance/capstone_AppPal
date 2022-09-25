@@ -23,7 +23,7 @@ import java.util.HashMap;
 public class ListFragment extends Fragment {
   public final static int CREATE_OPTION_MODE = 0;
   public final static int ENTER_OPTION_MODE = 1;
-  public final static int ROOM_OPTION_MODE = 2;
+  public final static int ROOM_LIST_OPTION_MODE = 2;
 
   private int currentOption;
   private RecyclerView mListView;
@@ -103,7 +103,66 @@ public class ListFragment extends Fragment {
 
               @Override
               public void onMainButtonClick() {
-                ((OnBoardingActivity) getActivity()).enterDrawingRoom();
+                InputDialog titledDialog = new InputDialog(getContext(), new InputDialog.DataTransfer() {
+                  @Override
+                  public InputDialog.Data getData() {
+                    InputDialog.Data data = new InputDialog.Data();
+                    data.setIsEncrypted(false);
+                    data.setTextMain("그림방의 이름을 설정해주세요!");
+                    data.setTextEdit("신나는 그림방");
+                    data.setMaxLength(12);
+                    data.setTextMainButton("확인");
+                    data.setTextSubButton("취소");
+                    return data;
+                  }
+
+                  @Override
+                  public void onMainButtonClick(String inputText) {
+                    /**
+                     * 신규 방 제목 규칙 확인 위치
+                     */
+                    Log.e("TAG", "onMainButtonClick: 확인:: 방 제목:: " + inputText);
+                    InputDialog passwordDialog = new InputDialog(getContext(), new InputDialog.DataTransfer() {
+                      @Override
+                      public InputDialog.Data getData() {
+                        InputDialog.Data data = new InputDialog.Data();
+                        data.setIsEncrypted(true);
+                        data.setTextMain("그림방의 비밀번호을 설정해주세요!");
+                        data.setMaxLength(16);
+                        data.setTextMainButton("확인");
+                        data.setTextSubButton("취소");
+                        return data;
+                      }
+
+                      @Override
+                      public void onMainButtonClick(String inputText) {
+                        /**
+                         * 신규 방 비밀번호 규칙 확인 위치
+                         */
+                        Log.e("TAG", "onMainButtonClick: 확인:: 방 비밀번호:: " + inputText);
+                        ((OnBoardingActivity) getActivity()).enterDrawingRoom();
+                      }
+
+                      @Override
+                      public void onSubButtonClick(String inputText) {
+                      }
+
+                    });
+                    passwordDialog.setCanceledOnTouchOutside(true);
+                    passwordDialog.setCancelable(true);
+                    passwordDialog.getWindow().setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT);
+                    passwordDialog.show();
+                  }
+
+                  @Override
+                  public void onSubButtonClick(String inputText) {
+                  }
+
+                });
+                titledDialog.setCanceledOnTouchOutside(true);
+                titledDialog.setCancelable(true);
+                titledDialog.getWindow().setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT);
+                titledDialog.show();
               }
 
               @Override
@@ -138,7 +197,7 @@ public class ListFragment extends Fragment {
         mDataSet[0].put("func", new View.OnClickListener() {
           @Override
           public void onClick(View view) {
-            Log.e("TAG", "onClick: 내 그림방 리스트 보기 클릭!!");
+            ((OnBoardingActivity) getActivity()).goToListFragment(ListFragment.ROOM_LIST_OPTION_MODE);
           }
         });
         mDataSet[1] = new HashMap<>();
@@ -162,6 +221,11 @@ public class ListFragment extends Fragment {
 
               @Override
               public void onMainButtonClick(String inputText) {
+                /** @김종규
+                 * 코드를 통한 방 조회 위치
+                 * 방이 있다 -> 비밀번호 확인 모달 띄우기
+                 * 방이 없다 -> 에러 모달 띄우기
+                 */
                 Log.e("TAG", "onMainButtonClick: 확인:: 방 코드:: " + inputText);
                 InputDialog passwordDialog = new InputDialog(getContext(), new InputDialog.DataTransfer() {
                   @Override
@@ -177,12 +241,14 @@ public class ListFragment extends Fragment {
 
                   @Override
                   public void onMainButtonClick(String inputText) {
+                    /** @김종규
+                     * 방 코드로 입장할 때 비밀번호 확인 위치
+                     */
                     Log.e("TAG", "onMainButtonClick: 확인:: 비밀번호:: " + inputText);
                   }
 
                   @Override
                   public void onSubButtonClick(String inputText) {
-                    Log.e("TAG", "onMainButtonClick: 취소");
                   }
 
                 });
@@ -194,7 +260,6 @@ public class ListFragment extends Fragment {
 
               @Override
               public void onSubButtonClick(String inputText) {
-                Log.e("TAG", "onMainButtonClick: 취소");
               }
 
             });
@@ -205,15 +270,59 @@ public class ListFragment extends Fragment {
           }
         });
         break;
-      case ROOM_OPTION_MODE:
+      case ROOM_LIST_OPTION_MODE:
+        /** @김종규
+         * 나의 방 목록 리스트 페이지 초기화
+         * 방 목록 데이터 넘겨주기
+         * 더미:: 10개
+         */
+        int dummyLen = 10;
+        mDataSet = new HashMap[dummyLen];
+        for (int i = 0; i < dummyLen; i++) {
+          mDataSet[i] = new HashMap<>();
+          mDataSet[i].put("viewType", RecyclerViewAdapter.SECOND_TYPE);
+          mDataSet[i].put("title", "그림방 제목:: " + i);
+          mDataSet[i].put("desc", null);
+          int finalI = i;
+          mDataSet[i].put("func", new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+              /** @김종규
+               * 방 입장
+               * 본인 방이기 때문에 비밀번호는 필요없다
+               * 그냥 입장할래? 물어보고 입장
+               */
+              ConfirmDialog confirmDialog = new ConfirmDialog(getContext(), new ConfirmDialog.DataTransfer() {
+                @Override
+                public ConfirmDialog.Data getData() {
+                  ConfirmDialog.Data data = new ConfirmDialog.Data();
+                  data.setTextMain("[ 그림방 제목:: " + finalI + " ]\n해당 그림방으로 입장하시겠습니까?");
+                  data.setTextMainButton("네");
+                  data.setTextSubButton("아니오");
+                  return data;
+                }
+
+                @Override
+                public void onMainButtonClick() {
+                  /** @김종규
+                   * 해당 방으로 입장
+                   */
+                }
+
+                @Override
+                public void onSubButtonClick() {
+                }
+
+              });
+              confirmDialog.setCanceledOnTouchOutside(true);
+              confirmDialog.setCancelable(true);
+              confirmDialog.getWindow().setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT);
+              confirmDialog.show();
+            }
+          });
+        }
         break;
       default:
-        mDataSet = new HashMap[GlobalState.MAXIMUM_COUNT_FOR_LIST];
-        for (int i = 0; i < GlobalState.MAXIMUM_COUNT_FOR_LIST; i++) {
-          mDataSet[i] = new HashMap<>();
-          mDataSet[i].put("title", "This is element #" + i);
-          mDataSet[i].put("desc", "보조 텍스트란:: " + i);
-        }
         break;
     }
   }
