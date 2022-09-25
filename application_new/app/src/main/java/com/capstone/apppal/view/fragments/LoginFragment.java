@@ -36,9 +36,6 @@ import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.capstone.apppal.utils.GlobalState;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.Executor;
 
 public class LoginFragment extends Fragment {
   private final static String TAG = "LoginFragment";
@@ -123,24 +120,6 @@ public class LoginFragment extends Fragment {
     Message message = loadingHandler.obtainMessage();
     message.arg1 = LOADING_INIT;
     loadingHandler.sendMessage(message);
-    Thread loadingThread = new Thread(new Runnable() {
-      @Override
-      public void run() {
-        int time = 0;
-        while (time != 1) {
-          try {
-            time += 1;
-            Thread.sleep(1000);
-          } catch (InterruptedException e) {
-            e.printStackTrace();
-          }
-        }
-        Message message = loadingHandler.obtainMessage();
-        message.arg1 = LOADING_DONE;
-        loadingHandler.sendMessage(message);
-      }
-    });
-    loadingThread.start();
 
     Intent signInIntent = mGoogleSignInClient.getSignInIntent();
     startActivityForResult(signInIntent, RC_SIGN_IN);
@@ -189,6 +168,9 @@ public class LoginFragment extends Fragment {
   }
 
   private void updateUI(FirebaseUser user) { //update ui code here
+    Message message = loadingHandler.obtainMessage();
+    message.arg1 = LOADING_DONE;
+    loadingHandler.sendMessage(message);
     if (user != null) {
       ((OnBoardingActivity) getActivity()).goToListFragment(ListFragment.CREATE_OPTION_MODE);
     }
