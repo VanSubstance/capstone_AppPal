@@ -64,6 +64,10 @@ public class OnBoardingActivity extends AppCompatActivity {
   public void enterDrawingRoom() {
     Intent drawingIntent = new Intent(this, DrawARActivity.class);
     startActivity(drawingIntent);
-//    finish();
+    finish();
+  }
+
+  public void makeRoom(){
+
   }
 }

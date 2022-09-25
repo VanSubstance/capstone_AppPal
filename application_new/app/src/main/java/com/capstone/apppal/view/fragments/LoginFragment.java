@@ -1,5 +1,8 @@
+
+
 package com.capstone.apppal.view.fragments;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -32,9 +35,10 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-
+import com.capstone.apppal.utils.GlobalState;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.Executor;
 
 public class LoginFragment extends Fragment {
   private final static String TAG = "LoginFragment";
@@ -60,7 +64,6 @@ public class LoginFragment extends Fragment {
       } else {
 //        signInButton.setVisibility(View.VISIBLE);
 //        mLoginProgressBar.setVisibility(View.GONE);
-        ((OnBoardingActivity) getActivity()).goToListFragment(ListFragment.CREATE_OPTION_MODE);
       }
     }
   };
@@ -99,12 +102,12 @@ public class LoginFragment extends Fragment {
 //      startActivity(intent);
 //      finish();
 //    }
-    // Configure Google Sign In
-//    GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-//      .requestIdToken(getString(R.string.default_web_client_id))
-//      .requestEmail()
-//      .build();
-//    mGoogleSignInClient = GoogleSignIn.getClient(this.getContext(), gso);
+    //Configure Google Sign In
+    GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(getString(R.string.default_web_client_id))
+            .requestEmail()
+            .build();
+    mGoogleSignInClient = GoogleSignIn.getClient(this.getContext(), gso);
 
     signInButton.setOnClickListener(new View.OnClickListener() {
       @Override
@@ -139,8 +142,8 @@ public class LoginFragment extends Fragment {
     });
     loadingThread.start();
 
-//    Intent signInIntent = mGoogleSignInClient.getSignInIntent();
-//    startActivityForResult(signInIntent, RC_SIGN_IN);
+    Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+    startActivityForResult(signInIntent, RC_SIGN_IN);
   }
 
   @Override
@@ -161,33 +164,34 @@ public class LoginFragment extends Fragment {
 
   private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
     AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
-//    mAuth.signInWithCredential(credential)
-//      .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-//        @Override
-//        public void onComplete(@NonNull Task<AuthResult> task) {
-//          if (task.isSuccessful()) {
-//            // Sign in success, update UI with the signed-in user's information
-//            database = FirebaseDatabase.getInstance();
-//            databaseReference = database.getReference();
-//            FirebaseUser user = mAuth.getCurrentUser();
-//            String uid = user.getUid();
-//            String personName = acct.getDisplayName();
-//            String personEmail = acct.getEmail();
-//            String personId = acct.getId();
-//            UserInfo info = new UserInfo(personId, personEmail, personName);
-//            databaseReference.child("Users").child(uid).setValue(info);
-//            updateUI(user);
-//          } else {
-//            // If sign in fails, display a message to the user.
-//            updateUI(null);
-//          }
-//        }
-//      });
+    mAuth.signInWithCredential(credential).addOnCompleteListener((Activity) getContext(), new OnCompleteListener<AuthResult>() {
+      @Override
+      public void onComplete(@NonNull Task<AuthResult> task) {
+        if (task.isSuccessful()) {
+          // Sign in success, update UI with the signed-in user's information
+          database = FirebaseDatabase.getInstance();
+          databaseReference = database.getReference();
+          FirebaseUser user = mAuth.getCurrentUser();
+          String uid = user.getUid();
+          GlobalState.useruid = uid;
+          String personName = acct.getDisplayName();
+          String personEmail = acct.getEmail();
+          String personId = acct.getId();
+          UserInfo info = new UserInfo(personId, personEmail, personName);
+          databaseReference.child("Users").child(uid).setValue(info);
+          updateUI(user);
+        } else {
+          // If sign in fails, display a message to the user.
+          updateUI(null);
+        }
+      }
+    });
   }
 
   private void updateUI(FirebaseUser user) { //update ui code here
     if (user != null) {
-      ((OnBoardingActivity) getActivity()).enterDrawingRoom();
+      ((OnBoardingActivity) getActivity()).goToListFragment(ListFragment.CREATE_OPTION_MODE);
     }
   }
 }
+
