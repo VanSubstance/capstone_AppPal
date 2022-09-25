@@ -41,15 +41,6 @@ android {
     lintOptions {
         abortOnError false
     }
-    sourceSets {
-        main {
-            res.srcDirs =
-                    [
-                            'src/main/res/layout',
-                            'src/main/res'
-                    ]
-        }
-    }
 }
 
 dependencies {
