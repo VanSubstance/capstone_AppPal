@@ -28,6 +28,7 @@ import com.capstone.apppal.analytics.AnalyticsEvents;
 import com.capstone.apppal.analytics.Fa;
 import com.capstone.apppal.model.RoomData;
 import com.capstone.apppal.model.Stroke;
+import com.capstone.apppal.utils.GlobalState;
 import com.capstone.apppal.view.PairView;
 import com.google.android.gms.nearby.Nearby;
 import com.google.android.gms.nearby.messages.Message;
@@ -78,7 +79,7 @@ public class PairSessionManager
 
     private final HostedAnchorManager mHostManager = new HostedAnchorManager();
 
-    String mUserUid;
+    String mUserUid = GlobalState.useruid;
 
     private FirebaseAuth mFirebaseAuth;
 
@@ -178,18 +179,6 @@ public class PairSessionManager
             }
         };
     }
-
-    public void login(Activity activity) {
-
-        FirebaseUser currentUser = mFirebaseAuth.getCurrentUser();
-        if (currentUser != null) {
-            Log.d(TAG, "onStart: user uid " + currentUser.getUid());
-            mUserUid = currentUser.getUid();
-        } else {
-            loginAnonymously(activity);
-        }
-    }
-
     boolean mLogInInProgress = false;
 
     void loginAnonymously(final Activity activity) {

@@ -13,23 +13,36 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.capstone.apppal.OnBoardingActivity;
 import com.capstone.apppal.R;
+import com.capstone.apppal.RoomHandler;
+import com.capstone.apppal.VO.RoomsInfo;
 import com.capstone.apppal.utils.GlobalState;
 import com.capstone.apppal.view.dialog.ConfirmDialog;
 import com.capstone.apppal.view.dialog.InputDialog;
 import com.capstone.apppal.view.item.RecyclerViewAdapter;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 
 public class ListFragment extends Fragment {
   public final static int CREATE_OPTION_MODE = 0;
   public final static int ENTER_OPTION_MODE = 1;
   public final static int ROOM_LIST_OPTION_MODE = 2;
-
+//  private RoomsInfo roomsInfo;
   private int currentOption;
   private RecyclerView mListView;
   private RecyclerViewAdapter mRecyclerViewAdapter;
   private RecyclerView.LayoutManager mLayoutManager;
   private HashMap<String, Object>[] mDataSet;
+
+
+  private FirebaseDatabase database;
+  private FirebaseAuth mAuth = null;
 
   public ListFragment() {
     super();
@@ -83,6 +96,7 @@ public class ListFragment extends Fragment {
   private void initDataset() {
     switch (currentOption) {
       case CREATE_OPTION_MODE:
+        RoomsInfo roomsInfo = new RoomsInfo();
         mDataSet = new HashMap[2];
         mDataSet[0] = new HashMap<>();
         mDataSet[0].put("viewType", RecyclerViewAdapter.BASE_TYPE);
@@ -103,6 +117,11 @@ public class ListFragment extends Fragment {
 
               @Override
               public void onMainButtonClick() {
+                database = FirebaseDatabase.getInstance();
+                mAuth = FirebaseAuth.getInstance();
+                FirebaseUser user = mAuth.getCurrentUser();
+                String uid = user.getUid();
+                roomsInfo.setUid(uid);
                 InputDialog titledDialog = new InputDialog(getContext(), new InputDialog.DataTransfer() {
                   @Override
                   public InputDialog.Data getData() {
@@ -121,6 +140,7 @@ public class ListFragment extends Fragment {
                     /**
                      * 신규 방 제목 규칙 확인 위치
                      */
+                    roomsInfo.setTitle(inputText);
                     Log.e("TAG", "onMainButtonClick: 확인:: 방 제목:: " + inputText);
                     InputDialog passwordDialog = new InputDialog(getContext(), new InputDialog.DataTransfer() {
                       @Override
@@ -139,7 +159,10 @@ public class ListFragment extends Fragment {
                         /**
                          * 신규 방 비밀번호 규칙 확인 위치
                          */
+                        roomsInfo.setPasssword(Encrypted(inputText));
                         Log.e("TAG", "onMainButtonClick: 확인:: 방 비밀번호:: " + inputText);
+                        RoomHandler roomhandler = new RoomHandler();
+                        roomhandler.singleRoomCreate(roomsInfo);
                         ((OnBoardingActivity) getActivity()).enterDrawingRoom();
                       }
 
@@ -245,6 +268,7 @@ public class ListFragment extends Fragment {
                      * 방 코드로 입장할 때 비밀번호 확인 위치
                      */
                     Log.e("TAG", "onMainButtonClick: 확인:: 비밀번호:: " + inputText);
+
                   }
 
                   @Override
@@ -325,5 +349,34 @@ public class ListFragment extends Fragment {
       default:
         break;
     }
+  }
+  public String Encrypted (String password) {
+    String result = "";
+    try {
+			/* MessageDigest 클래스의 getInstance() 메소드의 매개변수에 "SHA-256" 알고리즘 이름을 지정함으로써
+				해당 알고리즘에서 해시값을 계산하는 MessageDigest를 구할 수 있다 */
+      MessageDigest mdSHA256 = MessageDigest.getInstance("SHA-256");
+
+      // 데이터(패스워드 평문)를 한다. 즉 '암호화'와 유사한 개념
+      mdSHA256.update(password.getBytes("UTF-8"));
+
+      // 바이트 배열로 해쉬를 반환한다.
+      byte[] sha256Hash = mdSHA256.digest();
+
+      // StringBuffer 객체는 계속해서 append를 해도 객체는 오직 하나만 생성된다. => 메모리 낭비 개선
+      StringBuffer hexSHA256hash = new StringBuffer();
+
+      // 256비트로 생성 => 32Byte => 1Byte(8bit) => 16진수 2자리로 변환 => 16진수 한 자리는 4bit
+      for(byte b : sha256Hash) {
+        String hexString = String.format("%02x", b);
+        hexSHA256hash.append(hexString);
+      }
+      result = hexSHA256hash.toString();
+    }catch(NoSuchAlgorithmException e) {
+      e.printStackTrace();
+    }catch (UnsupportedEncodingException e) {
+      e.printStackTrace();
+    }
+    return result;
   }
 }
