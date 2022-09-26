@@ -43,6 +43,7 @@ public class ListFragment extends Fragment {
 
   private FirebaseDatabase database;
   private FirebaseAuth mAuth = null;
+  private String email;
 
   public ListFragment() {
     super();
@@ -120,6 +121,7 @@ public class ListFragment extends Fragment {
                 database = FirebaseDatabase.getInstance();
                 mAuth = FirebaseAuth.getInstance();
                 FirebaseUser user = mAuth.getCurrentUser();
+                email = user.getEmail();
                 String uid = user.getUid();
                 roomsInfo.setUid(uid);
                 InputDialog titledDialog = new InputDialog(getContext(), new InputDialog.DataTransfer() {
@@ -159,7 +161,7 @@ public class ListFragment extends Fragment {
                         /**
                          * 신규 방 비밀번호 규칙 확인 위치
                          */
-                        roomsInfo.setPasssword(Encrypted(inputText));
+                        roomsInfo.setPasssword(Encrypted(inputText, email));
                         Log.e("TAG", "onMainButtonClick: 확인:: 방 비밀번호:: " + inputText);
                         RoomHandler roomhandler = new RoomHandler();
                         roomhandler.singleRoomCreate(roomsInfo);
@@ -350,15 +352,16 @@ public class ListFragment extends Fragment {
         break;
     }
   }
-  public String Encrypted (String password) {
+  public String Encrypted (String password, String email) {
     String result = "";
+    String input = password + email;
     try {
 			/* MessageDigest 클래스의 getInstance() 메소드의 매개변수에 "SHA-256" 알고리즘 이름을 지정함으로써
 				해당 알고리즘에서 해시값을 계산하는 MessageDigest를 구할 수 있다 */
       MessageDigest mdSHA256 = MessageDigest.getInstance("SHA-256");
 
-      // 데이터(패스워드 평문)를 한다. 즉 '암호화'와 유사한 개념
-      mdSHA256.update(password.getBytes("UTF-8"));
+      // 데이터(패스워드+ email)를 한다. 즉 '암호화'와 유사한 개념
+      mdSHA256.update(input.getBytes("UTF-8"));
 
       // 바이트 배열로 해쉬를 반환한다.
       byte[] sha256Hash = mdSHA256.digest();
