@@ -15,8 +15,10 @@
 package com.capstone.apppal;
 
 import android.content.Context;
+import android.text.style.TtsSpan;
 import android.util.Log;
 
+import com.capstone.apppal.VO.RoomsInfo;
 import com.capstone.apppal.model.Anchor;
 import com.capstone.apppal.model.Participant;
 import com.capstone.apppal.model.RoomData;
@@ -106,6 +108,8 @@ import java.util.Set;
         void onNoPartnersDetected();
     }
 
+    // Database Reference
+    private FirebaseDatabase database = FirebaseDatabase.getInstance();
 
     private static final String TAG = "RoomManager";
 
@@ -159,7 +163,6 @@ import java.util.Set;
     private ValueEventListener anchorResolutionListener;
 
     private OnDisconnect onDisconnectRef;
-
     private Set<String> localStrokeUids = new HashSet<>();
 
     /*
@@ -185,7 +188,6 @@ import java.util.Set;
         if (app != null) {
             final DatabaseReference rootRef = FirebaseDatabase.getInstance(app).getReference();
             roomsListRef = rootRef.child(ROOT_FIREBASE_ROOMS);
-
             DatabaseReference.goOnline();
         } else {
             Log.d(TAG, "Could not connect to Firebase Database!");
@@ -205,6 +207,13 @@ import java.util.Set;
             listener.onRoomCreated(null, null);
             return;
         }
+//        RoomsInfo roomsInfo = new RoomsInfo();
+//        if(isPairing == false) {
+//            roomsListRef.setValue(roomcode);
+//            Long timestamp = System.currentTimeMillis();
+//            roomsInfo.setTimestamp(timestamp);
+//            roomsListRef.child(roomcode).setValue(roomsInfo);
+//        }
         isPairing = true;
 
         Log.d(TAG, "Creating room");
@@ -216,6 +225,7 @@ import java.util.Set;
         roomRef.child(KEY_TIMESTAMP).setValue(timestamp);
 
         partnersRef = roomRef.child(KEY_PARTICIPANTS);
+
         Participant participant = Participant.readyToSetAnchor(false);
         partnersRef.child(uid).setValue(participant);
         onDisconnectRef = partnersRef.child(uid).onDisconnect();

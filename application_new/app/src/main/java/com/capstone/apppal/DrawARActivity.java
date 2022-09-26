@@ -294,7 +294,6 @@ public class DrawARActivity extends BaseActivity
   @Override
   protected void onStart() {
     super.onStart();
-    mPairSessionManager.login(this);
     if (mPairSessionManager.isPaired()) {
       mPairSessionManager.resumeListeners(this);
     }
