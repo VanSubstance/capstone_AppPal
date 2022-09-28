@@ -3,16 +3,16 @@ package com.capstone.apppal.VO;
 public class RoomsInfo {
   private String roomCode;
   private String uid;
-  private String passsword;
+  private String password;
   private Long timestamp;
   private String title;
 
   public RoomsInfo() {
   }
 
-  public RoomsInfo(String uid, String passsword, Long timestamp, String title) {
+  public RoomsInfo(String uid, String password, Long timestamp, String title) {
     this.uid = uid;
-    this.passsword = passsword;
+    this.password = password;
     this.timestamp = timestamp;
     this.title = title;
   }
@@ -34,11 +34,11 @@ public class RoomsInfo {
   }
 
   public String getPasssword() {
-    return passsword;
+    return password;
   }
 
-  public void setPasssword(String passsword) {
-    this.passsword = passsword;
+  public void setPasssword(String password) {
+    this.password = password;
   }
 
 
@@ -60,7 +60,7 @@ public class RoomsInfo {
 
   public String toString() {
     return "uid:: " + uid + "\n"
-      + "passsword:: " + passsword + "\n"
+      + "password:: " + password + "\n"
       + "timestamp:: " + timestamp + "\n"
       + "title:: " + title + "\n";
   }

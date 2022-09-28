@@ -30,6 +30,8 @@ import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.util.HashMap;
+
 public class OnBoardingActivity extends AppCompatActivity {
 
   /**
@@ -62,18 +64,24 @@ public class OnBoardingActivity extends AppCompatActivity {
     }
   }
 
+  public void goToListFragment(int optionMode, HashMap<String, Object>[] dataSet) {
+    // 로그인 직후일 경우
+    if (optionMode == ListFragment.CREATE_OPTION_MODE) {
+      listFragment = new ListFragment(optionMode, dataSet);
+      fragmentManager.beginTransaction().replace(R.id.fragment_frame, listFragment).commit();
+    } else {
+      listFragment = new ListFragment(optionMode, dataSet);
+      fragmentManager.beginTransaction().replace(R.id.fragment_frame, listFragment).addToBackStack("list::" + optionMode).commit();
+    }
+  }
+
   /**
-   * @구현
-   * 단순히 진입이 아닌 타겟 방 진입:: 신규도 마찬가지임
    * @param roomInfo
+   * @구현 단순히 진입이 아닌 타겟 방 진입:: 신규도 마찬가지임
    */
   public void enterDrawingRoom(RoomsInfo roomInfo) {
     Intent drawingIntent = new Intent(this, DrawARActivity.class);
     startActivity(drawingIntent);
     finish();
-  }
-
-  public void makeRoom(){
-
   }
 }
