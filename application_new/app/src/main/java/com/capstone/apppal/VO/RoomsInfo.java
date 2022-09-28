@@ -1,7 +1,5 @@
 package com.capstone.apppal.VO;
 
-import com.capstone.apppal.model.Anchor;
-
 public class RoomsInfo {
   private String uid;
   private String passsword;
@@ -49,6 +47,13 @@ public class RoomsInfo {
 
   public void setTimestamp(Long timestamp) {
     this.timestamp = timestamp;
+  }
+
+  public String toString() {
+    return "uid:: " + uid + "\n"
+      + "passsword:: " + passsword + "\n"
+      + "timestamp:: " + timestamp + "\n"
+      + "title:: " + title + "\n";
   }
 
 }

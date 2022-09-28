@@ -16,6 +16,8 @@ import com.capstone.apppal.OnBoardingActivity;
 import com.capstone.apppal.R;
 import com.capstone.apppal.RoomHandler;
 import com.capstone.apppal.VO.RoomsInfo;
+import com.capstone.apppal.network.SimpleCallback;
+import com.capstone.apppal.utils.CommonFunctions;
 import com.capstone.apppal.utils.GlobalState;
 import com.capstone.apppal.view.dialog.ChoiceDialog;
 import com.capstone.apppal.view.dialog.ConfirmDialog;
@@ -32,6 +34,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 
 public class ListFragment extends Fragment {
+  private final static String TAG = "ListFragment";
   public final static int CREATE_OPTION_MODE = 0;
   public final static int ENTER_OPTION_MODE = 1;
   public final static int ROOM_LIST_OPTION_MODE = 2;
@@ -42,17 +45,20 @@ public class ListFragment extends Fragment {
   private RecyclerView.LayoutManager mLayoutManager;
   private HashMap<String, Object>[] mDataSet;
 
-
-  private FirebaseDatabase database;
   private FirebaseAuth mAuth = null;
   private String email;
 
+  private FirebaseDatabase database;
+  private RoomHandler roomHandler;
+
   public ListFragment() {
     super();
+    roomHandler = new RoomHandler();
   }
 
   public ListFragment(int optionMode) {
     super();
+    roomHandler = new RoomHandler();
     currentOption = optionMode;
   }
 
@@ -156,8 +162,7 @@ public class ListFragment extends Fragment {
                       @Override
                       public void onMainButtonClick(String inputText) {
                         roomsInfo.setPasssword(Encrypted(inputText, email));
-                        RoomHandler roomhandler = new RoomHandler();
-                        roomhandler.singleRoomCreate(roomsInfo);
+                        roomHandler.singleRoomCreate(roomsInfo);
                         ((OnBoardingActivity) getActivity()).enterDrawingRoom();
                       }
 
@@ -220,7 +225,6 @@ public class ListFragment extends Fragment {
               public InputDialog.Data getData() {
                 InputDialog.Data data = new InputDialog.Data();
                 data.setTextMain("입장하고자 하시는 \n그림방 코드를 입력해주세요!");
-                data.setTextEdit("초기설정값");
                 data.setMaxLength(6);
                 data.setTextMainButton("확인");
                 data.setTextSubButton("취소");
@@ -229,83 +233,84 @@ public class ListFragment extends Fragment {
 
               @Override
               public void onMainButtonClick(String inputText) {
-                RoomsInfo roomInfo = getRoomInfo(inputText);
-                if (roomInfo != null) {
-                  Log.e("TAG", "onMainButtonClick: 확인:: 방 코드:: " + inputText);
-                  InputDialog passwordDialog = new InputDialog(getContext(), new InputDialog.DataTransfer() {
-                    @Override
-                    public InputDialog.Data getData() {
-                      InputDialog.Data data = new InputDialog.Data();
-                      data.setIsEncrypted(true);
-                      data.setTextMain("그림방의 비밀번호를 입력해주세요!");
-                      data.setMaxLength(16);
-                      data.setTextMainButton("확인");
-                      data.setTextSubButton("취소");
-                      return data;
-                    }
-
-                    @Override
-                    public void onMainButtonClick(String inputText) {
-                      if (checkPassword("방 코드", inputText)) {
-                        ChoiceDialog choiceDialog = new ChoiceDialog(getContext(), new ChoiceDialog.DataTransfer() {
-                          @Override
-                          public ChoiceDialog.Data getData() {
-                            ChoiceDialog.Data data = new ChoiceDialog.Data();
-                            data.setTextButton1("해당 방 입장");
-                            data.setTextButton2("클론 생성");
-                            return data;
-                          }
-
-                          @Override
-                          public void onButtonClick1() {
-                            ConfirmDialog confirmDialog = new ConfirmDialog(getContext(), new ConfirmDialog.DataTransfer() {
-                              @Override
-                              public ConfirmDialog.Data getData() {
-                                ConfirmDialog.Data data = new ConfirmDialog.Data();
-                                data.setTextMain("[ 그림방 제목:: " + "????" + " ]\n해당 그림방으로 입장하시겠습니까?");
-                                data.setTextMainButton("네");
-                                data.setTextSubButton("아니오");
-                                return data;
-                              }
-
-                              @Override
-                              public void onMainButtonClick() {
-                                enterRoom("방 코드");
-                              }
-
-                              @Override
-                              public void onSubButtonClick() {
-                                createClone("방 코드");
-                              }
-
-                            });
-                            launchDialog(confirmDialog);
-                          }
-
-                          @Override
-                          public void onButtonClick2() {
-                          }
-
-                          @Override
-                          public void onButtonClick3() {
-                          }
-                        });
-                        launchDialog(choiceDialog);
-                      } else {
-                        launchNoticeDialog("비밀번호가 틀렸습니다. \n다시 확인해주세요.");
+                roomHandler.getRoomInfo(inputText, roomInfo -> {
+                  Log.e(TAG, "onMainButtonClick: roomInfo:: " + roomInfo);
+                  if (roomInfo.getTitle() != null) {
+                    InputDialog passwordDialog = new InputDialog(getContext(), new InputDialog.DataTransfer() {
+                      @Override
+                      public InputDialog.Data getData() {
+                        InputDialog.Data data = new InputDialog.Data();
+                        data.setIsEncrypted(true);
+                        data.setTextMain("[" + roomInfo.getTitle() + "]\n" + "그림방의 비밀번호를 입력해주세요!");
+                        data.setMaxLength(16);
+                        data.setTextMainButton("확인");
+                        data.setTextSubButton("취소");
+                        return data;
                       }
 
-                    }
+                      @Override
+                      public void onMainButtonClick(String inputText) {
+                        if (checkPassword("방 코드", inputText)) {
+                          ChoiceDialog choiceDialog = new ChoiceDialog(getContext(), new ChoiceDialog.DataTransfer() {
+                            @Override
+                            public ChoiceDialog.Data getData() {
+                              ChoiceDialog.Data data = new ChoiceDialog.Data();
+                              data.setTextButton1("해당 방 입장");
+                              data.setTextButton2("클론 생성");
+                              return data;
+                            }
 
-                    @Override
-                    public void onSubButtonClick(String inputText) {
-                    }
+                            @Override
+                            public void onButtonClick1() {
+                              ConfirmDialog confirmDialog = new ConfirmDialog(getContext(), new ConfirmDialog.DataTransfer() {
+                                @Override
+                                public ConfirmDialog.Data getData() {
+                                  ConfirmDialog.Data data = new ConfirmDialog.Data();
+                                  data.setTextMain("[ 그림방 제목:: " + "????" + " ]\n해당 그림방으로 입장하시겠습니까?");
+                                  data.setTextMainButton("네");
+                                  data.setTextSubButton("아니오");
+                                  return data;
+                                }
 
-                  });
-                  launchDialog(passwordDialog);
-                } else {
-                  launchNoticeDialog("해당 코드의 그림방이 존재하지 않습니다. \n다시 확인해주세요.");
-                }
+                                @Override
+                                public void onMainButtonClick() {
+                                  enterRoom("방 코드");
+                                }
+
+                                @Override
+                                public void onSubButtonClick() {
+                                  createClone("방 코드");
+                                }
+
+                              });
+                              launchDialog(confirmDialog);
+                            }
+
+                            @Override
+                            public void onButtonClick2() {
+                            }
+
+                            @Override
+                            public void onButtonClick3() {
+                            }
+                          });
+                          launchDialog(choiceDialog);
+                        } else {
+                          launchNoticeDialog("비밀번호가 틀렸습니다. \n다시 확인해주세요.");
+                        }
+
+                      }
+
+                      @Override
+                      public void onSubButtonClick(String inputText) {
+                      }
+
+                    });
+                    launchDialog(passwordDialog);
+                  } else {
+                    launchNoticeDialog("해당 코드의 그림방이 존재하지 않습니다. \n다시 확인해주세요.");
+                  }
+                });
               }
 
               @Override
@@ -394,13 +399,6 @@ public class ListFragment extends Fragment {
    */
   private void enterRoom(String roomCode) {
 
-  }
-
-  /**
-   * @김종규 방 정보 받아오기
-   */
-  private RoomsInfo getRoomInfo(String roomCode) {
-    return null;
   }
 
   /**

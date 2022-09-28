@@ -3,6 +3,7 @@ package com.capstone.apppal.view.dialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -12,6 +13,7 @@ import androidx.annotation.NonNull;
 import com.capstone.apppal.R;
 
 public class ConfirmDialog extends Dialog {
+  private final static String TAG = "ConfirmDialog";
   private TextView mMainText;
   private Button mMainButton;
   private Button mSubButton;
