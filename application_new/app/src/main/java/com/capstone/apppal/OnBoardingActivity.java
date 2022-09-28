@@ -12,6 +12,7 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.capstone.apppal.VO.RoomsInfo;
 import com.capstone.apppal.VO.UserInfo;
+import com.capstone.apppal.utils.GlobalState;
 import com.capstone.apppal.view.fragments.ListFragment;
 import com.capstone.apppal.view.fragments.LoginFragment;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -80,6 +81,7 @@ public class OnBoardingActivity extends AppCompatActivity {
    * @구현 단순히 진입이 아닌 타겟 방 진입:: 신규도 마찬가지임
    */
   public void enterDrawingRoom(RoomsInfo roomInfo) {
+    GlobalState.currentRoomInfo = roomInfo;
     Intent drawingIntent = new Intent(this, DrawARActivity.class);
     startActivity(drawingIntent);
     finish();

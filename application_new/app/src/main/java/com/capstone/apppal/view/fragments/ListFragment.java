@@ -144,7 +144,7 @@ public class ListFragment extends Fragment {
                   public InputDialog.Data getData() {
                     InputDialog.Data data = new InputDialog.Data();
                     data.setIsEncrypted(false);
-                    data.setTextMain("그림방의 이름을 설정해주세요!\n최대 12자(알파벳 소문자 기준)");
+                    data.setTextMain("그림방의 이름을 설정해주세요!\n4 - 12자(알파벳 소문자 기준)");
                     data.setMaxLength(12);
                     data.setTextMainButton("확인");
                     data.setTextSubButton("취소");
@@ -159,7 +159,7 @@ public class ListFragment extends Fragment {
                       public InputDialog.Data getData() {
                         InputDialog.Data data = new InputDialog.Data();
                         data.setIsEncrypted(true);
-                        data.setTextMain("그림방의 비밀번호을 설정해주세요!\n최대 16자(알파벳 소문자 기준)");
+                        data.setTextMain("그림방의 비밀번호을 설정해주세요!\n4 - 16자(알파벳 소문자 기준)");
                         data.setMaxLength(16);
                         data.setTextMainButton("확인");
                         data.setTextSubButton("취소");

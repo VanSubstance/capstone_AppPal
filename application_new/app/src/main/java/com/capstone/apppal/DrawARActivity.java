@@ -214,7 +214,13 @@ public class DrawARActivity extends BaseActivity
    */
   public static MenuSelector mMenuSelector;
 
-  public static ProgressBar gestureProgressBar;
+  /**
+   * 방 정보 띄우기용 TextView
+   */
+  public TextView mTitleTextView;
+  public TextView mCodeTextView;
+
+//  public static ProgressBar gestureProgressBar;
 
 
   /**
@@ -236,13 +242,14 @@ public class DrawARActivity extends BaseActivity
     mSurfaceView = findViewById(R.id.surfaceview);
     mSurfaceView.setRendererCallbacks(this);
 
-    gestureProgressBar = findViewById(R.id.gesture_progress_bar);
+//    gestureProgressBar = findViewById(R.id.gesture_progress_bar);
+    mTitleTextView = findViewById(R.id.text_title);
+    mTitleTextView.setText(GlobalState.currentRoomInfo.getTitle());
+    mCodeTextView = findViewById(R.id.text_code);
+    mCodeTextView.setText(GlobalState.currentRoomInfo.getRoomCode());
 
     mClearDrawingButton = findViewById(R.id.menu_item_clear);
     mClearDrawingButton.setOnClickListener(this);
-
-//        findViewById(R.id.menu_item_crash).setOnClickListener(this);
-//        findViewById(R.id.menu_item_hide_ui).setOnClickListener(this);
 
     mPairButton = findViewById(R.id.button_pair);
     mPairButton.setOnClickListener(this);
