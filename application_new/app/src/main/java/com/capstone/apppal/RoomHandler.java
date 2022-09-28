@@ -96,7 +96,10 @@ public class RoomHandler implements Observer {
     roomsListRef.child(roomCode).addListenerForSingleValueEvent(new ValueEventListener() {
       @Override
       public void onDataChange(DataSnapshot dataSnapshot) {
-        simpleCallback.callback(dataSnapshot.getValue(RoomsInfo.class));
+        RoomsInfo roomInfo = dataSnapshot.getValue(RoomsInfo.class);
+        roomInfo.setRoomCode(roomCode);
+
+        simpleCallback.callback(roomInfo);
       }
 
       @Override

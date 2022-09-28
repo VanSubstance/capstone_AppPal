@@ -234,7 +234,6 @@ public class ListFragment extends Fragment {
               @Override
               public void onMainButtonClick(String inputText) {
                 roomHandler.getRoomInfo(inputText, roomInfo -> {
-                  Log.e(TAG, "onMainButtonClick: roomInfo:: " + roomInfo);
                   if (roomInfo.getTitle() != null) {
                     InputDialog passwordDialog = new InputDialog(getContext(), new InputDialog.DataTransfer() {
                       @Override
@@ -250,7 +249,7 @@ public class ListFragment extends Fragment {
 
                       @Override
                       public void onMainButtonClick(String inputText) {
-                        if (checkPassword("방 코드", inputText)) {
+                        if (checkPassword(roomInfo, inputText)) {
                           ChoiceDialog choiceDialog = new ChoiceDialog(getContext(), new ChoiceDialog.DataTransfer() {
                             @Override
                             public ChoiceDialog.Data getData() {
@@ -404,8 +403,8 @@ public class ListFragment extends Fragment {
   /**
    * @김종규 비밀번호 확인
    */
-  private boolean checkPassword(String roomCode, String plainPassword) {
-    return true;
+  private boolean checkPassword(RoomsInfo roomInfo, String plainPassword) {
+    return roomInfo.getPasssword().equals(Encrypted(plainPassword, email));
   }
 
   /**

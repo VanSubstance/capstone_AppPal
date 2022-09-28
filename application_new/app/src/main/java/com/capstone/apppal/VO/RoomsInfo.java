@@ -1,6 +1,7 @@
 package com.capstone.apppal.VO;
 
 public class RoomsInfo {
+  private String roomCode;
   private String uid;
   private String passsword;
   private Long timestamp;
@@ -49,11 +50,18 @@ public class RoomsInfo {
     this.timestamp = timestamp;
   }
 
+  public String getRoomCode() {
+    return roomCode;
+  }
+
+  public void setRoomCode(String roomCode) {
+    this.roomCode = roomCode;
+  }
+
   public String toString() {
     return "uid:: " + uid + "\n"
       + "passsword:: " + passsword + "\n"
       + "timestamp:: " + timestamp + "\n"
       + "title:: " + title + "\n";
   }
-
 }
