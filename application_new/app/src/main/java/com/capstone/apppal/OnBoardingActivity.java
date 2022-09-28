@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.capstone.apppal.VO.RoomsInfo;
 import com.capstone.apppal.VO.UserInfo;
 import com.capstone.apppal.view.fragments.ListFragment;
 import com.capstone.apppal.view.fragments.LoginFragment;
@@ -61,7 +62,12 @@ public class OnBoardingActivity extends AppCompatActivity {
     }
   }
 
-  public void enterDrawingRoom() {
+  /**
+   * @구현
+   * 단순히 진입이 아닌 타겟 방 진입:: 신규도 마찬가지임
+   * @param roomInfo
+   */
+  public void enterDrawingRoom(RoomsInfo roomInfo) {
     Intent drawingIntent = new Intent(this, DrawARActivity.class);
     startActivity(drawingIntent);
     finish();
