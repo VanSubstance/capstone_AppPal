@@ -5,6 +5,7 @@ import android.util.DisplayMetrics;
 import com.capstone.apppal.VO.CoordinateInfo;
 import com.capstone.apppal.VO.FunctionType;
 import com.capstone.apppal.VO.GestureType;
+import com.capstone.apppal.VO.RoomsInfo;
 
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -26,11 +27,11 @@ public class GlobalState {
   public static ArrayList<GestureType> listGesture = new ArrayList<>();
   public static int gestureDetectionRate = 0;
 
-  public static String inviteCode;
   public static boolean isDrawable = false;
   public static FunctionType currentFunction = FunctionType.DRAWING;
   public static ArrayList<Vector3f> currentCursor = new ArrayList<>();
   public static DisplayMetrics displayMetrics = new DisplayMetrics();
   public static String useruid;
-  public static int MAXIMUM_COUNT_FOR_LIST = 60;
+
+  public static RoomsInfo currentRoomInfo;
 }

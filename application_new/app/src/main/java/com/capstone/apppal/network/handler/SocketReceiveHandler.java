@@ -68,7 +68,7 @@ public class SocketReceiveHandler {
       GlobalState.gestureDetectionRate =
         Collections.frequency(GlobalState.listGesture, nowGesture) * 100
           / GlobalState.GESTURE_DECISION_SIZE;
-      DrawARActivity.gestureProgressBar.setProgress(GlobalState.gestureDetectionRate);
+//      DrawARActivity.gestureProgressBar.setProgress(GlobalState.gestureDetectionRate);
       if (Collections.frequency(GlobalState.listGesture, nowGesture) >= GlobalState.GESTURE_DECISION_SIZE) {
         DrawARActivity.mMenuSelector.handleMenu(nowGesture);
         GlobalState.listGesture.clear();

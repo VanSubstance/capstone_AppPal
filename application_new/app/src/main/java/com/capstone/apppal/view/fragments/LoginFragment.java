@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,10 +15,8 @@ import android.widget.ProgressBar;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
-import com.capstone.apppal.DrawARActivity;
 import com.capstone.apppal.OnBoardingActivity;
 import com.capstone.apppal.R;
-import com.capstone.apppal.VO.UserInfo;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -101,9 +98,9 @@ public class LoginFragment extends Fragment {
 //    }
     //Configure Google Sign In
     GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(getString(R.string.default_web_client_id))
-            .requestEmail()
-            .build();
+      .requestIdToken(getString(R.string.default_web_client_id))
+      .requestEmail()
+      .build();
     mGoogleSignInClient = GoogleSignIn.getClient(this.getContext(), gso);
 
     signInButton.setOnClickListener(new View.OnClickListener() {
@@ -153,11 +150,9 @@ public class LoginFragment extends Fragment {
           FirebaseUser user = mAuth.getCurrentUser();
           String uid = user.getUid();
           GlobalState.useruid = uid;
-          String personName = acct.getDisplayName();
-          String personEmail = acct.getEmail();
-          String personId = acct.getId();
-          UserInfo info = new UserInfo(personId, personEmail, personName);
-          databaseReference.child("Users").child(uid).setValue(info);
+          databaseReference.child("Users").child(uid).child("email").setValue(acct.getEmail());
+          databaseReference.child("Users").child(uid).child("id").setValue(acct.getId());
+          databaseReference.child("Users").child(uid).child("name").setValue(acct.getDisplayName());
           updateUI(user);
         } else {
           // If sign in fails, display a message to the user.

@@ -10,7 +10,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.capstone.apppal.VO.RoomsInfo;
 import com.capstone.apppal.VO.UserInfo;
+import com.capstone.apppal.utils.GlobalState;
 import com.capstone.apppal.view.fragments.ListFragment;
 import com.capstone.apppal.view.fragments.LoginFragment;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -28,6 +30,8 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+
+import java.util.HashMap;
 
 public class OnBoardingActivity extends AppCompatActivity {
 
@@ -61,13 +65,25 @@ public class OnBoardingActivity extends AppCompatActivity {
     }
   }
 
-  public void enterDrawingRoom() {
+  public void goToListFragment(int optionMode, HashMap<String, Object>[] dataSet) {
+    // 로그인 직후일 경우
+    if (optionMode == ListFragment.CREATE_OPTION_MODE) {
+      listFragment = new ListFragment(optionMode, dataSet);
+      fragmentManager.beginTransaction().replace(R.id.fragment_frame, listFragment).commit();
+    } else {
+      listFragment = new ListFragment(optionMode, dataSet);
+      fragmentManager.beginTransaction().replace(R.id.fragment_frame, listFragment).addToBackStack("list::" + optionMode).commit();
+    }
+  }
+
+  /**
+   * @param roomInfo
+   * @구현 단순히 진입이 아닌 타겟 방 진입:: 신규도 마찬가지임
+   */
+  public void enterDrawingRoom(RoomsInfo roomInfo) {
+    GlobalState.currentRoomInfo = roomInfo;
     Intent drawingIntent = new Intent(this, DrawARActivity.class);
     startActivity(drawingIntent);
     finish();
-  }
-
-  public void makeRoom(){
-
   }
 }

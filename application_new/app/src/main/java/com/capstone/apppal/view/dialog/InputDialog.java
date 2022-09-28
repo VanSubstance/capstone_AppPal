@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
@@ -62,8 +63,12 @@ public class InputDialog extends Dialog {
     mMainButton.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View view) {
-        dataTransfer.onMainButtonClick(String.valueOf(mEditText.getText()));
-        dismiss();
+        if (mEditText.getText().length() < dataSet.getMinLength()) {
+          Toast.makeText(getContext(), "너무 짧습니다!", Toast.LENGTH_SHORT).show();
+        } else {
+          dataTransfer.onMainButtonClick(String.valueOf(mEditText.getText()));
+          dismiss();
+        }
       }
     });
     if (dataSet.getTextSubButton() != null) {
@@ -92,7 +97,8 @@ public class InputDialog extends Dialog {
   public static class Data {
     private String textMain;
     private String textEdit;
-    private int maxLength = 4;
+    private int maxLength = 6;
+    private int minLength = 4;
     private String textMainButton;
     private String textSubButton;
     private boolean isEncrypted = false;
@@ -143,6 +149,14 @@ public class InputDialog extends Dialog {
 
     public void setTextEdit(String textEdit) {
       this.textEdit = textEdit;
+    }
+
+    public int getMinLength() {
+      return minLength;
+    }
+
+    public void setMinLength(int minLength) {
+      this.minLength = minLength;
     }
   }
 }
