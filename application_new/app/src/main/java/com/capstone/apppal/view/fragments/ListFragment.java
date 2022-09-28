@@ -326,7 +326,7 @@ public class ListFragment extends Fragment {
                             public ChoiceDialog.Data getData() {
                               ChoiceDialog.Data data = new ChoiceDialog.Data();
                               data.setTextButton1("해당 방 입장");
-                              data.setTextButton2("클론 생성");
+                              data.setTextButton2("복사 후 입장");
                               return data;
                             }
 
@@ -349,7 +349,9 @@ public class ListFragment extends Fragment {
 
                                 @Override
                                 public void onSubButtonClick() {
-                                  createClone(roomInfo);
+                                  roomHandler.singleRoomCreate(roomInfo, data -> {
+                                    enterRoom(data);
+                                  });
                                 }
 
                               });
@@ -408,10 +410,6 @@ public class ListFragment extends Fragment {
   }
 
   private void modifyPassword(RoomsInfo roomInfo) {
-
-  }
-
-  private void createClone(RoomsInfo roomInfo) {
 
   }
 
