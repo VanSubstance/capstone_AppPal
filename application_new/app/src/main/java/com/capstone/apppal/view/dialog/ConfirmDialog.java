@@ -40,15 +40,21 @@ public class ConfirmDialog extends Dialog {
 
     if (dataSet.getTextMain() != null) {
       mMainText.setText(dataSet.getTextMain());
+    } else {
+      mMainText.setVisibility(View.GONE);
     }
-    mMainButton.setText(dataSet.getTextMainButton());
-    mMainButton.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View view) {
-        dataTransfer.onMainButtonClick();
-        dismiss();
-      }
-    });
+    if (dataSet.getTextMainButton() != null) {
+      mMainButton.setText(dataSet.getTextMainButton());
+      mMainButton.setOnClickListener(new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+          dataTransfer.onMainButtonClick();
+          dismiss();
+        }
+      });
+    } else {
+      mMainButton.setVisibility(View.GONE);
+    }
     if (dataSet.getTextSubButton() != null) {
       mSubButton.setText(dataSet.getTextSubButton());
       mSubButton.setOnClickListener(new View.OnClickListener() {

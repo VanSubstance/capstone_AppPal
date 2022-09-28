@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="wrap_content"
+  android:layout_height="wrap_content"
+  android:background="@drawable/bg_lightgray"
+  android:orientation="horizontal">
+
+  <TextView
+    android:id="@+id/text_main"
+    android:layout_width="100dp"
+    android:layout_height="wrap_content"
+    android:layout_margin="10dp"
+    android:paddingTop="10dp"
+    android:paddingBottom="10dp"
+    android:text="텍스트 멧ㅡ세지텍스트 멧ㅡ세지텍스트 멧ㅡ세지텍스트 멧ㅡ세지텍스트 멧ㅡ세지" />
+
+  <LinearLayout
+    android:id="@+id/layout_options"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:divider="@drawable/divider_10dp"
+    android:orientation="vertical"
+    android:padding="10dp"
+    android:showDividers="middle">
+
+    <Button
+      android:id="@+id/button_1"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_weight="1"
+      android:background="@drawable/bg_lightgray"
+      android:paddingHorizontal="10dp"
+      android:text="옵션 1옵션 1옵션" />
+
+    <Button
+      android:id="@+id/button_2"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_weight="1"
+      android:background="@drawable/bg_lightgray"
+      android:paddingHorizontal="10dp"
+      android:text="옵션 2" />
+
+    <Button
+      android:id="@+id/button_3"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_weight="1"
+      android:background="@drawable/bg_lightgray"
+      android:paddingHorizontal="10dp"
+      android:text="옵션 3" />
+  </LinearLayout>
+</LinearLayout>
