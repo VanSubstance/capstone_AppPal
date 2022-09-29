@@ -3,6 +3,7 @@ package com.capstone.apppal;
 import android.util.Log;
 
 import com.capstone.apppal.VO.RoomsInfo;
+import com.capstone.apppal.model.Stroke;
 import com.capstone.apppal.network.SimpleCallback;
 import com.capstone.apppal.utils.CommonFunctions;
 import com.capstone.apppal.utils.GlobalState;
@@ -14,6 +15,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Set;
 
 public class RoomHandler {
@@ -129,6 +131,28 @@ public class RoomHandler {
       @Override
       public void onCancelled(DatabaseError databaseError) {
 
+      }
+    });
+  }
+
+  public void getStrokeInfo(String roomCode, SimpleCallback<Boolean> simpleCallback) {
+    roomsListRef.child(roomCode).addListenerForSingleValueEvent(new ValueEventListener() {
+      @Override
+      public void onDataChange(DataSnapshot dataSnapshot) {
+        List<Stroke> savedStrokes = new ArrayList<>();
+        for (DataSnapshot strokeSnapshot : dataSnapshot.child("lines").getChildren()) {
+          Stroke stroke = strokeSnapshot.getValue(Stroke.class);
+          stroke.creator = strokeSnapshot.getKey();
+          stroke.setFirebaseReference(strokeSnapshot.getRef());
+          Log.e(TAG, "onDataChange: stroke?? " + stroke);
+          savedStrokes.add(stroke);
+        }
+        GlobalState.currentStrokes = savedStrokes;
+        simpleCallback.callback(true);
+      }
+
+      @Override
+      public void onCancelled(DatabaseError databaseError) {
       }
     });
   }

@@ -219,7 +219,6 @@ public class ListFragment extends Fragment {
           @Override
           public void onClick(View view) {
             roomHandler.getMyRoomList(data -> {
-              Log.e(TAG, "onClick: data:: " + data);
               mDataSet = new HashMap[data.size()];
               int i = 0;
               for (RoomsInfo roomInfo : data) {

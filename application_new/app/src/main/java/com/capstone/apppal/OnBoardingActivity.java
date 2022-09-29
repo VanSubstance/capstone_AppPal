@@ -34,6 +34,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import java.util.HashMap;
 
 public class OnBoardingActivity extends AppCompatActivity {
+  private final static String TAG = "OnBoardingActivity";
 
   /**
    * 화면 이동용 변수들
@@ -41,6 +42,8 @@ public class OnBoardingActivity extends AppCompatActivity {
   private FragmentManager fragmentManager;
   private LoginFragment loginFragment;
   private ListFragment listFragment;
+
+  private RoomHandler roomHandler;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +55,8 @@ public class OnBoardingActivity extends AppCompatActivity {
       fragmentManager = getSupportFragmentManager();
       fragmentManager.beginTransaction().add(R.id.fragment_frame, loginFragment).commit();
     }
+
+    roomHandler = new RoomHandler();
   }
 
   public void goToListFragment(int optionMode) {
@@ -82,8 +87,10 @@ public class OnBoardingActivity extends AppCompatActivity {
    */
   public void enterDrawingRoom(RoomsInfo roomInfo) {
     GlobalState.currentRoomInfo = roomInfo;
-    Intent drawingIntent = new Intent(this, DrawARActivity.class);
-    startActivity(drawingIntent);
-    finish();
+    roomHandler.getStrokeInfo(roomInfo.getRoomCode(), data -> {
+      Intent drawingIntent = new Intent(this, DrawARActivity.class);
+      startActivity(drawingIntent);
+      finish();
+    });
   }
 }
