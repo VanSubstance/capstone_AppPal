@@ -27,7 +27,6 @@ public class GlobalState {
   public static InputStreamReader is;
   public static OutputStreamWriter os;
   public static ArrayList<GestureType> listGesture = new ArrayList<>();
-  public static int gestureDetectionRate = 0;
 
   public static boolean isDrawable = false;
   public static FunctionType currentFunction = FunctionType.DRAWING;
