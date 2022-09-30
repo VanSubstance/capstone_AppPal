@@ -36,5 +36,6 @@ public class GlobalState {
   public static String useruid;
 
   public static RoomsInfo currentRoomInfo;
+  public static List<Stroke> loadedStrokes = new ArrayList<>();
   public static List<Stroke> currentStrokes = new ArrayList<>();
 }

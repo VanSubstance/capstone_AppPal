@@ -436,6 +436,7 @@ public class Stroke {
     copy.lineWidth = lineWidth;
     copy.firebaseReference = firebaseReference;
     copy.points = new ArrayList<>(points);
+    copy.color = color;
     return copy;
   }
 

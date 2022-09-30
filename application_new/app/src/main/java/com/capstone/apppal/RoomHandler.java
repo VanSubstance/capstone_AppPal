@@ -146,7 +146,7 @@ public class RoomHandler {
           stroke.setFirebaseReference(strokeSnapshot.getRef());
           savedStrokes.add(stroke);
         }
-        GlobalState.currentStrokes = savedStrokes;
+        GlobalState.loadedStrokes = savedStrokes;
         simpleCallback.callback(true);
       }
 

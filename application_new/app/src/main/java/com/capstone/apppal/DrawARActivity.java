@@ -192,6 +192,7 @@ public class DrawARActivity extends BaseActivity
   private Anchor mAnchor;
 
   private Map<String, Stroke> mSharedStrokes = new HashMap<>();
+  private Map<String, Stroke> mLoadedStrokes = new HashMap<>();
 
   private PairButton mPairButton;
 
@@ -244,6 +245,13 @@ public class DrawARActivity extends BaseActivity
   @SuppressLint("ApplySharedPref")
   @Override
   protected void onCreate(Bundle savedInstanceState) {
+    for (Stroke value : GlobalState.loadedStrokes) {
+      value.localLine = false;
+      value.calculateTotalLength();
+      mSharedStrokes.put(value.creator, value);
+      mLineShaderRenderer.bNeedsUpdate.set(true);
+    }
+    GlobalState.loadedStrokes.clear();
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
     getWindowManager().getDefaultDisplay().getMetrics(GlobalState.displayMetrics);
