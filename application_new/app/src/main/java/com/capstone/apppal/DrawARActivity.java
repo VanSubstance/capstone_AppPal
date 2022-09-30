@@ -225,10 +225,10 @@ public class DrawARActivity extends BaseActivity
    * 로딩용 프로그래스 바 (원형)
    */
 
-  private ProgressBar mOnBoardingProgressBar;
+  private static ProgressBar mOnBoardingProgressBar;
   private final static int LOADING_INIT = 0;
   private final static int LOADING_DONE = 1;
-  private Handler loadingHandler = new Handler() {
+  private static Handler loadingHandler = new Handler() {
     public void handleMessage(Message message) {
       if (message.arg1 == LOADING_INIT) {
         mOnBoardingProgressBar.setVisibility(View.VISIBLE);
@@ -1751,13 +1751,13 @@ public class DrawARActivity extends BaseActivity
     Fa.get().send(AnalyticsEvents.EVENT_TAPPED_DISCONNECT_PAIRED_SESSION);
   }
 
-  public void initLoading() {
+  public static void initLoading() {
     Message message = loadingHandler.obtainMessage();
     message.arg1 = LOADING_INIT;
     loadingHandler.sendMessage(message);
   }
 
-  public void finishLoading() {
+  public static void finishLoading() {
     Message message = loadingHandler.obtainMessage();
     message.arg1 = LOADING_DONE;
     loadingHandler.sendMessage(message);

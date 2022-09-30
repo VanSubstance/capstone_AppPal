@@ -65,15 +65,13 @@ public class SocketReceiveHandler {
     GlobalState.listGesture.add(nowGesture);
     if (GlobalState.listGesture.size() > GlobalState.GESTURE_HISTORY_SIZE) {
       GlobalState.listGesture.remove(0);
-      GlobalState.gestureDetectionRate =
-        Collections.frequency(GlobalState.listGesture, nowGesture) * 100
-          / GlobalState.GESTURE_DECISION_SIZE;
-//      DrawARActivity.gestureProgressBar.setProgress(GlobalState.gestureDetectionRate);
+      if (Collections.frequency(GlobalState.listGesture, nowGesture) * 2 >= GlobalState.GESTURE_DECISION_SIZE) {
+        DrawARActivity.initLoading();
+      }
       if (Collections.frequency(GlobalState.listGesture, nowGesture) >= GlobalState.GESTURE_DECISION_SIZE) {
         DrawARActivity.mMenuSelector.handleMenu(nowGesture);
         GlobalState.listGesture.clear();
-        GlobalState.gestureDetectionRate = 0;
-//        Log.e("기능 결정", "현재 기능 :: " + GlobalState.currentFunction);
+        DrawARActivity.finishLoading();
       }
     }
   }
