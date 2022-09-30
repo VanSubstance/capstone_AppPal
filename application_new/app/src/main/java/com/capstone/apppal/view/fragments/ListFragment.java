@@ -218,6 +218,7 @@ public class ListFragment extends Fragment {
         mDataSet[0].put("func", new View.OnClickListener() {
           @Override
           public void onClick(View view) {
+            ((OnBoardingActivity) getActivity()).initLoading();
             roomHandler.getMyRoomList(data -> {
               mDataSet = new HashMap[data.size()];
               int i = 0;

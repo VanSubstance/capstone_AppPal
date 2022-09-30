@@ -24,6 +24,8 @@ import android.icu.util.Calendar;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -218,7 +220,22 @@ public class DrawARActivity extends BaseActivity
   public TextView mTitleTextView;
   public TextView mCodeTextView;
 
-//  public static ProgressBar gestureProgressBar;
+  /**
+   * 로딩용 프로그래스 바 (원형)
+   */
+
+  private ProgressBar mOnBoardingProgressBar;
+  private final static int LOADING_INIT = 0;
+  private final static int LOADING_DONE = 1;
+  private Handler loadingHandler = new Handler() {
+    public void handleMessage(Message message) {
+      if (message.arg1 == LOADING_INIT) {
+        mOnBoardingProgressBar.setVisibility(View.VISIBLE);
+      } else {
+        mOnBoardingProgressBar.setVisibility(View.GONE);
+      }
+    }
+  };
 
 
   /**
@@ -272,6 +289,8 @@ public class DrawARActivity extends BaseActivity
 
     mPairView = findViewById(R.id.view_join);
     mPairView.setListener(this);
+
+    mOnBoardingProgressBar = findViewById(R.id.progress_drawing);
 
     if (JOIN_GLOBAL_ROOM) {
       mPairSessionManager = new GlobalPairSessionManager(this);
@@ -1722,5 +1741,17 @@ public class DrawARActivity extends BaseActivity
   public void onExitRoomSelected() {
     mPairSessionManager.leaveRoom(true);
     Fa.get().send(AnalyticsEvents.EVENT_TAPPED_DISCONNECT_PAIRED_SESSION);
+  }
+
+  public void initLoading() {
+    Message message = loadingHandler.obtainMessage();
+    message.arg1 = LOADING_INIT;
+    loadingHandler.sendMessage(message);
+  }
+
+  public void finishLoading() {
+    Message message = loadingHandler.obtainMessage();
+    message.arg1 = LOADING_DONE;
+    loadingHandler.sendMessage(message);
   }
 }

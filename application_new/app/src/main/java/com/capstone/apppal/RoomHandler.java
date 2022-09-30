@@ -144,7 +144,6 @@ public class RoomHandler {
           Stroke stroke = strokeSnapshot.getValue(Stroke.class);
           stroke.creator = strokeSnapshot.getKey();
           stroke.setFirebaseReference(strokeSnapshot.getRef());
-          Log.e(TAG, "onDataChange: stroke?? " + stroke);
           savedStrokes.add(stroke);
         }
         GlobalState.currentStrokes = savedStrokes;
