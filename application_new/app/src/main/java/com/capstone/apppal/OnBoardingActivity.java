@@ -102,10 +102,6 @@ public class OnBoardingActivity extends AppCompatActivity {
     finishLoading();
   }
 
-  /**
-   * @param roomInfo
-   * @구현 단순히 진입이 아닌 타겟 방 진입:: 신규도 마찬가지임
-   */
   public void enterDrawingRoom(RoomsInfo roomInfo) {
     GlobalState.currentRoomInfo = roomInfo;
     roomHandler.getStrokeInfo(roomInfo.getRoomCode(), data -> {

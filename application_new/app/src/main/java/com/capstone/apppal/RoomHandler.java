@@ -136,7 +136,8 @@ public class RoomHandler {
   }
 
   public void getStrokeInfo(String roomCode, SimpleCallback<Boolean> simpleCallback) {
-    roomsListRef.child(roomCode).addListenerForSingleValueEvent(new ValueEventListener() {
+    GlobalState.currentRoomRef = roomsListRef.child(roomCode);
+    GlobalState.currentRoomRef.addListenerForSingleValueEvent(new ValueEventListener() {
       @Override
       public void onDataChange(DataSnapshot dataSnapshot) {
         List<Stroke> savedStrokes = new ArrayList<>();

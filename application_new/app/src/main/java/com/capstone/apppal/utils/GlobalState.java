@@ -7,6 +7,7 @@ import com.capstone.apppal.VO.FunctionType;
 import com.capstone.apppal.VO.GestureType;
 import com.capstone.apppal.VO.RoomsInfo;
 import com.capstone.apppal.model.Stroke;
+import com.google.firebase.database.DatabaseReference;
 
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -35,6 +36,7 @@ public class GlobalState {
   public static String useruid;
 
   public static RoomsInfo currentRoomInfo;
+  public static DatabaseReference currentRoomRef;
   public static List<Stroke> loadedStrokes = new ArrayList<>();
   public static List<Stroke> currentStrokes = new ArrayList<>();
 }

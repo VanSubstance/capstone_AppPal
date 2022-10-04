@@ -51,9 +51,6 @@ import com.capstone.apppal.view.dialog.ClearDrawingDialog;
 import com.capstone.apppal.view.dialog.ErrorDialog;
 import com.capstone.apppal.view.dialog.LeaveRoomDialog;
 import com.capstone.apppal.view.MenuSelector;
-import com.capstone.apppal.view.PairButton;
-import com.capstone.apppal.view.PairButtonToolTip;
-import com.capstone.apppal.view.PairView;
 import com.capstone.apppal.view.PlaybackView;
 import com.capstone.apppal.view.TrackingIndicator;
 import com.google.ar.core.Anchor;
@@ -65,7 +62,6 @@ import com.google.ar.core.Pose;
 import com.google.ar.core.Session;
 import com.google.ar.core.TrackingState;
 import com.google.ar.core.exceptions.CameraNotAvailableException;
-import com.google.ar.core.exceptions.NotTrackingException;
 import com.uncorkedstudios.android.view.recordablesurfaceview.RecordableSurfaceView;
 
 import java.io.File;
@@ -90,9 +86,8 @@ import javax.vecmath.Vector3f;
 public class DrawARActivity extends BaseActivity
   implements RecordableSurfaceView.RendererCallbacks, View.OnClickListener,
   ClearDrawingDialog.Listener, PlaybackView.Listener,
-  ErrorDialog.Listener, RoomManager.StrokeUpdateListener, PairView.Listener,
-  LeaveRoomDialog.Listener, PairSessionManager.AnchorStateListener,
-  PairButtonToolTip.Listener, PairSessionManager.PartnerUpdateListener {
+  ErrorDialog.Listener, RoomManager.StrokeUpdateListener,
+  LeaveRoomDialog.Listener {
 
   private static final String TAG = "DrawARActivity";
 
@@ -123,8 +118,6 @@ public class DrawARActivity extends BaseActivity
   private final PointCloudRenderer pointCloud = new PointCloudRenderer();
 
   private AnchorRenderer zeroAnchorRenderer;
-
-  private AnchorRenderer cloudAnchorRenderer;
 
   private Frame mFrame;
 
@@ -185,22 +178,7 @@ public class DrawARActivity extends BaseActivity
 
   private long mRenderDuration;
 
-  /*
-   * Session sharing
-   */
-
-  private Anchor mAnchor;
-
   private Map<String, Stroke> mSharedStrokes = new HashMap<>();
-  private Map<String, Stroke> mLoadedStrokes = new HashMap<>();
-
-  private PairButton mPairButton;
-
-  private TextView mPairActiveView;
-
-  private PairButtonToolTip mPairButtonToolTip;
-
-  private PairView mPairView;
 
   private PairSessionManager mPairSessionManager;
 
@@ -274,12 +252,6 @@ public class DrawARActivity extends BaseActivity
     mClearDrawingButton = findViewById(R.id.menu_item_clear);
     mClearDrawingButton.setOnClickListener(this);
 
-    mPairButton = findViewById(R.id.button_pair);
-    mPairButton.setOnClickListener(this);
-    mPairButtonToolTip = findViewById(R.id.tooltip_button_pair);
-    mPairButtonToolTip.setListener(this);
-    mPairActiveView = findViewById(R.id.pair_active);
-
     mUndoButton = findViewById(R.id.undo_button);
 
     // set up draw settting selector
@@ -295,39 +267,16 @@ public class DrawARActivity extends BaseActivity
 
     mDrawUiContainer = findViewById(R.id.draw_container);
 
-    mPairView = findViewById(R.id.view_join);
-    mPairView.setListener(this);
-
     mOnBoardingProgressBar = findViewById(R.id.progress_drawing);
 
-    if (JOIN_GLOBAL_ROOM) {
-      mPairSessionManager = new GlobalPairSessionManager(this);
-
-      AlertDialog.Builder builder = new AlertDialog.Builder(this);
-      builder.setTitle("Pick global session")
-        .setItems(R.array.sessions_array, new DialogInterface.OnClickListener() {
-          public void onClick(DialogInterface dialog, int which) {
-            GlobalRoomManager.setGlobalRoomName(String.valueOf(which));
-          }
-        });
-      AlertDialog dialog = builder.create();
-      dialog.show();
-    } else {
-      mPairSessionManager = new PairSessionManager(this);
-    }
-    mPairSessionManager.setPairingStateChangeListener(mPairView);
-    mPairSessionManager.addPartnerUpdateListener(mPairButton);
-    mPairSessionManager.addPartnerUpdateListener(this);
-    mPairSessionManager.setAnchorStateListener(this);
+    mPairSessionManager = new PairSessionManager(this);
+    mPairSessionManager.setStrokeListener(DrawARActivity.this);
     handTracking.setupLiveDemoUiComponents(this);
   }
 
   @Override
   protected void onStart() {
     super.onStart();
-    if (mPairSessionManager.isPaired()) {
-      mPairSessionManager.resumeListeners(this);
-    }
   }
 
   @Override
@@ -422,31 +371,9 @@ public class DrawARActivity extends BaseActivity
 
     mPlaybackView.resume();
 
-    if (mPairSessionManager.isPaired()) {
-
-      if (!SessionHelper.shouldContinuePairedSession(this)) {
-        mPairSessionManager.checkForPartners(new RoomManager.PartnerDetectionListener() {
-          @Override
-          public void onPartnersDetected() {
-            // Stay in room
-          }
-
-          @Override
-          public void onNoPartnersDetected() {
-            mPairSessionManager.leaveRoom(false);
-          }
-        });
-      } // time limit has not elapsed, force rejoin room (listeners restarted in onStart)
-
-    } else if (!SessionHelper.shouldContinueSession(this)) {
-      // if user has left activity for too long, clear the strokes from the previous session
-      bClearDrawing.set(true);
-      showStrokeDependentUI();
-    }
-
-    mPairSessionManager.setSession(mSession);
-
-    mPairView.setListener(this);
+    mPairSessionManager.resumeListeners(this);
+    bClearDrawing.set(true);
+    showStrokeDependentUI();
 
     // TODO: Only used id hidden by "Hide UI menu"
     findViewById(R.id.draw_container).setVisibility(View.VISIBLE);
@@ -474,8 +401,6 @@ public class DrawARActivity extends BaseActivity
     }
 
     SessionHelper.setSessionEnd(this);
-
-    mPairView.setListener(null);
 
     super.onPause();
   }
@@ -579,104 +504,44 @@ public class DrawARActivity extends BaseActivity
          * 지우개 모드
          * */
         targetPoint = newPoint[newPoint.length - 1];
-        if (mAnchor != null && mAnchor.getTrackingState() == TrackingState.TRACKING) {
-          point = LineUtils.TransformPointToPose(targetPoint, mAnchor.getPose());
-          for (int j = 0; j < GlobalState.currentStrokes.size(); j++) {
-            Stroke stroke = GlobalState.currentStrokes.get(j);
-            boolean isPassed = false;
-            int targetIndex = 0;
-            List<Vector3f> pointList = stroke.getPoints();
-            for (int i = 0; i < pointList.size(); i++) {
-              Vector3f pointToErase = pointList.get(i);
-              if (Math.abs(point.getX() - pointToErase.getX()) < 0.00001f
-                || Math.abs(point.getY() - pointToErase.getY()) < 0.00001f
-                || Math.abs(point.getZ() - pointToErase.getZ()) < 0.00001f) {
-                isPassed = true;
-                targetIndex = i;
-                break;
-              }
-            }
-            if (isPassed) {
-              if (targetIndex < 3) {
-                GlobalState.currentStrokes.get(j).truncatePoints(targetIndex, stroke.size());
-              } else if (stroke.size() - 3 < targetIndex) {
-                GlobalState.currentStrokes.get(j).truncatePoints(0, targetIndex);
-              } else {
-                Stroke backStroke = new Stroke();
-                backStroke.localLine = true;
-                backStroke.setLineWidth(mLineWidthMax);
-                backStroke.updateStrokeData(stroke);
-                backStroke.setColor(mSelectedColor);
-                backStroke.truncatePoints(targetIndex + 1, stroke.size());
-                GlobalState.currentStrokes.get(j).truncatePoints(0, targetIndex - 1);
-                GlobalState.currentStrokes.add(backStroke);
-                mPairSessionManager.addStroke(GlobalState.currentStrokes.get(index + 1));
-              }
-              mLineShaderRenderer.bNeedsUpdate.set(true);
+        for (int j = 0; j < GlobalState.currentStrokes.size(); j++) {
+          Stroke stroke = GlobalState.currentStrokes.get(j);
+          boolean isPassed = false;
+          int targetIndex = 0;
+          List<Vector3f> pointList = stroke.getPoints();
+          for (int i = 0; i < pointList.size(); i++) {
+            Vector3f pointToErase = pointList.get(i);
+            if (Math.abs(targetPoint.getX() - pointToErase.getX()) < 0.00001f
+              || Math.abs(targetPoint.getY() - pointToErase.getY()) < 0.00001f
+              || Math.abs(targetPoint.getZ() - pointToErase.getZ()) < 0.00001f) {
+              isPassed = true;
+              targetIndex = i;
+              break;
             }
           }
-          /**
-           * 기존 한 획 통째로 삭제 기능
-           * 추후 추가를 위해 코드 보존
-           */
-//          for (Stroke stroke : GlobalState.currentStrokes) {
-//            boolean isPassed = false;
-//            for (Vector3f pointToErase : stroke.getPoints()) {
-//              if (Math.abs(point.getX() - pointToErase.getX()) < 0.00001f
-//                || Math.abs(point.getY() - pointToErase.getY()) < 0.00001f
-//                || Math.abs(point.getZ() - pointToErase.getZ()) < 0.00001f) {
-//                isPassed = true;
-//                break;
-//              }
-//            }
-//            if (isPassed) {
-//              mPairSessionManager.undoStroke(stroke);
-//              GlobalState.currentStrokes.remove(stroke);
-//              if (GlobalState.currentStrokes.isEmpty()) {
-//                showStrokeDependentUI();
-//              }
-//              mLineShaderRenderer.bNeedsUpdate.set(true);
-//            }
-//          }
-        } else {
-          for (int j = 0; j < GlobalState.currentStrokes.size(); j++) {
-            Stroke stroke = GlobalState.currentStrokes.get(j);
-            boolean isPassed = false;
-            int targetIndex = 0;
-            List<Vector3f> pointList = stroke.getPoints();
-            for (int i = 0; i < pointList.size(); i++) {
-              Vector3f pointToErase = pointList.get(i);
-              if (Math.abs(targetPoint.getX() - pointToErase.getX()) < 0.00001f
-                || Math.abs(targetPoint.getY() - pointToErase.getY()) < 0.00001f
-                || Math.abs(targetPoint.getZ() - pointToErase.getZ()) < 0.00001f) {
-                isPassed = true;
-                targetIndex = i;
-                break;
-              }
+          if (isPassed) {
+            if (targetIndex < 3) {
+              GlobalState.currentStrokes.get(j).truncatePoints(targetIndex, stroke.size());
+            } else if (stroke.size() - 3 < targetIndex) {
+              GlobalState.currentStrokes.get(j).truncatePoints(0, targetIndex);
+            } else {
+              Stroke backStroke = new Stroke();
+              backStroke.localLine = true;
+              backStroke.setLineWidth(mLineWidthMax);
+              backStroke.setColor(mSelectedColor);
+              backStroke.updateStrokeData(stroke);
+              backStroke.truncatePoints(targetIndex + 1, stroke.size());
+              GlobalState.currentStrokes.get(j).truncatePoints(0, targetIndex - 1);
+              GlobalState.currentStrokes.add(backStroke);
+              mPairSessionManager.addStroke(GlobalState.currentStrokes.get(index + 1));
             }
-            if (isPassed) {
-              if (targetIndex < 3) {
-                GlobalState.currentStrokes.get(j).truncatePoints(targetIndex, stroke.size());
-              } else if (stroke.size() - 3 < targetIndex) {
-                GlobalState.currentStrokes.get(j).truncatePoints(0, targetIndex);
-              } else {
-                Stroke backStroke = new Stroke();
-                backStroke.localLine = true;
-                backStroke.setLineWidth(mLineWidthMax);
-                backStroke.setColor(mSelectedColor);
-                backStroke.updateStrokeData(stroke);
-                backStroke.truncatePoints(targetIndex + 1, stroke.size());
-                GlobalState.currentStrokes.get(j).truncatePoints(0, targetIndex - 1);
-                GlobalState.currentStrokes.add(backStroke);
-                mPairSessionManager.addStroke(GlobalState.currentStrokes.get(index + 1));
-              }
-              mLineShaderRenderer.bNeedsUpdate.set(true);
-            }
+            mLineShaderRenderer.bNeedsUpdate.set(true);
           }
-          /**
-           * 기존 한 획 통째로 삭제 기능
-           * 추후 추가를 위해 코드 보존
-           */
+        }
+        /**
+         * 기존 한 획 통째로 삭제 기능
+         * 추후 추가를 위해 코드 보존
+         */
 //          for (Stroke stroke : GlobalState.currentStrokes) {
 //            boolean isPassed = false;
 //            for (Vector3f pointToErase : stroke.getPoints()) {
@@ -696,7 +561,6 @@ public class DrawARActivity extends BaseActivity
 //              mLineShaderRenderer.bNeedsUpdate.set(true);
 //            }
 //          }
-        }
         mPairSessionManager.updateStroke(GlobalState.currentStrokes.get(index));
         break;
       case RECT:
@@ -705,53 +569,27 @@ public class DrawARActivity extends BaseActivity
          */
         if (newPoint.length > 0) {
           targetPoint = newPoint[newPoint.length - 1];
-          if (mAnchor != null && mAnchor.getTrackingState() == TrackingState.TRACKING) {
-            point = LineUtils.TransformPointToPose(targetPoint, mAnchor.getPose());
-            if (GlobalState.currentStrokes.get(index - 3).size() == 0) {
-              for (int i = 3; i >= 0; i--) {
-                drawStraightLine(index - i, point);
-              }
-            } else {
-              Vector3f startCoor = GlobalState.currentStrokes.get(index - 3).get(0);
-              float xs = startCoor.getX();
-              float ys = startCoor.getY();
-              float zs = startCoor.getZ();
-              float xe = point.getX();
-              float ye = point.getY();
-              float ze = point.getZ();
-              ArrayList<Vector3f> coorList = new ArrayList<>();
-              coorList.add(new Vector3f(xs, ys, zs));
-              coorList.add(new Vector3f(xe, ys, zs));
-              coorList.add(new Vector3f(xe, ye, ze));
-              coorList.add(new Vector3f(xs, ye, ze));
-              drawStraightLine(index - 3, coorList.get(1));
-              drawStraightLine(index - 2, coorList.get(1), coorList.get(2));
-              drawStraightLine(index - 1, coorList.get(2), coorList.get(3));
-              drawStraightLine(index - 0, coorList.get(3));
+          if (GlobalState.currentStrokes.get(index - 3).size() == 0) {
+            for (int i = 3; i >= 0; i--) {
+              drawStraightLine(index - i, targetPoint);
             }
           } else {
-            if (GlobalState.currentStrokes.get(index - 3).size() == 0) {
-              for (int i = 3; i >= 0; i--) {
-                drawStraightLine(index - i, targetPoint);
-              }
-            } else {
-              Vector3f startCoor = GlobalState.currentStrokes.get(index - 3).get(0);
-              float xs = startCoor.getX();
-              float ys = startCoor.getY();
-              float zs = startCoor.getZ();
-              float xe = targetPoint.getX();
-              float ye = targetPoint.getY();
-              float ze = targetPoint.getZ();
-              ArrayList<Vector3f> coorList = new ArrayList<>();
-              coorList.add(new Vector3f(xs, ys, zs));
-              coorList.add(new Vector3f(xe, ys, zs));
-              coorList.add(new Vector3f(xe, ye, ze));
-              coorList.add(new Vector3f(xs, ye, ze));
-              drawStraightLine(index - 3, coorList.get(1));
-              drawStraightLine(index - 2, coorList.get(1), coorList.get(2));
-              drawStraightLine(index - 1, coorList.get(2), coorList.get(3));
-              drawStraightLine(index - 0, coorList.get(3));
-            }
+            Vector3f startCoor = GlobalState.currentStrokes.get(index - 3).get(0);
+            float xs = startCoor.getX();
+            float ys = startCoor.getY();
+            float zs = startCoor.getZ();
+            float xe = targetPoint.getX();
+            float ye = targetPoint.getY();
+            float ze = targetPoint.getZ();
+            ArrayList<Vector3f> coorList = new ArrayList<>();
+            coorList.add(new Vector3f(xs, ys, zs));
+            coorList.add(new Vector3f(xe, ys, zs));
+            coorList.add(new Vector3f(xe, ye, ze));
+            coorList.add(new Vector3f(xs, ye, ze));
+            drawStraightLine(index - 3, coorList.get(1));
+            drawStraightLine(index - 2, coorList.get(1), coorList.get(2));
+            drawStraightLine(index - 1, coorList.get(2), coorList.get(3));
+            drawStraightLine(index - 0, coorList.get(3));
           }
         }
         break;
@@ -761,12 +599,7 @@ public class DrawARActivity extends BaseActivity
          * */
         if (newPoint.length > 0) {
           targetPoint = newPoint[newPoint.length - 1];
-          if (mAnchor != null && mAnchor.getTrackingState() == TrackingState.TRACKING) {
-            point = LineUtils.TransformPointToPose(targetPoint, mAnchor.getPose());
-            drawStraightLine(index, point);
-          } else {
-            drawStraightLine(index, targetPoint);
-          }
+          drawStraightLine(index, targetPoint);
         }
         break;
       case CUBE:
@@ -775,77 +608,39 @@ public class DrawARActivity extends BaseActivity
          */
         if (newPoint.length > 0) {
           targetPoint = newPoint[newPoint.length - 1];
-          if (mAnchor != null && mAnchor.getTrackingState() == TrackingState.TRACKING) {
-            point = LineUtils.TransformPointToPose(targetPoint, mAnchor.getPose());
-            if (GlobalState.currentStrokes.get(index - 11).size() == 0) {
-              for (int i = 11; i >= 0; i--) {
-                drawStraightLine(index - i, point);
-              }
-            } else {
-              Vector3f startCoor = GlobalState.currentStrokes.get(index - 11).get(0);
-              float xs = startCoor.getX();
-              float ys = startCoor.getY();
-              float zs = startCoor.getZ();
-              float xe = point.getX();
-              float ye = point.getY();
-              float ze = point.getZ();
-              ArrayList<Vector3f> coorList = new ArrayList<>();
-              coorList.add(new Vector3f(xs, ys, zs));
-              coorList.add(new Vector3f(xe, ys, zs));
-              coorList.add(new Vector3f(xe, ye, zs));
-              coorList.add(new Vector3f(xs, ye, zs));
-              coorList.add(new Vector3f(xs, ys, ze));
-              coorList.add(new Vector3f(xe, ys, ze));
-              coorList.add(new Vector3f(xe, ye, ze));
-              coorList.add(new Vector3f(xs, ye, ze));
-              drawStraightLine(index - 11, coorList.get(1));
-              drawStraightLine(index - 10, coorList.get(1), coorList.get(2));
-              drawStraightLine(index - 9, coorList.get(2), coorList.get(3));
-              drawStraightLine(index - 8, coorList.get(3));
-              drawStraightLine(index - 7, coorList.get(4));
-              drawStraightLine(index - 6, coorList.get(1), coorList.get(5));
-              drawStraightLine(index - 5, coorList.get(2), coorList.get(6));
-              drawStraightLine(index - 4, coorList.get(3), coorList.get(7));
-              drawStraightLine(index - 3, coorList.get(4), coorList.get(5));
-              drawStraightLine(index - 2, coorList.get(5), coorList.get(6));
-              drawStraightLine(index - 1, coorList.get(6), coorList.get(7));
-              drawStraightLine(index - 0, coorList.get(7), coorList.get(4));
+          if (GlobalState.currentStrokes.get(index - 11).size() == 0) {
+            for (int i = 11; i >= 0; i--) {
+              drawStraightLine(index - i, targetPoint);
             }
           } else {
-            if (GlobalState.currentStrokes.get(index - 11).size() == 0) {
-              for (int i = 11; i >= 0; i--) {
-                drawStraightLine(index - i, targetPoint);
-              }
-            } else {
-              Vector3f startCoor = GlobalState.currentStrokes.get(index - 11).get(0);
-              float xs = startCoor.getX();
-              float ys = startCoor.getY();
-              float zs = startCoor.getZ();
-              float xe = targetPoint.getX();
-              float ye = targetPoint.getY();
-              float ze = targetPoint.getZ();
-              ArrayList<Vector3f> coorList = new ArrayList<>();
-              coorList.add(new Vector3f(xs, ys, zs));
-              coorList.add(new Vector3f(xe, ys, zs));
-              coorList.add(new Vector3f(xe, ye, zs));
-              coorList.add(new Vector3f(xs, ye, zs));
-              coorList.add(new Vector3f(xs, ys, ze));
-              coorList.add(new Vector3f(xe, ys, ze));
-              coorList.add(new Vector3f(xe, ye, ze));
-              coorList.add(new Vector3f(xs, ye, ze));
-              drawStraightLine(index - 11, coorList.get(1));
-              drawStraightLine(index - 10, coorList.get(1), coorList.get(2));
-              drawStraightLine(index - 9, coorList.get(2), coorList.get(3));
-              drawStraightLine(index - 8, coorList.get(3));
-              drawStraightLine(index - 7, coorList.get(4));
-              drawStraightLine(index - 6, coorList.get(1), coorList.get(5));
-              drawStraightLine(index - 5, coorList.get(2), coorList.get(6));
-              drawStraightLine(index - 4, coorList.get(3), coorList.get(7));
-              drawStraightLine(index - 3, coorList.get(4), coorList.get(5));
-              drawStraightLine(index - 2, coorList.get(5), coorList.get(6));
-              drawStraightLine(index - 1, coorList.get(6), coorList.get(7));
-              drawStraightLine(index - 0, coorList.get(7), coorList.get(4));
-            }
+            Vector3f startCoor = GlobalState.currentStrokes.get(index - 11).get(0);
+            float xs = startCoor.getX();
+            float ys = startCoor.getY();
+            float zs = startCoor.getZ();
+            float xe = targetPoint.getX();
+            float ye = targetPoint.getY();
+            float ze = targetPoint.getZ();
+            ArrayList<Vector3f> coorList = new ArrayList<>();
+            coorList.add(new Vector3f(xs, ys, zs));
+            coorList.add(new Vector3f(xe, ys, zs));
+            coorList.add(new Vector3f(xe, ye, zs));
+            coorList.add(new Vector3f(xs, ye, zs));
+            coorList.add(new Vector3f(xs, ys, ze));
+            coorList.add(new Vector3f(xe, ys, ze));
+            coorList.add(new Vector3f(xe, ye, ze));
+            coorList.add(new Vector3f(xs, ye, ze));
+            drawStraightLine(index - 11, coorList.get(1));
+            drawStraightLine(index - 10, coorList.get(1), coorList.get(2));
+            drawStraightLine(index - 9, coorList.get(2), coorList.get(3));
+            drawStraightLine(index - 8, coorList.get(3));
+            drawStraightLine(index - 7, coorList.get(4));
+            drawStraightLine(index - 6, coorList.get(1), coorList.get(5));
+            drawStraightLine(index - 5, coorList.get(2), coorList.get(6));
+            drawStraightLine(index - 4, coorList.get(3), coorList.get(7));
+            drawStraightLine(index - 3, coorList.get(4), coorList.get(5));
+            drawStraightLine(index - 2, coorList.get(5), coorList.get(6));
+            drawStraightLine(index - 1, coorList.get(6), coorList.get(7));
+            drawStraightLine(index - 0, coorList.get(7), coorList.get(4));
           }
         }
         break;
@@ -854,27 +649,12 @@ public class DrawARActivity extends BaseActivity
         /**
          * 일반 펜 모드
          * */
-        // test
         for (int i = 0; i < newPoint.length; i++) {
-          if (mAnchor != null && mAnchor.getTrackingState() == TrackingState.TRACKING) {
-            point = LineUtils.TransformPointToPose(newPoint[i], mAnchor.getPose());
-            GlobalState.currentStrokes.get(index).add(point, false);
-          } else {
-            GlobalState.currentStrokes.get(index).add(newPoint[i], false);
-//            ArrayList<Vector3f> test_line = new ArrayList<>();
-//            for(int t =0; t<test.size(); t++)
-//            {
-//              test_line.add(new Vector3f(test.get(t).getX(),test.get(t).getY(),test.get(t).getZ()));
-//            }
-//            GlobalState.currentStrokes.get(index).add(test_line.get(i), false);
-//            Log.e(TAG, "Arcore Standard Check: " + newPoint[i]);
-          }
+          GlobalState.currentStrokes.get(index).add(newPoint[i], false);
         }
         mPairSessionManager.updateStroke(GlobalState.currentStrokes.get(index));
         break;
     }
-
-    // update firebase database
     isDrawing = true;
   }
 
@@ -960,12 +740,8 @@ public class DrawARActivity extends BaseActivity
       // Update ARCore frame
       mFrame = mSession.update();
 
-      // Notify the hostManager of all the anchor updates.
-      Collection<Anchor> updatedAnchors = mFrame.getUpdatedAnchors();
-      mPairSessionManager.onUpdate(updatedAnchors);
-
       // Update tracking states
-      mTrackingIndicator.setTrackingStates(mFrame, mAnchor);
+      mTrackingIndicator.setTrackingStates(mFrame);
       if (mTrackingIndicator.trackingState == TrackingState.TRACKING && !bHasTracked.get()) {
         bHasTracked.set(true);
         mAnalytics
@@ -1121,16 +897,6 @@ public class DrawARActivity extends BaseActivity
           mFramesNotTracked = 0;
         }
 
-        // If the anchor is set, set the modelMatrix of the line renderer to offset to the anchor
-        if (mAnchor != null && mAnchor.getTrackingState() == TrackingState.TRACKING) {
-          mAnchor.getPose().toMatrix(mLineShaderRenderer.mModelMatrix, 0);
-
-          if (BuildConfig.DEBUG) {
-            mAnchor.getPose().toMatrix(cloudAnchorRenderer.mModelMatrix, 0);
-            cloudAnchorRenderer.draw(viewmtx, projmtx, true);
-          }
-        }
-
         // Render the lines
         mLineShaderRenderer
           .draw(viewmtx, projmtx, mScreenWidth, mScreenHeight,
@@ -1182,7 +948,6 @@ public class DrawARActivity extends BaseActivity
    * onClickClear handle showing an AlertDialog to clear the drawing
    */
   private void onClickClear() {
-    ClearDrawingDialog.newInstance(mPairSessionManager.isPaired()).show(this);
     mAnalytics.setUserProperty(AnalyticsEvents.USER_PROPERTY_TAPPED_CLEAR,
       AnalyticsEvents.VALUE_TRUE);
   }
@@ -1217,10 +982,6 @@ public class DrawARActivity extends BaseActivity
     if (isOutsideViewBounds(mMenuSelector.getToolSelector(), (int) tap.getRawX(), (int) tap.getRawY())
       && mMenuSelector.getToolSelector().isOpen()) {
       mMenuSelector.getToolSelector().close();
-    }
-    if (isOutsideViewBounds(mPairButtonToolTip, (int) tap.getRawX(), (int) tap.getRawY())
-      && mPairButtonToolTip.getVisibility() == View.VISIBLE) {
-      mPairButtonToolTip.hide();
     }
   }
 
@@ -1272,7 +1033,6 @@ public class DrawARActivity extends BaseActivity
     prepareForRecording();
 
     zeroAnchorRenderer = new AnchorRenderer();
-    cloudAnchorRenderer = new AnchorRenderer();
     pointCloud.createOnGlThread(/*context=*/ this);
   }
 
@@ -1360,39 +1120,15 @@ public class DrawARActivity extends BaseActivity
     showStrokeDependentUI();
   }
 
-  private void shareApp() {
-    Intent intent = new Intent(Intent.ACTION_SEND);
-    intent.setType("text/plain");
-    intent.putExtra(Intent.EXTRA_TEXT, getString(R.string.share_app_message));
-    startActivity(Intent.createChooser(intent, getString(R.string.share_with)));
-  }
-
-
   @Override
   public void onClick(View v) {
-    boolean hidePairToolTip = true;
     switch (v.getId()) {
       case R.id.menu_item_clear:
         onClickClear();
         break;
-      case R.id.button_pair:
-        if (mPairSessionManager.isInRoom()) {
-          LeaveRoomDialog.newInstance().show(this);
-        } else if (mPairButtonToolTip.getVisibility() == View.GONE) {
-          mPairButtonToolTip.show();
-          mPairButton.setContentDescription(getString(R.string.content_description_close_join_friend_menu));
-          mPairButton.setAccessibilityTraversalBefore(R.id.pair_tooltip_title);
-          hidePairToolTip = false;
-        }
-        break;
     }
     mMenuSelector.getBrushSelector().close();
     mMenuSelector.getToolSelector().close();
-    if (hidePairToolTip) {
-      mPairButtonToolTip.hide();
-      if (!mPairSessionManager.isPaired())
-        mPairButton.setContentDescription(getString(R.string.content_description_join_friend));
-    }
   }
 
   @Override
@@ -1400,9 +1136,8 @@ public class DrawARActivity extends BaseActivity
     if (mPlaybackView.isOpen()) {
       mPlaybackView.close();
     } else if (mMode == Mode.PAIR_PARTNER_DISCOVERY || mMode == Mode.PAIR_ANCHOR_RESOLVING) {
-      mPairView.hide();
       setMode(Mode.TOOL);
-      mPairSessionManager.leaveRoom(false);
+      mPairSessionManager.leaveRoom();
     } else {
       super.onBackPressed();
     }
@@ -1441,26 +1176,6 @@ public class DrawARActivity extends BaseActivity
     }
   }
 
-  @Override
-  public void onPairPressed() {
-    mPairSessionManager.startPairingSession(this);
-
-    mPairButton.setContentDescription(getString(R.string.content_description_disconnect_from_friend));
-
-    Fa.get().send(AnalyticsEvents.EVENT_TAPPED_START_PAIR);
-    Fa.get().setUserProperty(AnalyticsEvents.USER_PROPERTY_HAS_TAPPED_PAIR,
-      AnalyticsEvents.VALUE_TRUE);
-  }
-
-  @Override
-  public void onJoinRoomPressed() {
-    try {
-      ((GlobalPairSessionManager) mPairSessionManager).joinGlobalRoom(this);
-    } catch (ClassCastException e) {
-      Fa.get().exception(e, "Join Room pressed in production app");
-    }
-  }
-
   /**
    * Update views for the given mode
    */
@@ -1473,232 +1188,14 @@ public class DrawARActivity extends BaseActivity
           showView(mDrawUiContainer);
           showView(mTrackingIndicator);
           mTrackingIndicator.setDrawPromptEnabled(true);
-          mTrackingIndicator.removeListener(mPairView);
-          mPairView.hide();
-          break;
-        case PAIR_ANCHOR_RESOLVING:
-          hideView(mDrawUiContainer);
-          mTrackingIndicator.setDrawPromptEnabled(false);
-          showView(mTrackingIndicator);
-          mTrackingIndicator.addListener(mPairView);
-          break;
-        case PAIR_PARTNER_DISCOVERY:
-        case PAIR_ERROR:
-        case PAIR_SUCCESS:
-          hideView(mDrawUiContainer);
-          hideView(mTrackingIndicator);
-          mTrackingIndicator.setDrawPromptEnabled(false);
-          mTrackingIndicator.removeListener(mPairView);
-          mPairView.show();
-          mPairView.onErrorRemoved();
           break;
       }
     }
-  }
-
-  @Override
-  public void setAnchor(Anchor anchor) {
-    mAnchor = anchor;
-
-    for (Stroke stroke : GlobalState.currentStrokes) {
-      Log.d(TAG, "setAnchor: pushing line");
-      stroke.offsetToPose(mAnchor.getPose());
-      mPairSessionManager.addStroke(stroke);
-    }
-
-    mLineShaderRenderer.bNeedsUpdate.set(true);
-  }
-
-  @Override
-  public void onModeChanged(Mode mode) {
-    setMode(mode);
   }
 
   private void showView(View toShow) {
     toShow.setVisibility(View.VISIBLE);
     toShow.animate().alpha(1).start();
-  }
-
-  private void hideView(final View toHide) {
-    toHide.animate().alpha(0).withEndAction(new Runnable() {
-      @Override
-      public void run() {
-        toHide.setVisibility(View.GONE);
-      }
-    }).start();
-  }
-
-  public void enableView(View toEnable) {
-    toEnable.setEnabled(true);
-    toEnable.animate().alpha(1f);
-  }
-
-  public void disableView(View toDisable) {
-    toDisable.setEnabled(false);
-    toDisable.animate().alpha(.5f);
-  }
-
-  @Override
-  public void onPairCanceled() {
-    mPairView.hide();
-
-    setMode(Mode.TOOL);
-
-    mPairSessionManager.leaveRoom(false);
-  }
-
-  @Override
-  public void onPairViewClosed() {
-    setMode(Mode.TOOL);
-  }
-
-  @Override
-  public void onReadyToSetAnchor() {
-    mPairSessionManager.readyToSetAnchor();
-    Fa.get().send(AnalyticsEvents.EVENT_TAPPED_READY_TO_SET_ANCHOR);
-  }
-
-  public void createAnchor() {
-    runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        Pose pose = mFrame.getCamera().getPose();
-
-        try {
-          mAnchor = mSession.createAnchor(pose);
-        } catch (NotTrackingException e) {
-          Log.e(TAG, "Cannot create anchor when not tracking", e);
-          mTrackingIndicator.addListener(new TrackingIndicator.DisplayListener() {
-            @Override
-            public void onErrorDisplaying() {
-              // Do nothing, can't set anchor
-            }
-
-            @Override
-            public void onErrorRemoved() {
-              mTrackingIndicator.removeListener(this);
-              createAnchor();
-            }
-          });
-          return;
-        }
-
-        mPairSessionManager.onAnchorCreated();
-        if (GlobalState.currentStrokes.size() > 0) {
-          for (int i = 0; i < GlobalState.currentStrokes.size(); i++) {
-            GlobalState.currentStrokes.get(i).offsetToPose(pose);
-            if (GlobalState.currentStrokes.get(i).hasFirebaseReference())
-              mPairSessionManager.updateStroke(GlobalState.currentStrokes.get(i));
-            else
-              mPairSessionManager.addStroke(GlobalState.currentStrokes.get(i));
-          }
-          mLineShaderRenderer.bNeedsUpdate.set(true);
-        }
-
-        mPairSessionManager.setAnchor(mAnchor);
-      }
-    });
-  }
-
-  @Override
-  public void clearLines() {
-    mSharedStrokes.clear();
-    GlobalState.currentStrokes.clear();
-    mLineShaderRenderer.bNeedsUpdate.set(true);
-  }
-
-  @Override
-  public void onAnchorChangedLeftRoom() {
-    ErrorDialog.newInstance(R.string.drawing_session_ended, false)
-      .show(this);
-  }
-
-  @Override
-  public void onConnectivityLostLeftRoom() {
-    ErrorDialog.newInstance(R.string.pair_no_data_connection_title,
-        R.string.pair_no_data_connection_body, false)
-      .show(this);
-  }
-
-  @Override
-  public void clearAnchor(Anchor anchor) {
-    if (anchor != null && anchor.equals(mAnchor)) {
-      for (Stroke stroke : GlobalState.currentStrokes) {
-        stroke.offsetFromPose(mAnchor.getPose());
-      }
-      mAnchor = null;
-      Matrix.setIdentityM(mLineShaderRenderer.mModelMatrix, 0);
-    }
-  }
-
-  @Override
-  public void setRoomNumber(String roomKey) {
-  }
-
-  @Override
-  public void onReadyResolveAnchor() {
-    mPairSessionManager.resolveAnchorFromAnchorId();
-  }
-
-  @Override
-  public void setAnchorResolvingMode() {
-    setMode(Mode.PAIR_ANCHOR_RESOLVING);
-  }
-
-  @Override
-  public void setPairErrorMode() {
-    setMode(Mode.PAIR_ERROR);
-  }
-
-  @Override
-  public void setPairSuccessMode() {
-    setMode(Mode.PAIR_SUCCESS);
-  }
-
-  @Override
-  public void attemptPartnerDiscovery() {
-    mPairSessionManager.startPairingSession(this);
-  }
-
-  @Override
-  public void onPartnerCountChanged(int partnerCount) {
-    if (partnerCount < 2) {
-      mPairActiveView.setText(R.string.partner_lost);
-      mPairActiveView.setBackgroundResource(R.drawable.bg_pair_state_partner_lost);
-    } else {
-      mPairActiveView.setText(R.string.partner_paired);
-      mPairActiveView.setBackgroundResource(R.drawable.bg_pair_state_paired);
-    }
-  }
-
-  @Override
-  public void onConnectedToSession() {
-    runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        mPairSessionManager.setStrokeListener(DrawARActivity.this);
-        mPairActiveView.setText(R.string.partner_paired);
-        showView(mPairActiveView);
-
-        mTrackingIndicator.setAnchorTrackingMessageEnabled(true);
-        mTrackingIndicator.setShowPairedSessionDrawPrompt(true);
-      }
-    });
-  }
-
-  @Override
-  public void onDisconnectedFromSession() {
-    runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        hideView(mPairActiveView);
-
-        mPairButton.setContentDescription(getString(R.string.content_description_join_friend));
-
-        mTrackingIndicator.setAnchorTrackingMessageEnabled(false);
-        mTrackingIndicator.setShowPairedSessionDrawPrompt(false);
-      }
-    });
   }
 
   @Override
@@ -1747,7 +1244,7 @@ public class DrawARActivity extends BaseActivity
 
   @Override
   public void onExitRoomSelected() {
-    mPairSessionManager.leaveRoom(true);
+    mPairSessionManager.leaveRoom();
     Fa.get().send(AnalyticsEvents.EVENT_TAPPED_DISCONNECT_PAIRED_SESSION);
   }
 
