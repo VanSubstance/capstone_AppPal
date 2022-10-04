@@ -24,6 +24,8 @@ import android.icu.util.Calendar;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -160,8 +162,6 @@ public class DrawARActivity extends BaseActivity
 
   private AtomicBoolean bNewTrack = new AtomicBoolean(false);
 
-  private List<Stroke> mStrokes;
-
   // Test Case
   private ArrayList<TestCase> test = new ArrayList<>();
 
@@ -192,6 +192,7 @@ public class DrawARActivity extends BaseActivity
   private Anchor mAnchor;
 
   private Map<String, Stroke> mSharedStrokes = new HashMap<>();
+  private Map<String, Stroke> mLoadedStrokes = new HashMap<>();
 
   private PairButton mPairButton;
 
@@ -220,7 +221,22 @@ public class DrawARActivity extends BaseActivity
   public TextView mTitleTextView;
   public TextView mCodeTextView;
 
-//  public static ProgressBar gestureProgressBar;
+  /**
+   * 로딩용 프로그래스 바 (원형)
+   */
+
+  private static ProgressBar mOnBoardingProgressBar;
+  private final static int LOADING_INIT = 0;
+  private final static int LOADING_DONE = 1;
+  private static Handler loadingHandler = new Handler() {
+    public void handleMessage(Message message) {
+      if (message.arg1 == LOADING_INIT) {
+        mOnBoardingProgressBar.setVisibility(View.VISIBLE);
+      } else {
+        mOnBoardingProgressBar.setVisibility(View.GONE);
+      }
+    }
+  };
 
 
   /**
@@ -229,6 +245,13 @@ public class DrawARActivity extends BaseActivity
   @SuppressLint("ApplySharedPref")
   @Override
   protected void onCreate(Bundle savedInstanceState) {
+    for (Stroke value : GlobalState.loadedStrokes) {
+      value.localLine = false;
+      value.calculateTotalLength();
+      mSharedStrokes.put(value.creator, value);
+      mLineShaderRenderer.bNeedsUpdate.set(true);
+    }
+    GlobalState.loadedStrokes.clear();
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
     getWindowManager().getDefaultDisplay().getMetrics(GlobalState.displayMetrics);
@@ -265,7 +288,6 @@ public class DrawARActivity extends BaseActivity
     // Reset the zero matrix
     Matrix.setIdentityM(mZeroMatrix, 0);
 
-    mStrokes = new ArrayList<>();
     touchQueueSize = new AtomicInteger(0);
     touchQueue = new AtomicReferenceArray<>(TOUCH_QUEUE_SIZE);
 
@@ -275,6 +297,8 @@ public class DrawARActivity extends BaseActivity
 
     mPairView = findViewById(R.id.view_join);
     mPairView.setListener(this);
+
+    mOnBoardingProgressBar = findViewById(R.id.progress_drawing);
 
     if (JOIN_GLOBAL_ROOM) {
       mPairSessionManager = new GlobalPairSessionManager(this);
@@ -473,7 +497,7 @@ public class DrawARActivity extends BaseActivity
           stroke.localLine = true;
           stroke.setLineWidth(mLineWidthMax);
           stroke.setColor(mSelectedColor);
-          mStrokes.add(stroke);
+          GlobalState.currentStrokes.add(stroke);
         }
         break;
       case CUBE:
@@ -482,7 +506,7 @@ public class DrawARActivity extends BaseActivity
           stroke.localLine = true;
           stroke.setLineWidth(mLineWidthMax);
           stroke.setColor(mSelectedColor);
-          mStrokes.add(stroke);
+          GlobalState.currentStrokes.add(stroke);
         }
         break;
       default:
@@ -490,26 +514,26 @@ public class DrawARActivity extends BaseActivity
         stroke.localLine = true;
         stroke.setLineWidth(mLineWidthMax);
         stroke.setColor(mSelectedColor);
-        mStrokes.add(stroke);
+        GlobalState.currentStrokes.add(stroke);
         break;
     }
 
     // update firebase
-    int index = mStrokes.size() - 1;
-//        mPairSessionManager.updateStroke(index, mStrokes.get(index));
+    int index = GlobalState.currentStrokes.size() - 1;
+//        mPairSessionManager.updateStroke(index, GlobalState.currentStrokes.get(index));
     switch (mMenuSelector.getToolSelector().getSelectedToolType()) {
       case RECT:
         for (int i = 3; i >= 0; i--) {
-          mPairSessionManager.addStroke(mStrokes.get(index - i));
+          mPairSessionManager.addStroke(GlobalState.currentStrokes.get(index - i));
         }
         break;
       case CUBE:
         for (int i = 11; i >= 0; i--) {
-          mPairSessionManager.addStroke(mStrokes.get(index - i));
+          mPairSessionManager.addStroke(GlobalState.currentStrokes.get(index - i));
         }
         break;
       default:
-        mPairSessionManager.addStroke(mStrokes.get(index));
+        mPairSessionManager.addStroke(GlobalState.currentStrokes.get(index));
         break;
     }
 
@@ -543,7 +567,7 @@ public class DrawARActivity extends BaseActivity
   private void trackPoint3f(Vector3f... newPoint) {
     Vector3f point;
     Vector3f targetPoint;
-    int index = mStrokes.size() - 1;
+    int index = GlobalState.currentStrokes.size() - 1;
 
     if (index < 0)
       return;
@@ -557,8 +581,8 @@ public class DrawARActivity extends BaseActivity
         targetPoint = newPoint[newPoint.length - 1];
         if (mAnchor != null && mAnchor.getTrackingState() == TrackingState.TRACKING) {
           point = LineUtils.TransformPointToPose(targetPoint, mAnchor.getPose());
-          for (int j = 0; j < mStrokes.size(); j++) {
-            Stroke stroke = mStrokes.get(j);
+          for (int j = 0; j < GlobalState.currentStrokes.size(); j++) {
+            Stroke stroke = GlobalState.currentStrokes.get(j);
             boolean isPassed = false;
             int targetIndex = 0;
             List<Vector3f> pointList = stroke.getPoints();
@@ -574,9 +598,9 @@ public class DrawARActivity extends BaseActivity
             }
             if (isPassed) {
               if (targetIndex < 3) {
-                mStrokes.get(j).truncatePoints(targetIndex, stroke.size());
+                GlobalState.currentStrokes.get(j).truncatePoints(targetIndex, stroke.size());
               } else if (stroke.size() - 3 < targetIndex) {
-                mStrokes.get(j).truncatePoints(0, targetIndex);
+                GlobalState.currentStrokes.get(j).truncatePoints(0, targetIndex);
               } else {
                 Stroke backStroke = new Stroke();
                 backStroke.localLine = true;
@@ -584,9 +608,9 @@ public class DrawARActivity extends BaseActivity
                 backStroke.updateStrokeData(stroke);
                 backStroke.setColor(mSelectedColor);
                 backStroke.truncatePoints(targetIndex + 1, stroke.size());
-                mStrokes.get(j).truncatePoints(0, targetIndex - 1);
-                mStrokes.add(backStroke);
-                mPairSessionManager.addStroke(mStrokes.get(index + 1));
+                GlobalState.currentStrokes.get(j).truncatePoints(0, targetIndex - 1);
+                GlobalState.currentStrokes.add(backStroke);
+                mPairSessionManager.addStroke(GlobalState.currentStrokes.get(index + 1));
               }
               mLineShaderRenderer.bNeedsUpdate.set(true);
             }
@@ -595,7 +619,7 @@ public class DrawARActivity extends BaseActivity
            * 기존 한 획 통째로 삭제 기능
            * 추후 추가를 위해 코드 보존
            */
-//          for (Stroke stroke : mStrokes) {
+//          for (Stroke stroke : GlobalState.currentStrokes) {
 //            boolean isPassed = false;
 //            for (Vector3f pointToErase : stroke.getPoints()) {
 //              if (Math.abs(point.getX() - pointToErase.getX()) < 0.00001f
@@ -607,16 +631,16 @@ public class DrawARActivity extends BaseActivity
 //            }
 //            if (isPassed) {
 //              mPairSessionManager.undoStroke(stroke);
-//              mStrokes.remove(stroke);
-//              if (mStrokes.isEmpty()) {
+//              GlobalState.currentStrokes.remove(stroke);
+//              if (GlobalState.currentStrokes.isEmpty()) {
 //                showStrokeDependentUI();
 //              }
 //              mLineShaderRenderer.bNeedsUpdate.set(true);
 //            }
 //          }
         } else {
-          for (int j = 0; j < mStrokes.size(); j++) {
-            Stroke stroke = mStrokes.get(j);
+          for (int j = 0; j < GlobalState.currentStrokes.size(); j++) {
+            Stroke stroke = GlobalState.currentStrokes.get(j);
             boolean isPassed = false;
             int targetIndex = 0;
             List<Vector3f> pointList = stroke.getPoints();
@@ -632,9 +656,9 @@ public class DrawARActivity extends BaseActivity
             }
             if (isPassed) {
               if (targetIndex < 3) {
-                mStrokes.get(j).truncatePoints(targetIndex, stroke.size());
+                GlobalState.currentStrokes.get(j).truncatePoints(targetIndex, stroke.size());
               } else if (stroke.size() - 3 < targetIndex) {
-                mStrokes.get(j).truncatePoints(0, targetIndex);
+                GlobalState.currentStrokes.get(j).truncatePoints(0, targetIndex);
               } else {
                 Stroke backStroke = new Stroke();
                 backStroke.localLine = true;
@@ -642,9 +666,9 @@ public class DrawARActivity extends BaseActivity
                 backStroke.setColor(mSelectedColor);
                 backStroke.updateStrokeData(stroke);
                 backStroke.truncatePoints(targetIndex + 1, stroke.size());
-                mStrokes.get(j).truncatePoints(0, targetIndex - 1);
-                mStrokes.add(backStroke);
-                mPairSessionManager.addStroke(mStrokes.get(index + 1));
+                GlobalState.currentStrokes.get(j).truncatePoints(0, targetIndex - 1);
+                GlobalState.currentStrokes.add(backStroke);
+                mPairSessionManager.addStroke(GlobalState.currentStrokes.get(index + 1));
               }
               mLineShaderRenderer.bNeedsUpdate.set(true);
             }
@@ -653,7 +677,7 @@ public class DrawARActivity extends BaseActivity
            * 기존 한 획 통째로 삭제 기능
            * 추후 추가를 위해 코드 보존
            */
-//          for (Stroke stroke : mStrokes) {
+//          for (Stroke stroke : GlobalState.currentStrokes) {
 //            boolean isPassed = false;
 //            for (Vector3f pointToErase : stroke.getPoints()) {
 //              if (Math.abs(targetPoint.getX() - pointToErase.getX()) < 0.00001f
@@ -665,15 +689,15 @@ public class DrawARActivity extends BaseActivity
 //            }
 //            if (isPassed) {
 //              mPairSessionManager.undoStroke(stroke);
-//              mStrokes.remove(stroke);
-//              if (mStrokes.isEmpty()) {
+//              GlobalState.currentStrokes.remove(stroke);
+//              if (GlobalState.currentStrokes.isEmpty()) {
 //                showStrokeDependentUI();
 //              }
 //              mLineShaderRenderer.bNeedsUpdate.set(true);
 //            }
 //          }
         }
-        mPairSessionManager.updateStroke(mStrokes.get(index));
+        mPairSessionManager.updateStroke(GlobalState.currentStrokes.get(index));
         break;
       case RECT:
         /**
@@ -683,12 +707,12 @@ public class DrawARActivity extends BaseActivity
           targetPoint = newPoint[newPoint.length - 1];
           if (mAnchor != null && mAnchor.getTrackingState() == TrackingState.TRACKING) {
             point = LineUtils.TransformPointToPose(targetPoint, mAnchor.getPose());
-            if (mStrokes.get(index - 3).size() == 0) {
+            if (GlobalState.currentStrokes.get(index - 3).size() == 0) {
               for (int i = 3; i >= 0; i--) {
                 drawStraightLine(index - i, point);
               }
             } else {
-              Vector3f startCoor = mStrokes.get(index - 3).get(0);
+              Vector3f startCoor = GlobalState.currentStrokes.get(index - 3).get(0);
               float xs = startCoor.getX();
               float ys = startCoor.getY();
               float zs = startCoor.getZ();
@@ -706,12 +730,12 @@ public class DrawARActivity extends BaseActivity
               drawStraightLine(index - 0, coorList.get(3));
             }
           } else {
-            if (mStrokes.get(index - 3).size() == 0) {
+            if (GlobalState.currentStrokes.get(index - 3).size() == 0) {
               for (int i = 3; i >= 0; i--) {
                 drawStraightLine(index - i, targetPoint);
               }
             } else {
-              Vector3f startCoor = mStrokes.get(index - 3).get(0);
+              Vector3f startCoor = GlobalState.currentStrokes.get(index - 3).get(0);
               float xs = startCoor.getX();
               float ys = startCoor.getY();
               float zs = startCoor.getZ();
@@ -753,12 +777,12 @@ public class DrawARActivity extends BaseActivity
           targetPoint = newPoint[newPoint.length - 1];
           if (mAnchor != null && mAnchor.getTrackingState() == TrackingState.TRACKING) {
             point = LineUtils.TransformPointToPose(targetPoint, mAnchor.getPose());
-            if (mStrokes.get(index - 11).size() == 0) {
+            if (GlobalState.currentStrokes.get(index - 11).size() == 0) {
               for (int i = 11; i >= 0; i--) {
                 drawStraightLine(index - i, point);
               }
             } else {
-              Vector3f startCoor = mStrokes.get(index - 11).get(0);
+              Vector3f startCoor = GlobalState.currentStrokes.get(index - 11).get(0);
               float xs = startCoor.getX();
               float ys = startCoor.getY();
               float zs = startCoor.getZ();
@@ -788,12 +812,12 @@ public class DrawARActivity extends BaseActivity
               drawStraightLine(index - 0, coorList.get(7), coorList.get(4));
             }
           } else {
-            if (mStrokes.get(index - 11).size() == 0) {
+            if (GlobalState.currentStrokes.get(index - 11).size() == 0) {
               for (int i = 11; i >= 0; i--) {
                 drawStraightLine(index - i, targetPoint);
               }
             } else {
-              Vector3f startCoor = mStrokes.get(index - 11).get(0);
+              Vector3f startCoor = GlobalState.currentStrokes.get(index - 11).get(0);
               float xs = startCoor.getX();
               float ys = startCoor.getY();
               float zs = startCoor.getZ();
@@ -834,19 +858,19 @@ public class DrawARActivity extends BaseActivity
         for (int i = 0; i < newPoint.length; i++) {
           if (mAnchor != null && mAnchor.getTrackingState() == TrackingState.TRACKING) {
             point = LineUtils.TransformPointToPose(newPoint[i], mAnchor.getPose());
-            mStrokes.get(index).add(point, false);
+            GlobalState.currentStrokes.get(index).add(point, false);
           } else {
-            mStrokes.get(index).add(newPoint[i], false);
+            GlobalState.currentStrokes.get(index).add(newPoint[i], false);
 //            ArrayList<Vector3f> test_line = new ArrayList<>();
 //            for(int t =0; t<test.size(); t++)
 //            {
 //              test_line.add(new Vector3f(test.get(t).getX(),test.get(t).getY(),test.get(t).getZ()));
 //            }
-//            mStrokes.get(index).add(test_line.get(i), false);
+//            GlobalState.currentStrokes.get(index).add(test_line.get(i), false);
 //            Log.e(TAG, "Arcore Standard Check: " + newPoint[i]);
           }
         }
-        mPairSessionManager.updateStroke(mStrokes.get(index));
+        mPairSessionManager.updateStroke(GlobalState.currentStrokes.get(index));
         break;
     }
 
@@ -860,8 +884,8 @@ public class DrawARActivity extends BaseActivity
    * 2. 좌표를 추가해준다
    */
   public void drawStraightLine(int targetStrokeIndex, Vector3f targetPoint) {
-    if (mStrokes.get(targetStrokeIndex).size() >= 2) {
-      Vector3f startPoint = mStrokes.get(targetStrokeIndex).get(0);
+    if (GlobalState.currentStrokes.get(targetStrokeIndex).size() >= 2) {
+      Vector3f startPoint = GlobalState.currentStrokes.get(targetStrokeIndex).get(0);
       float xs = startPoint.getX();
       float ys = startPoint.getY();
       float zs = startPoint.getZ();
@@ -885,11 +909,11 @@ public class DrawARActivity extends BaseActivity
         pointList.add(startPoint);
         pointList.add(targetPoint);
       }
-      mStrokes.get(targetStrokeIndex).replaceAll(pointList);
+      GlobalState.currentStrokes.get(targetStrokeIndex).replaceAll(pointList);
     } else {
-      mStrokes.get(targetStrokeIndex).add(targetPoint, false);
+      GlobalState.currentStrokes.get(targetStrokeIndex).add(targetPoint, false);
     }
-    mPairSessionManager.updateStroke(mStrokes.get(targetStrokeIndex));
+    mPairSessionManager.updateStroke(GlobalState.currentStrokes.get(targetStrokeIndex));
   }
 
   public void drawStraightLine(int targetStrokeIndex, Vector3f startPoint, Vector3f endPoint) {
@@ -916,8 +940,8 @@ public class DrawARActivity extends BaseActivity
       pointList.add(startPoint);
       pointList.add(endPoint);
     }
-    mStrokes.get(targetStrokeIndex).replaceAll(pointList);
-    mPairSessionManager.updateStroke(mStrokes.get(targetStrokeIndex));
+    GlobalState.currentStrokes.get(targetStrokeIndex).replaceAll(pointList);
+    mPairSessionManager.updateStroke(GlobalState.currentStrokes.get(targetStrokeIndex));
   }
 
   /**
@@ -1018,14 +1042,14 @@ public class DrawARActivity extends BaseActivity
       // Check if we are still drawing, otherwise finish line
       if (isDrawing) {
         isDrawing = false;
-        if (!mStrokes.isEmpty()) {
-          mStrokes.get(mStrokes.size() - 1).finishStroke();
+        if (!GlobalState.currentStrokes.isEmpty()) {
+          GlobalState.currentStrokes.get(GlobalState.currentStrokes.size() - 1).finishStroke();
         }
       }
 
       // Update line animation
-//            for (int i = 0; i < mStrokes.size(); i++) {
-//                mStrokes.get(i).update();
+//            for (int i = 0; i < GlobalState.currentStrokes.size(); i++) {
+//                GlobalState.currentStrokes.get(i).update();
 //            }
       boolean renderNeedsUpdate = false;
       for (Stroke stroke : mSharedStrokes.values()) {
@@ -1039,11 +1063,11 @@ public class DrawARActivity extends BaseActivity
 
       if (bUndo.get()) {
         bUndo.set(false);
-        if (mStrokes.size() > 0) {
-          int index = mStrokes.size() - 1;
-          mPairSessionManager.undoStroke(mStrokes.get(index));
-          mStrokes.remove(index);
-          if (mStrokes.isEmpty()) {
+        if (GlobalState.currentStrokes.size() > 0) {
+          int index = GlobalState.currentStrokes.size() - 1;
+          mPairSessionManager.undoStroke(GlobalState.currentStrokes.get(index));
+          GlobalState.currentStrokes.remove(index);
+          if (GlobalState.currentStrokes.isEmpty()) {
             showStrokeDependentUI();
           }
           mLineShaderRenderer.bNeedsUpdate.set(true);
@@ -1055,7 +1079,7 @@ public class DrawARActivity extends BaseActivity
         mLineShaderRenderer.setDistanceScale(distanceScale);
         mLineShaderRenderer.setLineWidth(mLineWidthMax);
         mLineShaderRenderer.clear();
-        mLineShaderRenderer.updateStrokes(mStrokes, mSharedStrokes);
+        mLineShaderRenderer.updateStrokes(GlobalState.currentStrokes, mSharedStrokes);
         mLineShaderRenderer.upload();
       }
 
@@ -1135,7 +1159,7 @@ public class DrawARActivity extends BaseActivity
    * Designed to be executed on the GL Thread
    */
   private void clearDrawing() {
-    mStrokes.clear();
+    GlobalState.currentStrokes.clear();
     mLineShaderRenderer.clear();
     mPairSessionManager.clearStrokes();
     showStrokeDependentUI();
@@ -1321,11 +1345,11 @@ public class DrawARActivity extends BaseActivity
     runOnUiThread(new Runnable() {
       @Override
       public void run() {
-        mUndoButton.setVisibility(mStrokes.size() > 0 ? View.VISIBLE : View.GONE);
+        mUndoButton.setVisibility(GlobalState.currentStrokes.size() > 0 ? View.VISIBLE : View.GONE);
         mClearDrawingButton.setVisibility(
-          (mStrokes.size() > 0 || mSharedStrokes.size() > 0) ? View.VISIBLE
+          (GlobalState.currentStrokes.size() > 0 || mSharedStrokes.size() > 0) ? View.VISIBLE
             : View.GONE);
-        mTrackingIndicator.setHasStrokes(mStrokes.size() > 0);
+        mTrackingIndicator.setHasStrokes(GlobalState.currentStrokes.size() > 0);
       }
     });
   }
@@ -1476,7 +1500,7 @@ public class DrawARActivity extends BaseActivity
   public void setAnchor(Anchor anchor) {
     mAnchor = anchor;
 
-    for (Stroke stroke : mStrokes) {
+    for (Stroke stroke : GlobalState.currentStrokes) {
       Log.d(TAG, "setAnchor: pushing line");
       stroke.offsetToPose(mAnchor.getPose());
       mPairSessionManager.addStroke(stroke);
@@ -1560,13 +1584,13 @@ public class DrawARActivity extends BaseActivity
         }
 
         mPairSessionManager.onAnchorCreated();
-        if (mStrokes.size() > 0) {
-          for (int i = 0; i < mStrokes.size(); i++) {
-            mStrokes.get(i).offsetToPose(pose);
-            if (mStrokes.get(i).hasFirebaseReference())
-              mPairSessionManager.updateStroke(mStrokes.get(i));
+        if (GlobalState.currentStrokes.size() > 0) {
+          for (int i = 0; i < GlobalState.currentStrokes.size(); i++) {
+            GlobalState.currentStrokes.get(i).offsetToPose(pose);
+            if (GlobalState.currentStrokes.get(i).hasFirebaseReference())
+              mPairSessionManager.updateStroke(GlobalState.currentStrokes.get(i));
             else
-              mPairSessionManager.addStroke(mStrokes.get(i));
+              mPairSessionManager.addStroke(GlobalState.currentStrokes.get(i));
           }
           mLineShaderRenderer.bNeedsUpdate.set(true);
         }
@@ -1579,7 +1603,7 @@ public class DrawARActivity extends BaseActivity
   @Override
   public void clearLines() {
     mSharedStrokes.clear();
-    mStrokes.clear();
+    GlobalState.currentStrokes.clear();
     mLineShaderRenderer.bNeedsUpdate.set(true);
   }
 
@@ -1599,7 +1623,7 @@ public class DrawARActivity extends BaseActivity
   @Override
   public void clearAnchor(Anchor anchor) {
     if (anchor != null && anchor.equals(mAnchor)) {
-      for (Stroke stroke : mStrokes) {
+      for (Stroke stroke : GlobalState.currentStrokes) {
         stroke.offsetFromPose(mAnchor.getPose());
       }
       mAnchor = null;
@@ -1692,9 +1716,9 @@ public class DrawARActivity extends BaseActivity
       mSharedStrokes.remove(uid);
       mLineShaderRenderer.bNeedsUpdate.set(true);
     } else {
-      for (Stroke stroke : mStrokes) {
+      for (Stroke stroke : GlobalState.currentStrokes) {
         if (uid.equals(stroke.getFirebaseKey())) {
-          mStrokes.remove(stroke);
+          GlobalState.currentStrokes.remove(stroke);
           if (!stroke.finished) {
           }
           mLineShaderRenderer.bNeedsUpdate.set(true);
@@ -1725,5 +1749,17 @@ public class DrawARActivity extends BaseActivity
   public void onExitRoomSelected() {
     mPairSessionManager.leaveRoom(true);
     Fa.get().send(AnalyticsEvents.EVENT_TAPPED_DISCONNECT_PAIRED_SESSION);
+  }
+
+  public static void initLoading() {
+    Message message = loadingHandler.obtainMessage();
+    message.arg1 = LOADING_INIT;
+    loadingHandler.sendMessage(message);
+  }
+
+  public static void finishLoading() {
+    Message message = loadingHandler.obtainMessage();
+    message.arg1 = LOADING_DONE;
+    loadingHandler.sendMessage(message);
   }
 }

@@ -42,25 +42,6 @@ public class LoginFragment extends Fragment {
   private SignInButton signInButton;
   private FirebaseDatabase database;
   private DatabaseReference databaseReference;
-  private ProgressBar mLoginProgressBar;
-
-  private final static int LOADING_INIT = 0;
-  private final static int LOADING_DONE = 1;
-
-  /**
-   * 구글로 로그인 실행중에 로딩 컴포넌트를 on/off 해줄 핸들러
-   */
-  private Handler loadingHandler = new Handler() {
-    public void handleMessage(Message message) {
-      if (message.arg1 == LOADING_INIT) {
-        signInButton.setVisibility(View.GONE);
-        mLoginProgressBar.setVisibility(View.VISIBLE);
-      } else {
-//        signInButton.setVisibility(View.VISIBLE);
-//        mLoginProgressBar.setVisibility(View.GONE);
-      }
-    }
-  };
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
@@ -88,7 +69,6 @@ public class LoginFragment extends Fragment {
   private void init(View rootView) {
     signInButton = rootView.findViewById(R.id.login_button);
     mAuth = FirebaseAuth.getInstance();
-    mLoginProgressBar = rootView.findViewById(R.id.progress_main);
 
     // 다음에 로그인할때 자동으로 로그인 되는 코드
 //    if (mAuth.getCurrentUser() != null) {
@@ -114,9 +94,7 @@ public class LoginFragment extends Fragment {
   }
 
   private void signIn() {
-    Message message = loadingHandler.obtainMessage();
-    message.arg1 = LOADING_INIT;
-    loadingHandler.sendMessage(message);
+    ((OnBoardingActivity) getActivity()).initLoading();
 
     Intent signInIntent = mGoogleSignInClient.getSignInIntent();
     startActivityForResult(signInIntent, RC_SIGN_IN);
@@ -163,9 +141,7 @@ public class LoginFragment extends Fragment {
   }
 
   private void updateUI(FirebaseUser user) { //update ui code here
-    Message message = loadingHandler.obtainMessage();
-    message.arg1 = LOADING_DONE;
-    loadingHandler.sendMessage(message);
+    ((OnBoardingActivity) getActivity()).finishLoading();
     if (user != null) {
       ((OnBoardingActivity) getActivity()).goToListFragment(ListFragment.CREATE_OPTION_MODE);
     }

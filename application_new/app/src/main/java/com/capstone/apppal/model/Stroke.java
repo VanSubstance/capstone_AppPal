@@ -17,6 +17,7 @@ package com.capstone.apppal.model;
 import com.capstone.apppal.AppSettings;
 import com.capstone.apppal.BiquadFilter;
 import com.capstone.apppal.rendering.LineUtils;
+import com.capstone.apppal.utils.GlobalState;
 import com.google.ar.core.Pose;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Exclude;
@@ -37,8 +38,6 @@ import javax.vecmath.Vector3f;
  */
 @IgnoreExtraProperties
 public class Stroke {
-
-  private static final String TAG = "Stroke";
 
   @PropertyName("points")
   private ArrayList<Vector3f> points = new ArrayList<>();
@@ -78,6 +77,9 @@ public class Stroke {
     // Default constructor required for calls to DataSnapshot.getValue(Stroke.class)
     animationFilter = new BiquadFilter(0.025, 1);
     this.color = AppSettings.getColor();
+    if (GlobalState.useruid != null) {
+      this.creator = GlobalState.useruid;
+    }
   }
 
   // Add point to stroke
@@ -385,9 +387,9 @@ public class Stroke {
 
     // if points havent been set, or if creator or lineWidth has changed, force a full update
     if (previousStrokeUpdate == null
-        || previousStrokeUpdate.stroke.points.size() == 0
-        || !previousStrokeUpdate.stroke.creator.equals(strokeUpdate.stroke.creator)
-        || previousStrokeUpdate.stroke.lineWidth != strokeUpdate.stroke.lineWidth) {
+      || previousStrokeUpdate.stroke.points.size() == 0
+      || !previousStrokeUpdate.stroke.creator.equals(strokeUpdate.stroke.creator)
+      || previousStrokeUpdate.stroke.lineWidth != strokeUpdate.stroke.lineWidth) {
       firebaseReference.setValue(strokeUpdate.stroke, completionListener);
     } else {
       // If only points have updated, calculate the changes since last update, and only upload those points
@@ -434,6 +436,7 @@ public class Stroke {
     copy.lineWidth = lineWidth;
     copy.firebaseReference = firebaseReference;
     copy.points = new ArrayList<>(points);
+    copy.color = color;
     return copy;
   }
 

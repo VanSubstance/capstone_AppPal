@@ -6,10 +6,12 @@ import com.capstone.apppal.VO.CoordinateInfo;
 import com.capstone.apppal.VO.FunctionType;
 import com.capstone.apppal.VO.GestureType;
 import com.capstone.apppal.VO.RoomsInfo;
+import com.capstone.apppal.model.Stroke;
 
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.vecmath.Vector3f;
 
@@ -25,7 +27,6 @@ public class GlobalState {
   public static InputStreamReader is;
   public static OutputStreamWriter os;
   public static ArrayList<GestureType> listGesture = new ArrayList<>();
-  public static int gestureDetectionRate = 0;
 
   public static boolean isDrawable = false;
   public static FunctionType currentFunction = FunctionType.DRAWING;
@@ -34,4 +35,6 @@ public class GlobalState {
   public static String useruid;
 
   public static RoomsInfo currentRoomInfo;
+  public static List<Stroke> loadedStrokes = new ArrayList<>();
+  public static List<Stroke> currentStrokes = new ArrayList<>();
 }
