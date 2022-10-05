@@ -20,8 +20,6 @@ import android.util.Log;
 
 import com.capstone.apppal.model.Stroke;
 import com.capstone.apppal.utils.GlobalState;
-import com.google.ar.core.Anchor;
-import com.google.firebase.auth.FirebaseAuth;
 
 /**
  * Created by Kat on 4/4/18.
@@ -29,88 +27,57 @@ import com.google.firebase.auth.FirebaseAuth;
 
 public class PairSessionManager {
 
-    private static final String TAG = "PairSessionManager";
+  private static final String TAG = "PairSessionManager";
 
-    enum PairedState {
-        NOT_PAIRED, PAIRING, PAIRED, JOINING
-    }
+  boolean mPartnerInFlow = false;
 
-    PairedState mPairedOrPairing = PairedState.NOT_PAIRED;
+  RoomManager mRoomDbManager;
 
-    boolean mPartnerInFlow = false;
-
-    RoomManager mRoomDbManager;
-
-    String mUserUid = GlobalState.useruid;
-
-    private FirebaseAuth mFirebaseAuth;
-
-    private Anchor mAnchor;
-
-    private String mAnchorId;
-
-    private BroadcastReceiver mConnectivityBroadcastReceiver;
+  String mUserUid = GlobalState.useruid;
 
 
-    public PairSessionManager(Context context) {
-        mFirebaseAuth = FirebaseAuth.getInstance();
-        mRoomDbManager = createRoomManager(context);
-    }
+  public PairSessionManager(Context context) {
+    mRoomDbManager = createRoomManager(context);
+  }
 
-    public RoomManager createRoomManager(Context context) {
-        return new RoomManager(context);
-    }
+  public RoomManager createRoomManager(Context context) {
+    return new RoomManager(context);
+  }
 
-    boolean mLogInInProgress = false;
+  public void setStrokeListener(RoomManager.StrokeUpdateListener strokeListener) {
+    mRoomDbManager.setStrokesListener(strokeListener);
+  }
 
-    public void setStrokeListener(RoomManager.StrokeUpdateListener strokeListener) {
-        mRoomDbManager.setStrokesListener(strokeListener);
-    }
+  public void addStroke(Stroke stroke) {
+    mRoomDbManager.addStroke(mUserUid, stroke);
+  }
 
-    public void addStroke(Stroke stroke) {
-        mRoomDbManager.addStroke(mUserUid, stroke);
-    }
+  public void updateStroke(Stroke stroke) {
+    mRoomDbManager.updateStroke(stroke);
+  }
 
-    public void updateStroke(Stroke stroke) {
-        mRoomDbManager.updateStroke(stroke);
-    }
+  public void undoStroke(Stroke stroke) {
+    mRoomDbManager.undoStroke(stroke);
+  }
 
-    public void undoStroke(Stroke stroke) {
-        mRoomDbManager.undoStroke(stroke);
-    }
+  public void clearStrokes() {
+    mRoomDbManager.clearStrokes(mUserUid);
+  }
 
-    public void clearStrokes() {
-        mRoomDbManager.clearStrokes(mUserUid);
-    }
+  void leaveRoom() {
+    pauseListeners();
 
-    void leaveRoom() {
-        pauseListeners();
+    mPartnerInFlow = false;
 
-        if (mAnchor != null) {
-            mAnchor.detach();
-            mAnchor = null;
-        }
-        mAnchorId = null;
+    mRoomDbManager.leaveRoom();
+  }
 
-        mPairedOrPairing = PairedState.NOT_PAIRED;
-        mPartnerInFlow = false;
+  void pauseListeners() {
+    mRoomDbManager.pauseListeners(mUserUid);
+  }
 
-        mRoomDbManager.leaveRoom();
-    }
-
-    void pauseListeners() {
-
-        if (mConnectivityBroadcastReceiver != null) {
-            Log.d(TAG, "setupConnectionBroadcastReceiver: PAUSE LISTENER");
-            App.get().unregisterReceiver(mConnectivityBroadcastReceiver);
-            mConnectivityBroadcastReceiver = null;
-        }
-
-        mRoomDbManager.pauseListeners(mUserUid);
-    }
-
-    public void resumeListeners(RoomManager.StrokeUpdateListener strokeUpdateListener) {
-        mRoomDbManager.resumeListeners(mUserUid, strokeUpdateListener);
-    }
+  public void resumeListeners(RoomManager.StrokeUpdateListener strokeUpdateListener) {
+    mRoomDbManager.resumeListeners(mUserUid, strokeUpdateListener);
+  }
 
 }

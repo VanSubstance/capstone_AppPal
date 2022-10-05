@@ -372,7 +372,7 @@ public class DrawARActivity extends BaseActivity
     mPlaybackView.resume();
 
     mPairSessionManager.resumeListeners(this);
-    bClearDrawing.set(true);
+//    bClearDrawing.set(true);
     showStrokeDependentUI();
 
     // TODO: Only used id hidden by "Hide UI menu"
