@@ -62,20 +62,10 @@ public class LoginFragment extends Fragment {
     super.onSaveInstanceState(savedInstanceState);
   }
 
-  public LoginFragment newInstance() {
-    return new LoginFragment();
-  }
-
   private void init(View rootView) {
     signInButton = rootView.findViewById(R.id.login_button);
     mAuth = FirebaseAuth.getInstance();
 
-    // 다음에 로그인할때 자동으로 로그인 되는 코드
-//    if (mAuth.getCurrentUser() != null) {
-//      Intent intent = new Intent(getApplication(), DrawARActivity.class);
-//      startActivity(intent);
-//      finish();
-//    }
     //Configure Google Sign In
     GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
       .requestIdToken(getString(R.string.default_web_client_id))
@@ -112,6 +102,7 @@ public class LoginFragment extends Fragment {
         GoogleSignInAccount account = task.getResult(ApiException.class);
         firebaseAuthWithGoogle(account);
       } catch (ApiException e) {
+        ((OnBoardingActivity) getActivity()).finishLoading();
       }
     }
   }
