@@ -154,11 +154,7 @@ public class DrawARActivity extends BaseActivity
 
   private File mOutputFile;
 
-  private View mUndoButton;
-
   private TrackingIndicator mTrackingIndicator;
-
-  private View mClearDrawingButton;
 
   /*
    * Track number frames where we lose ARCore tracking. If we lose tracking for less than
@@ -240,11 +236,6 @@ public class DrawARActivity extends BaseActivity
     mTitleTextView.setText(GlobalState.currentRoomInfo.getTitle());
     mCodeTextView = findViewById(R.id.text_code);
     mCodeTextView.setText(GlobalState.currentRoomInfo.getRoomCode());
-
-    mClearDrawingButton = findViewById(R.id.menu_item_clear);
-    mClearDrawingButton.setOnClickListener(this);
-
-    mUndoButton = findViewById(R.id.undo_button);
 
     // set up draw settting selector
     mMenuSelector = findViewById(R.id.menu_selector);
@@ -1080,10 +1071,6 @@ public class DrawARActivity extends BaseActivity
     runOnUiThread(new Runnable() {
       @Override
       public void run() {
-        mUndoButton.setVisibility(GlobalState.currentStrokes.size() > 0 ? View.VISIBLE : View.GONE);
-        mClearDrawingButton.setVisibility(
-          (GlobalState.currentStrokes.size() > 0 || mSharedStrokes.size() > 0) ? View.VISIBLE
-            : View.GONE);
         mTrackingIndicator.setHasStrokes(GlobalState.currentStrokes.size() > 0);
       }
     });
@@ -1097,11 +1084,6 @@ public class DrawARActivity extends BaseActivity
 
   @Override
   public void onClick(View v) {
-    switch (v.getId()) {
-      case R.id.menu_item_clear:
-        onClickClear();
-        break;
-    }
     mMenuSelector.getBrushSelector().close();
     mMenuSelector.getToolSelector().close();
   }
