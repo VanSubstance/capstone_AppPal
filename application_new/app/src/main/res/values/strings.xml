@@ -110,7 +110,7 @@
         Try going back to\nwhere you started.</string>
 
   <!-- Draw prompt -->
-  <string name="draw_prompt">press your finger\nand move around</string>
+  <string name="draw_prompt">Make a gesture \nholding a pen gesture! </string>
   <string name="draw_prompt_paired">Start drawing with\nyour partner</string>
 
   <!-- Errors -->

@@ -15,8 +15,6 @@
 package com.capstone.apppal;
 
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Rect;
@@ -51,9 +49,7 @@ import com.capstone.apppal.view.dialog.ClearDrawingDialog;
 import com.capstone.apppal.view.dialog.ErrorDialog;
 import com.capstone.apppal.view.dialog.LeaveRoomDialog;
 import com.capstone.apppal.view.MenuSelector;
-import com.capstone.apppal.view.PlaybackView;
 import com.capstone.apppal.view.TrackingIndicator;
-import com.google.ar.core.Anchor;
 import com.google.ar.core.ArCoreApk;
 import com.google.ar.core.Config;
 import com.google.ar.core.Frame;
@@ -67,7 +63,6 @@ import com.uncorkedstudios.android.view.recordablesurfaceview.RecordableSurfaceV
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -85,8 +80,7 @@ import javax.vecmath.Vector3f;
 
 public class DrawARActivity extends BaseActivity
   implements RecordableSurfaceView.RendererCallbacks, View.OnClickListener,
-  ClearDrawingDialog.Listener, PlaybackView.Listener,
-  ErrorDialog.Listener, RoomManager.StrokeUpdateListener,
+  ClearDrawingDialog.Listener, ErrorDialog.Listener, RoomManager.StrokeUpdateListener,
   LeaveRoomDialog.Listener {
 
   private static final String TAG = "DrawARActivity";
@@ -174,8 +168,6 @@ public class DrawARActivity extends BaseActivity
 
   private int mFramesNotTracked = 0;
 
-  private PlaybackView mPlaybackView;
-
   private long mRenderDuration;
 
   private Map<String, Stroke> mSharedStrokes = new HashMap<>();
@@ -262,8 +254,6 @@ public class DrawARActivity extends BaseActivity
 
     touchQueueSize = new AtomicInteger(0);
     touchQueue = new AtomicReferenceArray<>(TOUCH_QUEUE_SIZE);
-
-    mPlaybackView = findViewById(R.id.playback);
 
     mDrawUiContainer = findViewById(R.id.draw_container);
 
@@ -367,10 +357,6 @@ public class DrawARActivity extends BaseActivity
     mScreenHeight = displayMetrics.heightPixels;
     mScreenWidth = displayMetrics.widthPixels;
 
-    mPlaybackView.setListener(this);
-
-    mPlaybackView.resume();
-
     mPairSessionManager.resumeListeners(this);
 //    bClearDrawing.set(true);
     showStrokeDependentUI();
@@ -394,11 +380,6 @@ public class DrawARActivity extends BaseActivity
     }
 
     mTrackingIndicator.resetTrackingTimeout();
-
-    if (mPlaybackView != null) {
-      mPlaybackView.pause();
-      mPlaybackView.setListener(null);
-    }
 
     SessionHelper.setSessionEnd(this);
 
@@ -965,12 +946,6 @@ public class DrawARActivity extends BaseActivity
     if (action == MotionEvent.ACTION_DOWN) {
       closeViewsOutsideTapTarget(tap);
     }
-
-    // do not accept touch events through the playback view
-    // or when we are not tracking
-    if (mPlaybackView.isOpen() || !mTrackingIndicator.isTracking()) {
-      return false;
-    }
     return false;
   }
 
@@ -1133,46 +1108,11 @@ public class DrawARActivity extends BaseActivity
 
   @Override
   public void onBackPressed() {
-    if (mPlaybackView.isOpen()) {
-      mPlaybackView.close();
-    } else if (mMode == Mode.PAIR_PARTNER_DISCOVERY || mMode == Mode.PAIR_ANCHOR_RESOLVING) {
+    if (mMode == Mode.PAIR_PARTNER_DISCOVERY || mMode == Mode.PAIR_ANCHOR_RESOLVING) {
       setMode(Mode.TOOL);
       mPairSessionManager.leaveRoom();
     } else {
       super.onBackPressed();
-    }
-  }
-
-  @Override
-  public void onWindowFocusChanged(boolean hasFocus) {
-    if (mPlaybackView == null || !mPlaybackView.isOpen()) {
-      super.onWindowFocusChanged(hasFocus);
-    }
-  }
-
-  @Override
-  public void onPlaybackClosed() {
-    showView(mDrawUiContainer);
-    showView(mTrackingIndicator);
-
-    setupImmersive();
-    prepareForRecording();
-  }
-
-  @Override
-  public void requestStoragePermission() {
-    PermissionHelper.requestStoragePermission(this, false);
-  }
-
-  @Override
-  public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                         @NonNull int[] grantResults) {
-
-    if (requestCode == PermissionHelper.REQUEST_CODE_STORAGE_PERMISSIONS) {
-      // send storage permissions result to playback view
-      mPlaybackView.onRequestPermissionsResult(requestCode, permissions, grantResults);
-    } else {
-      super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
   }
 

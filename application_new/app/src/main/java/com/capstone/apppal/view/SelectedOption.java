@@ -81,17 +81,14 @@ public class SelectedOption extends ConstraintLayout {
   public void setSelection(AppSettings.LineWidth lineWidth) {
     switch (lineWidth) {
       case SMALL:
-        mThicknessSelection.setScaleX(R.dimen.brush_scale_small);
-        mThicknessSelection.setScaleY(R.dimen.brush_scale_small);
+        mThicknessSelection.setImageResource(R.drawable.ic_brush_size_small);
         break;
       case MEDIUM:
-        mThicknessSelection.setScaleX(R.dimen.brush_scale_medium);
-        mThicknessSelection.setScaleY(R.dimen.brush_scale_medium);
+        mThicknessSelection.setImageResource(R.drawable.ic_brush_size_medium);
         break;
       default:
       case LARGE:
-        mThicknessSelection.setScaleX(R.dimen.brush_scale_large);
-        mThicknessSelection.setScaleY(R.dimen.brush_scale_large);
+        mThicknessSelection.setImageResource(R.drawable.ic_brush_size_option);
         break;
     }
   }

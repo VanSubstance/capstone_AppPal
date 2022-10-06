@@ -24,7 +24,6 @@ public class GlobalState {
   public final static int GESTURE_HISTORY_SIZE = 5;
   public final static int GESTURE_DECISION_SIZE = 4;
 
-  public static ArrayList<ArrayList<CoordinateInfo>> gestureTrackings = new ArrayList<>();
   public static InputStreamReader is;
   public static OutputStreamWriter os;
   public static ArrayList<GestureType> listGesture = new ArrayList<>();

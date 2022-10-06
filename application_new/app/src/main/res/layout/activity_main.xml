@@ -83,12 +83,6 @@
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toTopOf="parent" />
 
-  <com.capstone.apppal.view.PlaybackView
-    android:id="@+id/playback"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:visibility="gone" />
-
   <!--  <ProgressBar-->
   <!--    android:id="@+id/gesture_progress_bar"-->
   <!--    style="@android:style/Widget.ProgressBar.Horizontal"-->

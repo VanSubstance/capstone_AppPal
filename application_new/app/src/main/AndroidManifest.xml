@@ -86,17 +86,6 @@
                     android:resource="@xml/filepaths"/>
         </provider>
 
-        <activity
-                android:name="com.capstone.apppal.AboutActivity"
-                android:label="@string/title_activity_about"
-                android:screenOrientation="portrait"
-                android:theme="@style/Theme.AppCompat.NoActionBar"/>
-        <activity
-                android:name="com.capstone.apppal.LicensesActivity"
-                android:label="@string/title_third_party_licenses"
-                android:screenOrientation="portrait"
-                android:theme="@style/Theme.AppCompat.NoActionBar"/>
-
         <meta-data android:name="com.google.ar.core" android:value="required"/>
         <meta-data
                 android:name="com.google.android.ar.API_KEY"

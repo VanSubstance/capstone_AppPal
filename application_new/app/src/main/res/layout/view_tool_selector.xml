@@ -25,18 +25,18 @@
     android:id="@+id/tool_selection_pen"
     android:layout_width="@dimen/brush_input_frame"
     android:layout_height="@dimen/brush_input_frame"
-    android:clickable="true"
-    android:contentDescription="@string/content_description_tool_pen"
     android:layout_marginTop="20dp"
     android:layout_marginRight="20dp"
-    app:layout_constraintTop_toTopOf="parent"
-    app:layout_constraintRight_toRightOf="parent">
+    android:clickable="true"
+    android:contentDescription="@string/content_description_tool_pen"
+    app:layout_constraintRight_toRightOf="parent"
+    app:layout_constraintTop_toTopOf="parent">
 
     <ImageView
-      android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      android:layout_gravity="center"
-      android:src="@drawable/brush_option_bg"
+      android:layout_width="20dp"
+      android:layout_height="20dp"
+      android:layout_gravity="right"
+      android:src="@drawable/hand_5"
       tools:ignore="ContentDescription" />
 
     <ImageView
@@ -55,18 +55,18 @@
     android:id="@+id/tool_selection_line"
     android:layout_width="@dimen/brush_input_frame"
     android:layout_height="@dimen/brush_input_frame"
+    android:layout_marginTop="41dp"
+    android:layout_marginRight="109dp"
     android:clickable="true"
     android:contentDescription="@string/content_description_tool_line"
-    android:layout_marginRight="109dp"
-    android:layout_marginTop="41dp"
-    app:layout_constraintTop_toTopOf="parent"
-    app:layout_constraintRight_toRightOf="parent">
+    app:layout_constraintRight_toRightOf="parent"
+    app:layout_constraintTop_toTopOf="parent">
 
     <ImageView
-      android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      android:layout_gravity="center"
-      android:src="@drawable/brush_option_bg"
+      android:layout_width="20dp"
+      android:layout_height="20dp"
+      android:layout_gravity="right"
+      android:src="@drawable/hand_4"
       tools:ignore="ContentDescription" />
 
     <ImageView
@@ -85,18 +85,18 @@
     android:id="@+id/tool_selection_cube"
     android:layout_width="@dimen/brush_input_frame"
     android:layout_height="@dimen/brush_input_frame"
+    android:layout_marginTop="98dp"
+    android:layout_marginRight="202dp"
     android:clickable="true"
     android:contentDescription="@string/content_description_tool_cube"
-    android:layout_marginRight="202dp"
-    android:layout_marginTop="98dp"
-    app:layout_constraintTop_toTopOf="parent"
-    app:layout_constraintRight_toRightOf="parent">
+    app:layout_constraintRight_toRightOf="parent"
+    app:layout_constraintTop_toTopOf="parent">
 
     <ImageView
-      android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      android:layout_gravity="center"
-      android:src="@drawable/brush_option_bg"
+      android:layout_width="20dp"
+      android:layout_height="20dp"
+      android:layout_gravity="right"
+      android:src="@drawable/hand_3"
       tools:ignore="ContentDescription" />
 
     <ImageView
@@ -115,18 +115,18 @@
     android:id="@+id/tool_selection_rect"
     android:layout_width="@dimen/brush_input_frame"
     android:layout_height="@dimen/brush_input_frame"
+    android:layout_marginTop="181dp"
+    android:layout_marginRight="259dp"
     android:clickable="true"
     android:contentDescription="@string/content_description_tool_rectangle"
-    android:layout_marginRight="259dp"
-    android:layout_marginTop="181dp"
-    app:layout_constraintTop_toTopOf="parent"
-    app:layout_constraintRight_toRightOf="parent">
+    app:layout_constraintRight_toRightOf="parent"
+    app:layout_constraintTop_toTopOf="parent">
 
     <ImageView
-      android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      android:layout_gravity="center"
-      android:src="@drawable/brush_option_bg"
+      android:layout_width="20dp"
+      android:layout_height="20dp"
+      android:layout_gravity="right"
+      android:src="@drawable/hand_2"
       tools:ignore="ContentDescription" />
 
     <ImageView
@@ -145,18 +145,18 @@
     android:id="@+id/tool_selection_erase"
     android:layout_width="@dimen/brush_input_frame"
     android:layout_height="@dimen/brush_input_frame"
+    android:layout_marginTop="280dp"
+    android:layout_marginRight="280dp"
     android:clickable="true"
     android:contentDescription="@string/content_description_tool_erase"
-    android:layout_marginRight="280dp"
-    android:layout_marginTop="280dp"
-    app:layout_constraintTop_toTopOf="parent"
-    app:layout_constraintRight_toRightOf="parent">
+    app:layout_constraintRight_toRightOf="parent"
+    app:layout_constraintTop_toTopOf="parent">
 
     <ImageView
-      android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      android:layout_gravity="center"
-      android:src="@drawable/brush_option_bg"
+      android:layout_width="20dp"
+      android:layout_height="20dp"
+      android:layout_gravity="right"
+      android:src="@drawable/hand_1"
       tools:ignore="ContentDescription" />
 
     <ImageView

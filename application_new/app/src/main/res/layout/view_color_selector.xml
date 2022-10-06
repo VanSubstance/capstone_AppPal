@@ -32,12 +32,11 @@
     app:layout_constraintRight_toRightOf="parent"
     app:layout_constraintTop_toTopOf="parent">
 
-
     <ImageView
-      android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      android:layout_gravity="center"
-      android:src="@drawable/brush_option_bg"
+      android:layout_width="20dp"
+      android:layout_height="20dp"
+      android:layout_gravity="right"
+      android:src="@drawable/hand_5"
       tools:ignore="ContentDescription" />
 
     <ImageView
@@ -64,10 +63,10 @@
     app:layout_constraintTop_toTopOf="parent">
 
     <ImageView
-      android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      android:layout_gravity="center"
-      android:src="@drawable/brush_option_bg"
+      android:layout_width="20dp"
+      android:layout_height="20dp"
+      android:layout_gravity="right"
+      android:src="@drawable/hand_4"
       tools:ignore="ContentDescription" />
 
     <ImageView
@@ -94,10 +93,10 @@
     app:layout_constraintTop_toTopOf="parent">
 
     <ImageView
-      android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      android:layout_gravity="center"
-      android:src="@drawable/brush_option_bg"
+      android:layout_width="20dp"
+      android:layout_height="20dp"
+      android:layout_gravity="right"
+      android:src="@drawable/hand_3"
       tools:ignore="ContentDescription" />
 
     <ImageView
@@ -124,10 +123,10 @@
     app:layout_constraintTop_toTopOf="parent">
 
     <ImageView
-      android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      android:layout_gravity="center"
-      android:src="@drawable/brush_option_bg"
+      android:layout_width="20dp"
+      android:layout_height="20dp"
+      android:layout_gravity="right"
+      android:src="@drawable/hand_2"
       tools:ignore="ContentDescription" />
 
     <ImageView
@@ -154,10 +153,10 @@
     app:layout_constraintTop_toTopOf="parent">
 
     <ImageView
-      android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      android:layout_gravity="center"
-      android:src="@drawable/brush_option_bg"
+      android:layout_width="20dp"
+      android:layout_height="20dp"
+      android:layout_gravity="right"
+      android:src="@drawable/hand_1"
       tools:ignore="ContentDescription" />
 
     <ImageView
