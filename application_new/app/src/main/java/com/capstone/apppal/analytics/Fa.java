@@ -23,7 +23,7 @@ import androidx.annotation.Nullable;
 import com.capstone.apppal.App;
 import com.capstone.apppal.BuildConfig;
 import com.google.firebase.analytics.FirebaseAnalytics;
-import com.google.firebase.crash.FirebaseCrash;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 
 /**
@@ -36,6 +36,7 @@ public class Fa {
     private static Fa instance = null;
 
     private FirebaseAnalytics fa;
+    private FirebaseCrashlytics fc;
 
     public static Fa get() {
         if (instance == null) {
@@ -59,6 +60,7 @@ public class Fa {
 
             // cache reference to FirebaseAnalytics
             fa = FirebaseAnalytics.getInstance(App.get());
+            fc = FirebaseCrashlytics.getInstance();
 
         } else {
 
@@ -135,7 +137,7 @@ public class Fa {
         if (BuildConfig.DEBUG) {
             return;
         }
-        FirebaseCrash.report(throwable);
+        fc.recordException(throwable);
     }
 
     /**
@@ -147,8 +149,8 @@ public class Fa {
             return;
         }
 
-        FirebaseCrash.logcat(Log.WARN, TAG, logMessage);
-        FirebaseCrash.report(throwable);
+        fc.log(logMessage);
+        fc.recordException(throwable);
     }
 
     /**
