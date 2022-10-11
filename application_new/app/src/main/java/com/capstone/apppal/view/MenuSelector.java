@@ -16,6 +16,8 @@ package com.capstone.apppal.view;
 
 import android.animation.Animator;
 import android.content.Context;
+import android.os.Handler;
+import android.os.Message;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.Pair;
@@ -43,6 +45,7 @@ public class MenuSelector extends ConstraintLayout {
   private static final int TOOL = 0;
   private static final int COLOR = 1;
   private static final int THICKNESS = 2;
+  private final static int TOGGLE_VISIBILITY = 0;
 
   private static final Pair<Integer, AppSettings.MenuType> defaultMenu = new Pair<>(TOOL,
     AppSettings.MenuType.TOOL);
@@ -68,6 +71,15 @@ public class MenuSelector extends ConstraintLayout {
   private ColorSelector mColorSelector;
   private BrushSelector mBrushSelector;
   public SelectedOption mSelectedOption;
+
+  private Handler toggleHandler = new Handler() {
+    public void handleMessage(Message message) {
+      if (message.arg1 == TOGGLE_VISIBILITY) {
+        toggleMenuSelectorVisibility();
+      } else {
+      }
+    }
+  };
 
   public MenuSelector(Context context) {
     super(context);
@@ -131,7 +143,7 @@ public class MenuSelector extends ConstraintLayout {
             return;
           case FIVE:
             GlobalState.currentFunction = FunctionType.MAIN_MENU;
-            toggleMenuSelectorVisibility();
+            toggleVisibiltiyByHandler();
             return;
         }
         break;
@@ -172,12 +184,12 @@ public class MenuSelector extends ConstraintLayout {
         return;
     }
     onMenuSelected(menuType);
-    toggleMenuSelectorVisibility();
+    toggleVisibiltiyByHandler();
   }
 
   @Override
   public boolean performClick() {
-    toggleMenuSelectorVisibility();
+    toggleVisibiltiyByHandler();
     return super.performClick();
   }
 
@@ -294,7 +306,7 @@ public class MenuSelector extends ConstraintLayout {
 
   public void close() {
     if (mIsOpen) {
-      toggleMenuSelectorVisibility();
+      toggleVisibiltiyByHandler();
     }
   }
 
@@ -352,6 +364,12 @@ public class MenuSelector extends ConstraintLayout {
 
   public void setBrushSelector(BrushSelector mBrushSelector) {
     this.mBrushSelector = mBrushSelector;
+  }
+
+  private void toggleVisibiltiyByHandler() {
+    Message message = toggleHandler.obtainMessage();
+    message.arg1 = TOGGLE_VISIBILITY;
+    toggleHandler.sendMessage(message);
   }
 
 }
