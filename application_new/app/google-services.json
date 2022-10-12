@@ -1,0 +1,109 @@
+{
+  "project_info": {
+    "project_number": "684163927544",
+    "firebase_url": "https://capstone-apppal-default-rtdb.firebaseio.com",
+    "project_id": "capstone-apppal",
+    "storage_bucket": "capstone-apppal.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:684163927544:android:8ab602972545fa6e449a0d",
+        "android_client_info": {
+          "package_name": "com.capstone.apppal"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "684163927544-7uc0j11ehabti3eqc9it4tv1fsq1s18a.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.capstone.apppal",
+            "certificate_hash": "0f98b2e16ec4a99fa290c14d9c9591baf3f848f9"
+          }
+        },
+        {
+          "client_id": "684163927544-lvk9ohelu8oh44fi3gbvbu56ept8c5mk.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.capstone.apppal",
+            "certificate_hash": "c9de37a626689d84a601de9c36cdcbbc8457d1b3"
+          }
+        },
+        {
+          "client_id": "684163927544-p6k2gpcsjf2vno5jsrl2buirg9ipgjfu.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.capstone.apppal",
+            "certificate_hash": "a3cb6640a5f0e45ee2b4c9ab2e8dc6113b090bf4"
+          }
+        },
+        {
+          "client_id": "684163927544-trosj0m3ciepr6t5s6qqck9769mfvpt9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.capstone.apppal",
+            "certificate_hash": "a3eba14ed76f4cffb0def0757efd13efaf06da5b"
+          }
+        },
+        {
+          "client_id": "684163927544-ci4lke81qgd2cv4tvm0t94vbe5gj6beu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCHYJmEmpvzcU1fnZbJsDGy5nxlThYt4FI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "684163927544-ci4lke81qgd2cv4tvm0t94vbe5gj6beu.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:684163927544:android:7600c3f933f9f74f449a0d",
+        "android_client_info": {
+          "package_name": "com.example.apppal"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "684163927544-gtv6251hjg8kk1gfp6tjqpvpu0iqsqnm.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.apppal",
+            "certificate_hash": "a3eba14ed76f4cffb0def0757efd13efaf06da5b"
+          }
+        },
+        {
+          "client_id": "684163927544-ci4lke81qgd2cv4tvm0t94vbe5gj6beu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCHYJmEmpvzcU1fnZbJsDGy5nxlThYt4FI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "684163927544-ci4lke81qgd2cv4tvm0t94vbe5gj6beu.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
