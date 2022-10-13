@@ -628,6 +628,7 @@ public class DrawARActivity extends BaseActivity
         break;
     }
     isDrawing = true;
+    finishLoading();
   }
 
   /**
