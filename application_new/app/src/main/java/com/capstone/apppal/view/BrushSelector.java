@@ -26,6 +26,7 @@ import android.view.accessibility.AccessibilityEvent;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.capstone.apppal.AppSettings;
+import com.capstone.apppal.DrawARActivity;
 import com.capstone.apppal.R;
 import com.capstone.apppal.VO.GestureType;
 
@@ -278,6 +279,7 @@ public class BrushSelector extends ConstraintLayout {
       mMediumButton.setAccessibilityTraversalBefore(R.id.brush_selection_large);
     }
     mIsOpen = !mIsOpen;
+    DrawARActivity.finishLoading();
   }
 
   public AppSettings.LineWidth getSelectedLineWidth() {

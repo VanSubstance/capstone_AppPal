@@ -1177,6 +1177,7 @@ public class DrawARActivity extends BaseActivity
   }
 
   public static void finishLoading() {
+    GlobalState.listGesture.clear();
     Message message = loadingHandler.obtainMessage();
     message.arg1 = LOADING_DONE;
     loadingHandler.sendMessage(message);

@@ -331,6 +331,7 @@ public class ToolSelector extends ConstraintLayout {
       mStraightLineButton.setAccessibilityTraversalBefore(R.id.tool_selection_line);
     }
     mIsOpen = !mIsOpen;
+    DrawARActivity.finishLoading();
   }
 
   public AppSettings.ToolType getSelectedToolType() {

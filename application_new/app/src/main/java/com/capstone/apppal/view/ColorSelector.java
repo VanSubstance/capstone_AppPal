@@ -26,6 +26,7 @@ import android.widget.ImageView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.capstone.apppal.AppSettings;
+import com.capstone.apppal.DrawARActivity;
 import com.capstone.apppal.R;
 import com.capstone.apppal.VO.GestureType;
 
@@ -332,6 +333,7 @@ public class ColorSelector extends ConstraintLayout {
       mBlackButton.setAccessibilityTraversalBefore(R.id.color_selection_white);
     }
     mIsOpen = !mIsOpen;
+    DrawARActivity.finishLoading();
   }
 
   public AppSettings.ColorType getSelectedColorType() {

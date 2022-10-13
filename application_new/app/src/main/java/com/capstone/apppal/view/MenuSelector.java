@@ -27,6 +27,7 @@ import android.view.View;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.capstone.apppal.AppSettings;
+import com.capstone.apppal.DrawARActivity;
 import com.capstone.apppal.R;
 import com.capstone.apppal.VO.FunctionType;
 import com.capstone.apppal.VO.GestureType;
@@ -294,6 +295,7 @@ public class MenuSelector extends ConstraintLayout {
       mColorButton.setAccessibilityTraversalBefore(R.id.tool_button);
     }
     mIsOpen = !mIsOpen;
+    DrawARActivity.finishLoading();
   }
 
   public AppSettings.MenuType getSelectedMenuType() {

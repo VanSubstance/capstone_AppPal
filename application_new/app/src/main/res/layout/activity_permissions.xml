@@ -10,7 +10,7 @@
 
     <ImageView
             android:id="@+id/image"
-            android:src="@drawable/just_a_line_welcome_screen"
+            android:src="@drawable/apppal_splash"
             android:contentDescription="@string/content_description_jal_splash"
             android:layout_width="0dp"
             android:layout_height="0dp"
