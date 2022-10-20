@@ -171,17 +171,17 @@ public class MenuSelector extends ConstraintLayout {
       case TOOL_MENU:
         GlobalState.currentFunction = FunctionType.DRAWING;
         mToolSelector.handleMenu(nowGesture);
-        mSelectedOption.setSelection(mToolSelector.getSelectedToolType());
+        mSelectedOption.setSelectionByHandler(mToolSelector.getSelectedToolType());
         return;
       case COLOR_MENU:
         GlobalState.currentFunction = FunctionType.DRAWING;
         mColorSelector.handleMenu(nowGesture);
-        mSelectedOption.setSelection(mColorSelector.getSelectedColorType());
+        mSelectedOption.setSelectionByHandler(mColorSelector.getSelectedColorType());
         return;
       case THICKNESS_MENU:
         GlobalState.currentFunction = FunctionType.DRAWING;
         mBrushSelector.handleMenu(nowGesture);
-        mSelectedOption.setSelection(mBrushSelector.getSelectedLineWidth());
+        mSelectedOption.setSelectionByHandler(mBrushSelector.getSelectedLineWidth());
         return;
     }
     onMenuSelected(menuType);

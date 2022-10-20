@@ -1,6 +1,8 @@
 package com.capstone.apppal.view;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Message;
 import android.util.AttributeSet;
 import android.widget.ImageView;
 
@@ -13,6 +15,21 @@ public class SelectedOption extends ConstraintLayout {
   private ImageView mThicknessSelection;
   private ImageView mColorSelection;
   private ImageView mToolSelection;
+  private final static int TOGGLE_TOOL = 0;
+  private final static int TOGGLE_COLOR = 1;
+  private final static int TOGGLE_WIDTH = 2;
+
+  private Handler toggleHandler = new Handler() {
+    public void handleMessage(Message message) {
+      if (message.arg1 == TOGGLE_TOOL) {
+        setSelection((AppSettings.ToolType) message.obj);
+      } else if (message.arg1 == TOGGLE_COLOR) {
+        setSelection((AppSettings.ColorType) message.obj);
+      } else if (message.arg1 == TOGGLE_WIDTH) {
+        setSelection((AppSettings.LineWidth) message.obj);
+      }
+    }
+  };
 
   public SelectedOption(Context context) {
     super(context);
@@ -36,7 +53,7 @@ public class SelectedOption extends ConstraintLayout {
     mToolSelection = findViewById(R.id.tool_selection_img);
   }
 
-  public void setSelection(AppSettings.ToolType toolType) {
+  private void setSelection(AppSettings.ToolType toolType) {
     switch (toolType) {
       case ERASE:
         mToolSelection.setImageResource(R.drawable.ic_clear);
@@ -57,7 +74,7 @@ public class SelectedOption extends ConstraintLayout {
     }
   }
 
-  public void setSelection(AppSettings.ColorType colorType) {
+  private void setSelection(AppSettings.ColorType colorType) {
     switch (colorType) {
       case BLACK:
         mColorSelection.setImageResource(R.drawable.ic_color_black);
@@ -78,7 +95,7 @@ public class SelectedOption extends ConstraintLayout {
     }
   }
 
-  public void setSelection(AppSettings.LineWidth lineWidth) {
+  private void setSelection(AppSettings.LineWidth lineWidth) {
     switch (lineWidth) {
       case SMALL:
         mThicknessSelection.setImageResource(R.drawable.ic_brush_size_small);
@@ -91,5 +108,26 @@ public class SelectedOption extends ConstraintLayout {
         mThicknessSelection.setImageResource(R.drawable.ic_brush_size_option);
         break;
     }
+  }
+
+  public void setSelectionByHandler(AppSettings.ToolType var) {
+    Message message = toggleHandler.obtainMessage();
+    message.arg1 = TOGGLE_TOOL;
+    message.obj = var;
+    toggleHandler.sendMessage(message);
+  }
+
+  public void setSelectionByHandler(AppSettings.ColorType var) {
+    Message message = toggleHandler.obtainMessage();
+    message.arg1 = TOGGLE_COLOR;
+    message.obj = var;
+    toggleHandler.sendMessage(message);
+  }
+
+  public void setSelectionByHandler(AppSettings.LineWidth var) {
+    Message message = toggleHandler.obtainMessage();
+    message.arg1 = TOGGLE_WIDTH;
+    message.obj = var;
+    toggleHandler.sendMessage(message);
   }
 }
