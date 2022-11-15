@@ -9,7 +9,7 @@ from gestureRecognizer import recognize
 
 socketList = []
 
-Host = 'ec2-3-38-191-103.ap-northeast-2.compute.amazonaws.com'
+Host = '0.0.0.0'
 Port = 4000
 
 print('Socket Server for gesture recognition started')
